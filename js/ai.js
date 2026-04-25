@@ -154,6 +154,10 @@ class AIEngine {
         }
 
         // Turu bitir
-        this.state.nextTurn();
+        if (window.appMain) {
+            window.appMain.nextTurn();
+        } else {
+            this.state.nextTurn();
+        }
     }
 }

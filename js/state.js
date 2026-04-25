@@ -449,12 +449,7 @@ class GameState {
         this.addLog(`🔔 Sıra ${nextP.name} oyuncusunda.`, 'info');
         this.clearSelection();
         
-        if (nextP.isAI) {
-            this.updateVisibility();
-            if (window.appMain) window.appMain.ai.playTurn(nextP);
-        } else {
-            this.updateVisibility();
-        }
+        this.updateVisibility();
     }
 
     transitionToMove() {
