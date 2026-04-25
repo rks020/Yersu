@@ -297,7 +297,7 @@ class GameState {
             this.subPhase = 'move'; 
         } else {
             this.distributeResources(this.lastRoll);
-            this.subPhase = 'move';
+            this.subPhase = 'build'; // Üretimden sonra İnşa/Ticaret başlar
         }
         return this.lastRoll;
     }
@@ -434,7 +434,18 @@ class GameState {
         const nextP = this.players[this.currentPlayerIdx];
         this.resetTurnActions();
         
-        this.subPhase = 'production';
+        // Setup aşaması kontrolü: Eğer herkes köyünü ve askerini koyduysa Main'e geç
+        if (this.phase === 'setup') {
+            const allDone = this.players.every(pl => pl.settlements.length >= 1 && pl.units.length >= 1);
+            if (allDone) {
+                this.phase = 'Main';
+                this.addLog("⚔️ Kurulum tamamlandı! Ana aşama başlıyor.", "success");
+            }
+        }
+
+        // Setup aşamasında üretim (zar) yok, direkt aksiyona geçiyoruz
+        this.subPhase = (this.phase === 'setup') ? 'action' : 'production';
+        this.activeCombat = null; // Tur başında savaşı temizle
         this.addLog(`🔔 Sıra ${nextP.name} oyuncusunda.`, 'info');
         this.clearSelection();
         
@@ -443,6 +454,13 @@ class GameState {
             if (window.appMain) window.appMain.ai.playTurn(nextP);
         } else {
             this.updateVisibility();
+        }
+    }
+
+    transitionToMove() {
+        if (this.subPhase === 'build') {
+            this.subPhase = 'move';
+            this.addLog("🏇 İnşa aşaması bitti, hareket aşaması başladı.", "info");
         }
     }
 
@@ -515,9 +533,13 @@ class GameState {
 
     calculateDuelStrength(unit, player, node) {
         const data = UNIT_DATA[unit.type];
-        let strength = 0;
-        strength += Math.ceil(Math.random() * 6);
-        strength += (data.duel || 0);
+        
+        // Bir çift zar (2d6)
+        const d1 = Math.floor(Math.random() * 6) + 1;
+        const d2 = Math.floor(Math.random() * 6) + 1;
+        const rollTotal = d1 + d2;
+        
+        let strength = rollTotal + (data.duel || 0);
 
         if (node) {
             node.hexes.forEach(hid => {
@@ -533,18 +555,23 @@ class GameState {
                 }
             });
         }
-        return strength;
+        return { total: strength, rolls: [d1, d2] };
     }
 
-    resolveCombat(attackerUnit, attackerPlayer, targetNode) {
+    resolveCombat(attackerUnit, attackerPlayer, targetNode, targetUnitOverride = null) {
         const defenderPlayerId = targetNode.army.playerId;
         const defenderPlayer   = this.players.find(p => p.id === defenderPlayerId);
-        const defenderUnit     = targetNode.army.units[0];
+        
+        // Eğer hedef birim seçilmediyse ilki (en üstteki) varsayılan olur
+        const defenderUnit = targetUnitOverride || targetNode.army.units[0];
         
         if (!defenderUnit) return { winner: 'attacker', casualty: 'none' };
 
-        let aStr = this.calculateDuelStrength(attackerUnit, attackerPlayer, this.grid.nodes.get(attackerUnit.nodeId));
-        let dStr = this.calculateDuelStrength(defenderUnit, defenderPlayer, targetNode);
+        const aRes = this.calculateDuelStrength(attackerUnit, attackerPlayer, this.grid.nodes.get(attackerUnit.nodeId));
+        const dRes = this.calculateDuelStrength(defenderUnit, defenderPlayer, targetNode);
+        
+        let aStr = aRes.total;
+        let dStr = dRes.total;
 
         const aData = UNIT_DATA[attackerUnit.type];
         const dData = UNIT_DATA[defenderUnit.type];
@@ -552,7 +579,7 @@ class GameState {
         if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) aStr += 1;
         if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) dStr += 1;
 
-        this.addLog(`⚔️ ${attackerUnit.type} (${aStr}) vs ${defenderUnit.type} (${dStr})`, 'info');
+        this.addLog(`⚔️ ${attackerUnit.type} [${aRes.rolls}] (${aStr}) vs ${defenderUnit.type} [${dRes.rolls}] (${dStr})`, 'info');
 
         let winner = 'none';
         let casualty = 'none';

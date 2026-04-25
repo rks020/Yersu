@@ -243,9 +243,8 @@ class UI {
             if (clickedNode.army && clickedNode.army.playerId !== current.id && udata.range > 0) {
                 const res = this.actions.rangeAttack(current.id, unit.uid, clickedNode.id);
                 if (res) {
-                    this.showNotice("Menzilli saldırı gerçekleştirildi.", "info");
-                    this.showCombatReport(res);
                     this.showCombatAnimation(clickedNode, '🏹');
+                    this.showCombatReport(res);
                     this.state.clearSelection();
                     this.update();
                     return;
@@ -253,12 +252,12 @@ class UI {
             }
 
             const res = this.actions.moveUnit(current.id, unit.uid, clickedNode.id);
-            if (res === true || (res && typeof res === 'object')) {
-                if (res === true) {
+            if (res) {
+                if (res.type === 'move') {
                     this.showNotice("Birim hareket etti.", "info");
                 } else {
+                    this.showCombatAnimation(clickedNode, res.animation || '⚔️');
                     this.showCombatReport(res);
-                    this.showCombatAnimation(clickedNode, '⚔️');
                 }
                 
                 // Hala hareket puanı var mı?
@@ -356,16 +355,19 @@ class UI {
     handleRollDice() {
         if (this.state.subPhase !== 'production') return;
         const roll = this.state.rollProductionDice();
-        const gained = this.state.distributeResources(roll);
         this.state.addLog(`🎲 ${this.state.currentPlayer.name} zar attı: ${roll.d1} + ${roll.d2} = ${roll.total}`, 'info');
         this.showDiceModal(roll.total);
-        this.state.subPhase = 'action';
         this.update();
     }
 
     handleEndTurn() {
         if (this.state.subPhase === 'production') {
             this.showNotice("Önce üretim zarını atmalısınız!", "danger");
+            return;
+        }
+        if (this.state.subPhase === 'build') {
+            this.state.transitionToMove();
+            this.update();
             return;
         }
         if (window.appMain) window.appMain.nextTurn();
@@ -379,6 +381,7 @@ class UI {
         this._updatePanel();
         this._updateLogs();
         this._updateTurnUI();
+        this._updateActionButtons();
         this.renderer.render();
         this.checkPendingChoices();
     }
@@ -407,8 +410,9 @@ class UI {
 
     _updateTurnUI() {
         const p = this.state.currentPlayer;
-        const phase = this.state.phase === 'setup' ? 'Setup' : 'Main';
-        const sub   = this.state.subPhase === 'production' ? 'Üretim' : 'Eylem';
+        const sub   = (this.state.subPhase === 'production') ? 'Üretim' : 
+                      (this.state.subPhase === 'build') ? 'İnşa & Ticaret' :
+                      (this.state.subPhase === 'move') ? 'Hareket' : 'Eylem';
         
         if (this.els.turnIndicator) {
             this.els.turnIndicator.innerHTML = `
@@ -422,10 +426,29 @@ class UI {
         }
         if (this.els.endTurnBtn) {
             this.els.endTurnBtn.disabled = (this.state.subPhase === 'production' || p.isAI);
+            this.els.endTurnBtn.textContent = (this.state.subPhase === 'build') ? '⏭ Hareket Aşaması' : '🏁 Turu Bitir';
         }
         if (this.els.setupInstruction) {
             this.els.setupInstruction.style.display = (this.state.phase === 'setup' && !p.isAI) ? 'block' : 'none';
         }
+    }
+
+    _updateActionButtons() {
+        if (!this.els.actionMenu) return;
+        const p = this.state.currentPlayer;
+        const sub = this.state.subPhase;
+        const isMain = this.state.phase === 'Main' && !p.isAI;
+        
+        const buttons = this.els.actionMenu.querySelectorAll('.action-btn');
+        buttons.forEach(btn => {
+            const action = btn.dataset.action;
+            if (action === 'move_unit') {
+                btn.disabled = !isMain || sub !== 'move';
+            } else {
+                // Ticaret, Köy, Yol, Yapı, Asker (Bunlar inşa/ticaret aşamasında)
+                btn.disabled = !isMain || sub !== 'build';
+            }
+        });
     }
 
     _updatePanel() {
@@ -657,6 +680,56 @@ class UI {
         el.style.top  = `${sy}px`;
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 1200);
+    }
+
+    showCombatReport(res) {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        
+        const aUnit = res.attacker.unit;
+        const dUnit = res.defender.unit;
+        const aP = res.attacker.player;
+        const dP = res.defender.player;
+        
+        let resultText = "DÜELLO BERABERE!";
+        if (res.winner === 'attacker') resultText = `${aP.name.toUpperCase()} KAZANDI!`;
+        if (res.winner === 'defender') resultText = `${dP.name.toUpperCase()} KAZANDI!`;
+
+        overlay.innerHTML = `
+            <div class="combat-modal">
+                <h2 style="text-align:center; margin-bottom:10px;">${res.type === 'range' ? '🏹 MENZİLLİ SALDIRI' : '⚔️ MEYDAN SAVAŞI'}</h2>
+                <div class="combat-vs">
+                    <div class="combat-unit-card" style="border-color:${aP.color}">
+                        <h3>${aP.name}</h3>
+                        <div style="font-size:3rem; margin:10px 0;">${UNIT_DATA[aUnit.type].emoji}</div>
+                        <div style="font-weight:bold;">${UNIT_DATA[aUnit.type].name}</div>
+                        <div class="combat-dice-box">
+                             ${res.attacker.rolls ? res.attacker.rolls.map(v => `<div class="combat-die">${v}</div>`).join('') : ''}
+                        </div>
+                        <div style="margin-top:15px; font-size:1.2rem; font-weight:bold; color:var(--gold)">Toplam: ${res.attacker.str}</div>
+                    </div>
+                    
+                    <div style="font-size:2.5rem; font-family:var(--font-heading); color:var(--text-muted)">VS</div>
+                    
+                    <div class="combat-unit-card" style="border-color:${dP.color}">
+                        <h3>${dP.name}</h3>
+                        <div style="font-size:3rem; margin:10px 0;">${UNIT_DATA[dUnit.type].emoji}</div>
+                        <div style="font-weight:bold;">${UNIT_DATA[dUnit.type].name}</div>
+                        <div class="combat-dice-box">
+                             ${res.defender.rolls ? res.defender.rolls.map(v => `<div class="combat-die">${v}</div>`).join('') : ''}
+                        </div>
+                        <div style="margin-top:15px; font-size:1.2rem; font-weight:bold; color:var(--gold)">Toplam: ${res.defender.str}</div>
+                    </div>
+                </div>
+                
+                <div class="combat-result-text" style="color:${res.winner === 'attacker' ? aP.color : (res.winner === 'defender' ? dP.color : 'white')}">${resultText}</div>
+                
+                <button class="combat-close-btn">TAMAM</button>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        overlay.querySelector('.combat-close-btn').onclick = () => overlay.remove();
     }
 
     showBiomeDetail(hex, x, y) {

@@ -232,6 +232,28 @@ class HexGrid {
             return (e.node1 === n1 && e.node2 === n2) || (e.node1 === n2 && e.node2 === n1);
         });
     }
+    getDistance(startNodeId, endNodeId) {
+        if (startNodeId === endNodeId) return 0;
+        
+        const queue = [{ id: startNodeId, d: 0 }];
+        const visited = new Set([startNodeId]);
+        
+        while (queue.length > 0) {
+            const { id, d } = queue.shift();
+            const node = this.nodes.get(id);
+            
+            for (const neighborId of node.adjacentNodes) {
+                if (neighborId === endNodeId) return d + 1;
+                if (!visited.has(neighborId)) {
+                    visited.add(neighborId);
+                    queue.push({ id: neighborId, d: d + 1 });
+                }
+            }
+            // Limit search for performance
+            if (d > 5) break; 
+        }
+        return 999;
+    }
 
     // ── Pixel Arama Fonksiyonları ─────────────────────────────────
 

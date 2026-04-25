@@ -605,3 +605,72 @@ canvas {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+/* ── Savaş Modalı ── */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+.combat-modal {
+    background: var(--bg-panel-solid);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    padding: 30px;
+    width: 600px;
+    box-shadow: 0 0 50px rgba(201, 162, 39, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.combat-vs {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.combat-unit-card {
+    text-align: center;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    width: 40%;
+}
+.combat-dice-box {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+}
+.combat-die {
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.combat-result-text {
+    text-align: center;
+    font-size: 1.5rem;
+    font-family: var(--font-heading);
+    margin: 10px 0;
+}
+.combat-close-btn {
+    align-self: center;
+    padding: 10px 30px;
+    background: var(--gold);
+    color: black;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
