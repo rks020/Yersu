@@ -193,33 +193,33 @@ class Renderer {
             const player = this.state.players.find(p => p.id === edge.road);
             if (!player) return;
 
-            // Dış çerçeve (çok kalın siyah kenar)
+            // Dış çerçeve (siyah kenar)
             ctx.beginPath();
             ctx.moveTo(n1.x, n1.y);
             ctx.lineTo(n2.x, n2.y);
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth   = 12; // 9'dan 12'ye çıkarıldı
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth   = 10;
             ctx.lineCap     = 'round';
             ctx.stroke();
 
-            // Ana renk (oyuncu rengi + glow)
+            // Ana renk (oyuncu rengi)
             ctx.beginPath();
             ctx.moveTo(n1.x, n1.y);
             ctx.lineTo(n2.x, n2.y);
             ctx.strokeStyle = player.color;
-            ctx.lineWidth   = 8; // 6'dan 8'e çıkarıldı
+            ctx.lineWidth   = 6;
             ctx.lineCap     = 'round';
             ctx.shadowColor = player.color;
-            ctx.shadowBlur  = 12; // 8'den 12'ye çıkarıldı
+            ctx.shadowBlur  = 8;
             ctx.stroke();
             ctx.shadowBlur  = 0;
 
-            // Ortadaki çok parlak çizgi (bembeyaz)
+            // Ortadaki parlak çizgi
             ctx.beginPath();
             ctx.moveTo(n1.x, n1.y);
             ctx.lineTo(n2.x, n2.y);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)'; // 0.35'ten 0.7'ye çıkarıldı
-            ctx.lineWidth   = 3; // 2'den 3'e çıkarıldı
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth   = 2;
             ctx.stroke();
         });
     }
@@ -229,12 +229,13 @@ class Renderer {
     _drawNodes() {
         const ctx = this.ctx;
         this.state.grid.nodes.forEach(node => {
+            // Küçük, belirgin yuvarlaklar
             ctx.beginPath();
-            ctx.arc(node.x, node.y, 6, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(245, 232, 193, 0.5)';
+            ctx.arc(node.x, node.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#f5e8c1'; // Solid renk
             ctx.fill();
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 1.5;
             ctx.stroke();
         });
     }

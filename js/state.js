@@ -243,36 +243,30 @@ class GameState {
             if (hex.number !== total) return;
             if (hex.resources.length === 0) return;
 
-            const targets = [hex.id, ...hex.adjacentHexes];
-            
-            targets.forEach(hid => {
-                const targetHex = this.grid.hexes.get(hid);
-                if (!targetHex || !targetHex.settlement) return;
-                
-                const owner = this.players.find(p => p.id === targetHex.settlement.playerId);
+            // Yeni Kural: Sadece o hex üzerinde yerleşimi olan oyuncu kaynak alır (komşu hexler yok)
+            if (hex.settlement) {
+                const owner = this.players.find(p => p.id === hex.settlement.playerId);
                 if (owner) {
                     hex.resources.forEach(res => {
-                        const settl = targetHex.settlement;
-                        let amount = (settl.type === 'koy') ? 1 : ((settl.type === 'sehir' || settl.type === 'metropol') ? 2 : 1);
-                        if (res === 'besin' && settl.buildings.has('ciftlik')) amount += 1;
+                        // Yeni Kural: Sabit 3 kaynak (şehir/metropol farketmeksizin, şimdilik basit tutuyoruz)
+                        let amount = 3; 
+                        
+                        // Çiftlik bonusu (eğer istenirse korunabilir)
+                        if (res === 'besin' && hex.settlement.buildings.has('ciftlik')) amount += 1;
+                        
                         owner.gain(res, amount);
                         gained.push({ playerId: owner.id, res, amount });
                     });
                 }
-            });
+            }
         });
 
+        // Pasif kaynakları koruyoruz (oyun akışı için) veya gerekirse azaltılabilir
         this.players.forEach(p => {
             if (p.bonusState.ciftlikResPerTurn > 0) {
                 p.gain('besin', p.bonusState.ciftlikResPerTurn);
                 gained.push({ playerId: p.id, res: 'besin', amount: p.bonusState.ciftlikResPerTurn });
             }
-            p.gain('besin', 1);
-            p.gain('odun', 1);
-            p.gain('tas', 1);
-            gained.push({ playerId: p.id, res: 'besin', amount: 1 });
-            gained.push({ playerId: p.id, res: 'odun', amount: 1 });
-            gained.push({ playerId: p.id, res: 'tas', amount: 1 });
         });
 
         return gained;
