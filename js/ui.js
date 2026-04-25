@@ -417,7 +417,7 @@ class UI {
         if (this.els.turnIndicator) {
             this.els.turnIndicator.innerHTML = `
                 <span style="color:${p.color}">●</span> ${p.name} 
-                <small>(${phase} - ${sub})</small>
+                <small>(${this.state.phase} - ${sub})</small>
             `;
         }
 
