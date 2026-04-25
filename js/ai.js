@@ -16,6 +16,11 @@ class AIEngine {
         console.log(`🤖 AI (${player.name}) Düşünüyor...`);
 
         setTimeout(() => {
+            if (this.checkChoices(player)) {
+                setTimeout(() => this.takeTurn(), 500);
+                return;
+            }
+
             if (this.state.phase === 'setup') {
                 this.doSetupTurn(player);
             } else {
@@ -26,29 +31,54 @@ class AIEngine {
         return true;
     }
 
+    checkChoices(player) {
+        if (player.pendingChoices.length > 0) {
+            const choice = player.pendingChoices.shift();
+            const pick = Math.random() > 0.5 ? 'A' : 'B';
+            this.actions.chooseBonus(player.id, choice.type, choice.level, pick);
+            return true;
+        }
+        return false;
+    }
+
     doSetupTurn(player) {
-        if (!player.setupDone) {
-            const buildableHexes = this.state.grid.getBuildableSettlementHexes(player.id, true);
-            if (buildableHexes.length > 0) {
-                const chosenHexId = buildableHexes[Math.floor(Math.random() * buildableHexes.length)];
-                this.actions.setupSettleVillage(player.id, chosenHexId);
+        if (this.state.subPhase === 'production') {
+            this.state.rollProductionDice();
+            setTimeout(() => this.doSetupTurn(player), 1000);
+            return;
+        }
+
+        if (this.state.subPhase === 'move') {
+            if (!player.setupDone) {
+                const unit = player.units[0];
+                if (unit) {
+                    const adjacentHexes = this.state.grid.getHexesAdjacentToNode(unit.nodeId);
+                    const buildable = adjacentHexes.filter(hid => this.state.isHexBuildable(hid));
+                    
+                    if (buildable.length > 0) {
+                        if (this.actions.buildVillage(player.id, buildable[0])) {
+                             this.state.nextTurn();
+                             return;
+                        }
+                    } 
+                    
+                    if (player.movesLeft > 0) {
+                        const neighbors = this.state.grid.getNodeNeighbors(unit.nodeId);
+                        const targetNode = neighbors[Math.floor(Math.random() * neighbors.length)];
+                        this.actions.moveUnit(player.id, unit.uid, targetNode);
+                        setTimeout(() => this.doSetupTurn(player), 500);
+                        return;
+                    }
+                }
             }
         }
 
-        const villageId = player.settlements[0];
-        if (villageId) {
-            this.actions.setupPlaceInitialUnit(player.id, villageId);
-        }
-
-        if (window.appMain) window.appMain.nextTurn();
-        else this.state.nextTurn();
+        this.state.nextTurn();
     }
 
     doMainTurn(player) {
         if (this.state.subPhase === 'production') {
-            const roll = this.state.rollProductionDice();
-            this.state.distributeResources(roll);
-            this.state.subPhase = 'action';
+            this.state.rollProductionDice();
             setTimeout(() => this.doMainTurn(player), 500);
             return;
         }
@@ -94,7 +124,7 @@ class AIEngine {
         }
 
         // 4. Asker Üret
-        if (player.gold >= 2 && player.units.length < player.maxPopulation) {
+        if (player.resources.gold >= 2 && player.units.length < player.maxPopulation) {
            if (player.settlements.length > 0) {
               const sid = player.settlements[Math.floor(Math.random() * player.settlements.length)];
               if(this.actions.trainUnit(player.id, 'kilicli', sid)) {
@@ -105,7 +135,6 @@ class AIEngine {
         }
 
         // Turu bitir
-        if (window.appMain) window.appMain.nextTurn();
-        else this.state.nextTurn();
+        this.state.nextTurn();
     }
 }

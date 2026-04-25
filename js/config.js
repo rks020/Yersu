@@ -50,15 +50,15 @@ const ALL_BUILDINGS = ['ciftlik', 'kisla', 'kervansaray', 'tapinak', 'muhendisha
 
 // ==================== ASKERİ BİRİMLER ====================
 const UNIT_DATA = {
-    mizrakci:     { name: 'Mızrakçı',    cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 0, siege: 0, special: 'anti_cavalry', emoji: '🗡️'  },
-    kilicli:      { name: 'Kılıçlı',     cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 0, siege: 0, special: 'anti_infantry', emoji: '⚔️'  },
-    okcu:         { name: 'Okçu',         cls: 'piyade',  gold: 2, duel: -1, range: 1, speed: 0, siege: 0, special: null,            emoji: '🏹'  },
-    sovalye:      { name: 'Şövalye',      cls: 'suvari',  gold: 4, duel: 2,  range: 0, speed: 0, siege: 0, special: null,            emoji: '🐴'  },
-    hafif_suvari: { name: 'Hafif Süvari', cls: 'suvari',  gold: 3, duel: 0,  range: 0, speed: 1, siege: 0, special: null,            emoji: '🏇'  },
-    atli_okcu:    { name: 'Atlı Okçu',    cls: 'suvari',  gold: 3, duel: -1, range: 1, speed: 1, siege: 0, special: null,            emoji: '🎯'  },
-    kocbasi:      { name: 'Koçbaşı',      cls: 'kusatma', gold: 3, duel: -3, range: 0, speed: 0, siege: 1, special: 'no_attack',     emoji: '🐏'  },
-    mancinik:     { name: 'Mancınık',     cls: 'kusatma', gold: 4, duel: -3, range: 1, speed: 0, siege: 1, special: null,            emoji: '💥'  },
-    topcu:        { name: 'Topçu',        cls: 'kusatma', gold: 5, duel: -2, range: 0, speed: 0, siege: 1, special: 'multi_2',       emoji: '💣'  },
+    mizrakci:     { name: 'Mızrakçı',    cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 2, siege: 0, special: 'anti_cavalry',  duelBonusVs: 'suvari', emoji: '🗡️'  },
+    kilicli:      { name: 'Kılıçlı',     cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 2, siege: 0, special: 'anti_infantry', duelBonusVs: 'piyade', emoji: '⚔️'  },
+    okcu:         { name: 'Okçu',         cls: 'piyade',  gold: 2, duel: -1, range: 1, speed: 2, siege: 0, special: null,                                   emoji: '🏹'  },
+    sovalye:      { name: 'Şövalye',      cls: 'suvari',  gold: 4, duel: 2,  range: 0, speed: 4, siege: 0, special: null,                                   emoji: '🐴'  },
+    hafif_suvari: { name: 'Hafif Süvari', cls: 'suvari',  gold: 3, duel: 0,  range: 0, speed: 5, siege: 0, special: null,                                   emoji: '🏇'  },
+    atli_okcu:    { name: 'Atlı Okçu',    cls: 'suvari',  gold: 3, duel: -1, range: 1, speed: 5, siege: 0, special: null,                                   emoji: '🎯'  },
+    kocbasi:      { name: 'Koçbaşı',      cls: 'kusatma', gold: 3, duel: -3, range: 0, speed: 1, siege: 1, special: 'no_attack',                            emoji: '🐏'  },
+    mancinik:     { name: 'Mancınık',     cls: 'kusatma', gold: 4, duel: -3, range: 1, speed: 1, siege: 1, special: null,                                   emoji: '💥'  },
+    topcu:        { name: 'Topçu',        cls: 'kusatma', gold: 5, duel: -2, range: 0, speed: 1, siege: 1, special: 'multi_2',                              emoji: '💣'  },
 };
 
 const UNIT_CLASSES = {
@@ -105,40 +105,41 @@ const VP = {
     koy:      1,
     sehir:    2,
     metropol: 3,
-    bitirenOyuncu: 3,
+    finisher: 3,
     ciftlikLv3First: 3,
+    // Diğerleri dinamik hesaplanacak
 };
 
 // ==================== YAPI BONUSLARI (açıklama) ====================
 const BUILDING_BONUSES = {
     ciftlik: {
-        1: ['Üretim zarı bu yerleşime denk gelirse +1 Besin (biyomdan bağımsız)'],
-        2: ['(A) Her tur +1 Besin', '(B) Çiftlik inşa maliyeti -1'],
-        3: ['(A) Asker popülasyonu +2', '(B) Bu yerleşim için kuşatma puanı +1'],
+        1: ['Üretim zarı denk gelirse +1 Besin (biyomdan bağımsız)'],
+        2: ['(A) Her tur +1 Besin', '(B) Çiftlik inşa maliyeti tüm kaynaklarda -1'],
+        3: ['(A) Asker popülasyonu +2', '(B) Çiftlikli yerleşimlerde kuşatma puanı +1'],
     },
     kervansaray: {
-        1: ['Yol maliyet -1 (kaynak seçimli)'],
-        2: ['(A) 1 Altın → 3 Temel Kaynak', '(B) Yolundan geçen rakip oyuncudan 1 kaynak al'],
-        3: ['(A) Her tur kasadan 1 kaynak', '(B) Başkası ticaret yapınca 1 kaynak al'],
+        1: ['Yol maliyeti -1 (Kaynağı oyuncu seçer)'],
+        2: ['(A) 1 Altın → 3 Temel Kaynak', '(B) Yolunuzdan geçenden 1 kaynak al (Saldırı hariç)'],
+        3: ['(A) Her tur kasadan seçtiğin 1 kaynak', '(B) Başkası ticaret yapınca kasadan 1 kaynak al'],
     },
     muhendishane: {
         1: ['Kuşatma birimleri üretilebilir'],
-        2: ['(A) Topçu menzil +1', '(B) Hex kaynaklarını değiştirebilirsin'],
-        3: ['(A) Mühendishane hex kuşatma puanı +1', '(B) Kuşatmada mancınık/topçu yok edilemez'],
+        2: ['(A) Topçu menzil +1', '(B) Üretimden önce hex kaynak rakamını değiştirebilme'],
+        3: ['(A) Mühendishaneli yerleşimlerde kuşatma puanı +1', '(B) Kuşatmada mancınık/topçu yok edilemez'],
     },
     tiyatro: {
-        1: ['Bu şehirdeki diğer yapı maliyeti -1'],
-        2: ['(A) 5 tur kuşatmaya dayanılırsa 1 düşman asker taraf değiştirir', '(B) Her ticarette kasadan +1 kaynak'],
-        3: ['(A) Kuşatma puanı -1 azalır', '(B) Kazanılan düello: düşman ölmek yerine taraf değiştirir'],
+        1: ['Tiyatrolu yerleşimde diğer yapılar -1 kaynak (Seçimli)'],
+        2: ['(A) 5 tur kuşatmaya dayanılırsa 1 düşman taraf değiştirir', '(B) Her ticarette kasadan 1 kaynak al'],
+        3: ['(A) Hedef kuşatma puanı -1 azalır', '(B) Düello kazanınca düşman taraf değiştirir (1 kez)'],
     },
     kisla: {
         1: ['Mızrakçı, Kılıçlı ve Okçu düello zarı +1'],
         2: ['(A) Hafif Süvari ve Atlı Okçu patikada +1 hız', '(B) Şövalye düello zarı +1'],
-        3: ['(A) Ölen birimleri -1 altınla dirilit', '(B) Turda bir kez yeniden zar at'],
+        3: ['(A) Ölen birimleri -1 altınla dirilt', '(B) Düelloda 1 kez yeniden zar at'],
     },
     tapinak: {
         1: ['Kuşatma altındaki yerleşim askerleri düello +1'],
-        2: ['(A) Rakip kuşatma zarı -1', '(B) Berabere kalsan da düelloyu kazanmış sayılırsın'],
-        3: ['(A) Şövalye altın maliyeti -1', '(B) Ölen 1 birimi tapınaklı yerleşimde bedelsiz dirilit'],
+        2: ['(A) Rakip kuşatma zarı -1', '(B) Berabere kalsa da düelloyu kazanan sayıl'],
+        3: ['(A) Şövalye altın maliyeti -1', '(B) Ölen 1 birim tapınaklı yerde bedelsiz dirilir'],
     },
 };

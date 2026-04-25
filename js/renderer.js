@@ -172,12 +172,24 @@ class Renderer {
             ctx.fill();
             ctx.strokeStyle = '#fff';
             ctx.lineWidth   = 2.5;
-            ctx.shadowColor = pColor;
-            ctx.shadowBlur  = 15 + pulse * 15;
             ctx.stroke();
-            ctx.shadowBlur  = 0;
             ctx.globalAlpha = 1.0;
         });
+
+        // Menzil vurgusu (Range highlights)
+        if (this.state.rangeHighlightedNodes) {
+            this.state.rangeHighlightedNodes.forEach(nid => {
+                const n = this.state.grid.nodes.get(nid);
+                if (!n) return;
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, 16 + pulse * 4, 0, Math.PI * 2);
+                ctx.strokeStyle = '#ff1744'; 
+                ctx.lineWidth   = 3 + pulse * 2;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+        }
     }
 
     // ── Yollar ────────────────────────────────────────────────────
@@ -246,23 +258,23 @@ class Renderer {
         const ctx = this.ctx;
         const s   = this.state.grid.hexSize;
 
-        this.state.grid.hexes.forEach(hex => {
-            if (!hex.army || hex.army.units.length === 0) return;
-            const player = this.state.players.find(p => p.id === hex.army.playerId);
+        this.state.grid.nodes.forEach(node => {
+            if (!node.army || node.army.units.length === 0) return;
+            const player = this.state.players.find(p => p.id === node.army.playerId);
             if (!player) return;
 
-            const isSelected = this.state.selectedUnitHex === hex.id;
-            const r = s * 0.28;
+            const isSelected = this.state.selectedUnitNode === node.id;
+            const r = 12; // Düğme üzerinde daha küçük bir daire
 
-            // Gölge
+            // Gölge / Highlight
             ctx.beginPath();
-            ctx.arc(hex.x, hex.y, r + 3, 0, Math.PI * 2);
+            ctx.arc(node.x, node.y, r + 2, 0, Math.PI * 2);
             ctx.fillStyle = isSelected ? '#ffd700' : 'rgba(0,0,0,0.5)';
             ctx.fill();
 
             // Ana daire
             ctx.beginPath();
-            ctx.arc(hex.x, hex.y, r, 0, Math.PI * 2);
+            ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
             ctx.fillStyle   = player.color;
             ctx.fill();
             ctx.strokeStyle = isSelected ? '#fff' : 'rgba(255,255,255,0.5)';
@@ -270,18 +282,26 @@ class Renderer {
             ctx.stroke();
 
             // Birim sayısı
-            const count = hex.army.units.length;
+            const count = node.army.units.length;
             ctx.fillStyle    = '#fff';
-            ctx.font         = `bold ${Math.round(s * 0.2)}px Georgia, serif`;
+            ctx.font         = `bold 11px Georgia, serif`;
             ctx.textAlign    = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(count > 9 ? '9+' : count, hex.x, hex.y);
+            ctx.fillText(count > 9 ? '9+' : count, node.x, node.y);
+
+            // Hareket puanı göstergesi
+            const unit = node.army.units[0];
+            if (unit && unit.movesLeft !== undefined && player.id === this.state.currentPlayer.id) {
+                ctx.font = 'bold 9px sans-serif';
+                ctx.fillStyle = '#ffeb3b'; // Sarımsı bir renk
+                ctx.fillText(`MP:${unit.movesLeft}`, node.x, node.y + r + 8);
+            }
 
             // Kuşatma göstergesi
-            const hasSiege = hex.army.units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma');
+            const hasSiege = node.army.units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma');
             if (hasSiege) {
-                ctx.font = `${Math.round(s * 0.16)}px serif`;
-                ctx.fillText('💥', hex.x + r * 0.7, hex.y - r * 0.7);
+                ctx.font = `12px serif`;
+                ctx.fillText('💥', node.x + r * 0.7, node.y - r * 0.7);
             }
         });
     }
@@ -323,7 +343,7 @@ class Renderer {
             ctx.textBaseline = 'middle';
             ctx.shadowColor  = color;
             ctx.shadowBlur   = 12;
-            ctx.fillText(icon, hex.x, hex.y);
+            ctx.fillText(icon, hex.x, hex.y - 12); // Yukarı kaydırıldı (numarayı kapatmaması için)
             ctx.restore();
 
             // Renk halkası

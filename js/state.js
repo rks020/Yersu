@@ -17,14 +17,18 @@ class Player {
             odun:  0,
             tas:   0,
             kil:   0,
-            maden: 0
+            maden: 0,
+            gold:  0
         };
-        this.gold = 0;
         
         // Mülkiyet
         this.settlements = []; // hexId listesi
         this.roads       = []; // edgeId listesi
-        this.units       = []; // units [ { uid, type, hexId, hp, moved } ]
+        this.units       = []; // units listesi
+        this.buildingCounts = {}; 
+        this.chosenBonuses = {};  // { type: { level: 'A'|'B' } }
+        this.pendingChoices = []; // [ { type, level } ]
+        this.isFinisher = false;
 
         // Bonuslar (Binalardan gelen pasif etkiler)
         this.bonusState = {
@@ -55,7 +59,14 @@ class Player {
             gameEnder:           false,
         };
 
-        this.rerollUsedThisTurn = false;
+        this.firstToLv3 = {
+            ciftlik: null,
+            kisla: null,
+            kervansaray: null,
+            tapinak: null,
+            tiyatro: null,
+            muhendishane: null
+        };
         this.setupDone = false; 
         this.actionsDoneThisTurn = new Set();
     }
@@ -116,7 +127,7 @@ class GameState {
         this.turn              = 1;
         this.currentPlayerIdx  = 0;
         this.phase             = 'setup';
-        this.subPhase          = 'move';  
+        this.subPhase          = 'production';  
 
         this.lastRoll          = null; 
         this.sieges            = {};
@@ -129,6 +140,7 @@ class GameState {
         this.highlightedHexes  = new Set();
         this.highlightedNodes  = new Set();
         this.highlightedEdges  = new Set();
+        this.rangeHighlightedNodes = new Set();
         this.actionMode        = null; 
 
         this.selectedBuilding  = null;
@@ -138,6 +150,28 @@ class GameState {
         this.resetTurnActions();
         this.discoveredHexes = new Set();
         this.initDiscovery();
+        this.initSetupPositions();
+    }
+
+    initSetupPositions() {
+        const corners = this.grid.getCornerNodes(this.players.length);
+        this.players.forEach((p, i) => {
+            const nodeId = corners[i];
+            const uid = p.nextUnitId();
+            const unit = { 
+                uid, 
+                type: 'kilicli', 
+                hp: 1, 
+                movesLeft: 0, 
+                nodeId: nodeId 
+            };
+            p.units.push(unit);
+            const node = this.grid.nodes.get(nodeId);
+            if (node) {
+                node.army = { playerId: p.id, units: [{ uid, type: 'kilicli', hp: 1, movesLeft: 0 }] };
+            }
+        });
+        this.addLog("Harita köşelerine başlangıç birlikleri yerleştirildi.", "info");
     }
 
     get currentPlayer() { return this.players[this.currentPlayerIdx]; }
@@ -163,16 +197,23 @@ class GameState {
             const hex = this.grid.hexes.get(hid);
             if (!hex || !hex.settlement) return;
             const t = hex.settlement.type;
-            if (t === 'koy')      base += 2;
-            if (t === 'sehir')    base += 4;
-            if (t === 'metropol') base += 6;
+            if (t === 'koy')      base += 1;
+            if (t === 'sehir')    base += 2;
+            if (t === 'metropol') base += 3;
         });
         player._basePopFromSettlements = base;
-        player.maxPopulation = Math.min(MAX_POPULATION, player._basePopFromSettlements + player.bonusState.ciftlikPopBonus);
+        
+        // Çiftlik Seviye 3A bonusu (+2 Pop)
+        let bonusPop = 0;
+        if (player.buildingCounts.ciftlik >= 4) bonusPop = 2; // Basitleştirme: Eğer 3. seviye ise +2
+        
+        player.maxPopulation = Math.min(16, player._basePopFromSettlements + bonusPop);
     }
 
     recalcBuildings(player) {
+        const oldCounts = {...(player.buildingCounts || {})};
         const counts = { ciftlik: 0, kisla: 0, kervansaray: 0, tapinak: 0, muhendishane: 0, tiyatro: 0 };
+        
         player.settlements.forEach(hid => {
             const hex = this.grid.hexes.get(hid);
             if (!hex || !hex.settlement) return;
@@ -180,6 +221,25 @@ class GameState {
                 if (counts[b] !== undefined) counts[b]++;
             });
         });
+
+        const getLv = (c) => (c >= 4 ? 3 : (c >= 2 ? 2 : (c >= 1 ? 1 : 0)));
+
+        ALL_BUILDINGS.forEach(b => {
+            const oldLv = getLv(oldCounts[b] || 0);
+            const newLv = getLv(counts[b]);
+            
+            if (newLv > oldLv && newLv > 1) {
+                // Sadece 2 ve 3. seviye için seçim gerekir
+                player.pendingChoices.push({ type: b, level: newLv });
+            }
+
+            if (!this.firstToLv3[b] && counts[b] >= 4) {
+                this.firstToLv3[b] = player.id;
+                this.addLog(`🏆 ${player.name} ${BUILDING_NAMES[b]} yapısını 3. seviyeye ulaştıran İLK oyuncu oldu!`, 'success');
+            }
+        });
+
+        player.buildingCounts = counts; 
         player.buildings = counts;
     }
 
@@ -189,39 +249,39 @@ class GameState {
         player.settlements.forEach(hid => {
             const hex = this.grid.hexes.get(hid);
             if (!hex || !hex.settlement) return;
-            const t = hex.settlement.type;
-            vp += VP[t] || 0;
+            vp += VP[hex.settlement.type] || 0;
         });
 
-        if (player.achievements.gameEnder) vp += VP.bitirenOyuncu;
-        if (player.achievements.ciftlikLv3First) vp += 3;
+        if (player.isFinisher) vp += VP.finisher;
 
-        if (player.achievements.kislaLv3First) {
-            const armies = player.units.length;
-            const settls = player.settlements.length || 1;
-            vp += Math.ceil(armies / settls);
+        // "İlk Başaran" Bonusu Puanları
+        if (this.firstToLv3.ciftlik === player.id) vp += 3;
+        
+        if (this.firstToLv3.kisla === player.id) {
+            const score = Math.ceil(player.units.length / Math.max(1, player.settlements.length));
+            vp += score;
         }
 
-        if (player.achievements.tapinakLv3First) {
+        if (this.firstToLv3.tapinak === player.id) {
             player.settlements.forEach(hid => {
                 const hex = this.grid.hexes.get(hid);
-                if (!hex || !hex.settlement) return;
-                if (!hex.settlement.buildings.has('tapinak')) return;
-                if (hex.settlement.type === 'sehir')    vp += 1;
-                if (hex.settlement.type === 'metropol') vp += 2;
+                if (hex.settlement && hex.settlement.buildings.has('tapinak')) {
+                    if (hex.settlement.type === 'sehir')    vp += 1;
+                    if (hex.settlement.type === 'metropol') vp += 2;
+                }
             });
         }
 
-        if (player.achievements.kervansarayLv3First) {
-            const longestRoad = this.grid.getLongestRoad(player.id);
-            vp += Math.ceil(longestRoad / 2);
+        if (this.firstToLv3.kervansaray === player.id) {
+            let maxRoad = 0;
+            this.grid.edges.forEach(e => { if (e.road === player.id) maxRoad++; });
+            vp += Math.ceil(maxRoad / 2);
         }
 
-        if (player.achievements.tiyatroLv3First) {
+        if (this.firstToLv3.tiyatro === player.id) {
             player.settlements.forEach(hid => {
                 const hex = this.grid.hexes.get(hid);
-                if (!hex || !hex.settlement) return;
-                if (hex.settlement.type === 'metropol') vp += 2;
+                if (hex.settlement && hex.settlement.type === 'metropol') vp += 2;
             });
         }
 
@@ -229,9 +289,25 @@ class GameState {
     }
 
     rollProductionDice() {
-        const d1 = Math.ceil(Math.random() * 6);
-        const d2 = Math.ceil(Math.random() * 6);
+        const d1 = Math.floor(Math.random() * 6) + 1;
+        const d2 = Math.floor(Math.random() * 6) + 1;
         this.lastRoll = { d1, d2, total: d1 + d2 };
+
+        if (this.phase === 'setup') {
+            this.currentPlayer.units.forEach(u => {
+                u.movesLeft = this.lastRoll.total;
+                const node = this.grid.nodes.get(u.nodeId);
+                if (node && node.army) {
+                    const nu = node.army.units.find(au => au.uid === u.uid);
+                    if (nu) nu.movesLeft = u.movesLeft;
+                }
+            });
+            this.addLog(`🎲 ${this.currentPlayer.name} ${this.lastRoll.total} attı ve hareket puanı kazandı.`, 'info');
+            this.subPhase = 'move'; 
+        } else {
+            this.distributeResources(this.lastRoll);
+            this.subPhase = 'move';
+        }
         return this.lastRoll;
     }
 
@@ -243,17 +319,12 @@ class GameState {
             if (hex.number !== total) return;
             if (hex.resources.length === 0) return;
 
-            // Yeni Kural: Sadece o hex üzerinde yerleşimi olan oyuncu kaynak alır (komşu hexler yok)
             if (hex.settlement) {
                 const owner = this.players.find(p => p.id === hex.settlement.playerId);
                 if (owner) {
                     hex.resources.forEach(res => {
-                        // Yeni Kural: Sabit 3 kaynak (şehir/metropol farketmeksizin, şimdilik basit tutuyoruz)
                         let amount = 3; 
-                        
-                        // Çiftlik bonusu (eğer istenirse korunabilir)
                         if (res === 'besin' && hex.settlement.buildings.has('ciftlik')) amount += 1;
-                        
                         owner.gain(res, amount);
                         gained.push({ playerId: owner.id, res, amount });
                     });
@@ -261,7 +332,6 @@ class GameState {
             }
         });
 
-        // Pasif kaynakları koruyoruz (oyun akışı için) veya gerekirse azaltılabilir
         this.players.forEach(p => {
             if (p.bonusState.ciftlikResPerTurn > 0) {
                 p.gain('besin', p.bonusState.ciftlikResPerTurn);
@@ -286,23 +356,33 @@ class GameState {
 
         const nextPlayer = this.players[this.currentPlayerIdx];
         if (nextPlayer) {
-            nextPlayer.units.forEach(u => u.moved = false);
+            nextPlayer.units.forEach(u => {
+                const data = UNIT_DATA[u.type];
+                u.movesLeft = data.speed || 2;
+            });
         }
     }
 
     nextTurn() {
         const p = this.currentPlayer;
+
+        // Binalardan gelen tur başı etkiler
+        if (p.chosenBonuses.ciftlik && p.chosenBonuses.ciftlik[2] === 'A') {
+            p.gain('besin', 1);
+        }
+
         p.deadUnitsLastTurn = [...(p._deadThisTurn || [])];
         p._deadThisTurn     = [];
         p.rerollUsedThisTurn = false;
 
+        // Kuşatma ilerlemeleri
         Object.entries(this.sieges).forEach(([hexId, s]) => {
             if (s.attackerId === p.id) {
                 s.turnsActive++;
-                const attackerHex = this.grid.hexes.get(s.attackerHexId);
-                if (attackerHex && attackerHex.army && attackerHex.army.playerId === p.id) {
+                const node = this.grid.nodes.get(s.attackerNodeId);
+                if (node && node.army && node.army.playerId === p.id) {
                     let siegePower = 1;
-                    attackerHex.army.units.forEach(u => {
+                    node.army.units.forEach(u => {
                         const udata = UNIT_DATA[u.type];
                         if (udata.siege) siegePower += udata.siege;
                     });
@@ -314,8 +394,19 @@ class GameState {
                         siegePower += 1;
                     }
 
-                    s.points += siegePower;
-                    this.addLog(`🏰 Kuşatma ilerliyor (${hexId}): +${siegePower} puan (Toplam: ${s.points}).`, 'info');
+                    // Yeni Kuşatma Mekaniği: Zar Atışı
+                    const aRoll = Math.ceil(Math.random() * 6) + Math.ceil(Math.random() * 6);
+                    const dRoll = Math.ceil(Math.random() * 6) + Math.ceil(Math.random() * 6);
+                    
+                    let aTotal = aRoll + (siegePower - 1); 
+                    let dTotal = dRoll;
+                    
+                    if (aTotal > dTotal) {
+                        s.points += 1;
+                        this.addLog(`🏰 Kuşatma ilerliyor (${hexId}): Başarılı Zar (${aTotal} vs ${dTotal}). Puan: ${s.points}`, 'info');
+                    } else {
+                        this.addLog(`🏰 Kuşatma denemesi başarısız (${hexId}): Zar (${aTotal} vs ${dTotal}).`, 'warning');
+                    }
                     
                     const req = this.calculateSiegeRequirement(hexId, p.id);
                     if (s.points >= req) {
@@ -330,6 +421,12 @@ class GameState {
             }
         });
 
+        // Tur sonu eylemleri
+        this.applyUpkeep(p);
+        this.checkVictory();
+        if (this.gameOver) return;
+
+        // Sıradaki oyuncu
         this.currentPlayerIdx = (this.currentPlayerIdx + 1) % this.players.length;
         if (this.currentPlayerIdx === 0) {
             this.turn++;
@@ -338,15 +435,24 @@ class GameState {
                 return;
             }
             if (this.phase === 'setup') {
-                this.phase = 'main';
-                this.addLog("Ana oyun aşamasına geçildi!", "success");
+                // Setup aşaması her oyuncu ilk köyünü kurunca biter. 
+                // buildVillage içinde kontrol ediliyor.
             }
         }
 
-        this.applyUpkeep(p);
+        const nextP = this.players[this.currentPlayerIdx];
         this.resetTurnActions();
+        
         this.subPhase = 'production';
+        this.addLog(`🔔 Sıra ${nextP.name} oyuncusunda.`, 'info');
         this.clearSelection();
+        
+        if (nextP.isAI) {
+            this.updateVisibility();
+            if (window.appMain) window.appMain.ai.playTurn(nextP);
+        } else {
+            this.updateVisibility();
+        }
     }
 
     clearSelection() {
@@ -354,6 +460,7 @@ class GameState {
         this.highlightedHexes = new Set();
         this.highlightedNodes = new Set();
         this.highlightedEdges = new Set();
+        this.rangeHighlightedNodes = new Set();
         this.actionMode       = null;
         this.selectedBuilding = null;
         this.selectedUnit     = null;
@@ -368,13 +475,35 @@ class GameState {
     checkVictory() {
         if (this.gameOver) return;
         for (const p of this.players) {
-            const vp = this.calculateVP(p);
-            if (vp >= VP_GOAL) {
+            // Şehir sayısı kontrolü (Oyun 6. şehir kurulunca biter)
+            let cityCount = 0;
+            p.settlements.forEach(hid => {
+                const hex = this.grid.hexes.get(hid);
+                if (hex.settlement && (hex.settlement.type === 'sehir' || hex.settlement.type === 'metropol')) {
+                    cityCount++;
+                }
+            });
+
+            if (cityCount >= 6) {
                 this.gameOver = true;
-                this.winner = p;
-                this.addLog(`🏆 ZAFER! ${p.name} ${VP_GOAL} Puana ulaşarak oyunu kazandı!`, 'success');
+                p.isFinisher = true; // Bitiren oyuncu bonusu için
+                this.addLog(`🏁 OYUN BİTTİ! ${p.name} 6. şehrini kurarak oyunu sona erdirdi.`, 'success');
+                this.winner = this.getWinningPlayer(); // Puanları hesapla ve kazananı bul
             }
         }
+    }
+
+    getWinningPlayer() {
+        let best = null;
+        let maxVp = -1;
+        this.players.forEach(p => {
+            const vp = this.calculateVP(p);
+            if (vp > maxVp) {
+                maxVp = vp;
+                best = p;
+            }
+        });
+        return best;
     }
 
     endGameByTurns() {
@@ -393,59 +522,103 @@ class GameState {
         this.addLog(`🏆 KAZANAN: ${bestPlayer.name} (${maxVp} Puan ile)!`, 'success');
     }
 
-    calculateDuelStrength(unit, player, hex) {
+    calculateDuelStrength(unit, player, node) {
         const data = UNIT_DATA[unit.type];
         let strength = 0;
         strength += Math.ceil(Math.random() * 6);
         strength += (data.duel || 0);
 
-        if (hex && hex.settlement && hex.settlement.playerId === player.id) {
-            const b = hex.settlement.buildings;
-            if (b.has('kisla')) {
-                if (['mizrakci', 'kilicli', 'okcu'].includes(unit.type)) strength += 1;
-            }
-            if (this.sieges[hex.id] && b.has('tapinak')) {
-                strength += 1;
-            }
+        if (node) {
+            node.hexes.forEach(hid => {
+                const hex = this.grid.hexes.get(hid);
+                if (hex && hex.settlement && hex.settlement.playerId === player.id) {
+                    const b = hex.settlement.buildings;
+                    if (b.has('kisla') && ['mizrakci', 'kilicli', 'okcu'].includes(unit.type)) {
+                        strength += 1;
+                    }
+                    if (this.sieges[hex.id] && b.has('tapinak')) {
+                        strength += 1;
+                    }
+                }
+            });
         }
         return strength;
     }
 
-    resolveCombat(attackerUnit, attackerPlayer, targetHex) {
-        const defenderPlayerId = targetHex.army.playerId;
+    resolveCombat(attackerUnit, attackerPlayer, targetNode) {
+        const defenderPlayerId = targetNode.army.playerId;
         const defenderPlayer   = this.players.find(p => p.id === defenderPlayerId);
-        const defenderUnit     = targetHex.army.units[0];
+        const defenderUnit     = targetNode.army.units[0];
         
         if (!defenderUnit) return { winner: 'attacker', casualty: 'none' };
 
-        let aStr = this.calculateDuelStrength(attackerUnit, attackerPlayer, this.grid.hexes.get(attackerUnit.hexId));
-        let dStr = this.calculateDuelStrength(defenderUnit, defenderPlayer, targetHex);
+        let aStr = this.calculateDuelStrength(attackerUnit, attackerPlayer, this.grid.nodes.get(attackerUnit.nodeId));
+        let dStr = this.calculateDuelStrength(defenderUnit, defenderPlayer, targetNode);
 
         const aData = UNIT_DATA[attackerUnit.type];
         const dData = UNIT_DATA[defenderUnit.type];
 
-        if (aData.special === 'anti_cavalry' && dData.cls === 'suvari') aStr += 2;
-        if (aData.special === 'anti_infantry' && dData.cls === 'piyade') aStr += 2;
+        if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) aStr += 1;
+        if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) dStr += 1;
 
         this.addLog(`⚔️ ${attackerUnit.type} (${aStr}) vs ${defenderUnit.type} (${dStr})`, 'info');
 
         let winner = 'none';
-        let casualty = 'both';
+        let casualty = 'none';
         
         if (aStr > dStr) {
             winner = 'attacker';
             casualty = 'defender';
-            this.addLog(`🗡️ ${attackerPlayer.name} düşmanı yok etti ve mevziyi boşalttı!`, 'success');
+            this.addLog(`🗡️ ${attackerPlayer.name} düşmanı yok etti!`, 'success');
         } else if (dStr > aStr) {
             winner = 'defender';
             casualty = 'attacker';
             this.addLog(`💀 ${attackerPlayer.name} saldırıda birimini kaybetti.`, 'danger');
         } else {
-            this.addLog(`⚔️ Zorlu çarpışmada iki taraf da ağır kayıp verdi!`, 'warning');
+            this.addLog(`⚔️ Zarlar eşit! İki taraf da sağ kaldı.`, 'warning');
         }
 
         return { 
             type: 'melee',
+            attacker: { player: attackerPlayer, unit: attackerUnit, str: aStr },
+            defender: { player: defenderPlayer, unit: defenderUnit, str: dStr },
+            winner, 
+            casualty 
+        };
+    }
+
+    resolveRangeAttack(attackerUnit, attackerPlayer, targetNode) {
+        const defenderPlayerId = targetNode.army.playerId;
+        const defenderPlayer   = this.players.find(p => p.id === defenderPlayerId);
+        const defenderUnit     = targetNode.army.units[0];
+        
+        if (!defenderUnit) return null;
+
+        let aStr = this.calculateDuelStrength(attackerUnit, attackerPlayer, this.grid.nodes.get(attackerUnit.nodeId));
+        let dStr = this.calculateDuelStrength(defenderUnit, defenderPlayer, targetNode);
+
+        const aData = UNIT_DATA[attackerUnit.type];
+        const dData = UNIT_DATA[defenderUnit.type];
+
+        if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) aStr += 1;
+        if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) dStr += 1;
+
+        this.addLog(`🏹 Menzilli: ${attackerUnit.type} (${aStr}) vs ${defenderUnit.type} (${dStr})`, 'info');
+
+        let winner = 'none';
+        let casualty = 'none';
+        
+        // Menzilli saldırıda saldıran zarar görmez (eğer savunanın menzili yoksa)
+        if (aStr > dStr) {
+            winner = 'attacker';
+            casualty = 'defender';
+            this.addLog(`🎯 ${attackerPlayer.name} menzilli atışla düşmanı vurdu!`, 'success');
+        } else {
+            this.addLog(`🏹 Atış ıska geçti veya zırhı geçemedi.`, 'info');
+        }
+
+        return { 
+            type: 'range',
             attacker: { player: attackerPlayer, unit: attackerUnit, str: aStr },
             defender: { player: defenderPlayer, unit: defenderUnit, str: dStr },
             winner, 
@@ -465,10 +638,10 @@ class GameState {
             const lost = player.units.pop();
             this.addLog(`⚠️ ${player.name} ordusunu besleyemedi! 1 birim dağıldı.`, 'danger');
             if (lost) {
-                const hex = this.grid.hexes.get(lost.hexId);
-                if (hex && hex.army) {
-                    hex.army.units = hex.army.units.filter(u => u.uid !== lost.uid);
-                    if (hex.army.units.length === 0) hex.army = null;
+                const node = this.grid.nodes.get(lost.nodeId);
+                if (node && node.army) {
+                    node.army.units = node.army.units.filter(u => u.uid !== lost.uid);
+                    if (node.army.units.length === 0) node.army = null;
                 }
             }
         }
@@ -521,9 +694,28 @@ class GameState {
         });
 
         human.units.forEach(u => {
-            this.discoveredHexes.add(u.hexId);
-            const h = this.grid.hexes.get(u.hexId);
-            if (h) h.adjacentHexes.forEach(ahid => this.discoveredHexes.add(ahid));
+            const node = this.grid.nodes.get(u.nodeId);
+            if (node) {
+                node.hexes.forEach(hid => {
+                    this.discoveredHexes.add(hid);
+                    const h = this.grid.hexes.get(hid);
+                    if (h) h.adjacentHexes.forEach(ahid => this.discoveredHexes.add(ahid));
+                });
+            }
         });
+    }
+
+    isHexBuildable(hexId) {
+        const hex = this.grid.hexes.get(hexId);
+        if (!hex || hex.settlement || !BIOME_INFO[hex.biome].canSettle) return false;
+        
+        for (const nid of hex.nodeIds) {
+             const node = this.grid.nodes.get(nid);
+             for (const hid of node.hexes) {
+                  const h = this.grid.hexes.get(hid);
+                  if (h.id !== hexId && h.settlement) return false;
+             }
+        }
+        return true;
     }
 }

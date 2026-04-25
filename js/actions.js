@@ -10,22 +10,22 @@ class Actions {
 
     // ── Setup Aşaması Eylemleri ────────────────────────────────
 
-    setupPlaceInitialUnit(playerId, hexId) {
+    setupPlaceInitialUnit(playerId, nodeId) {
         const p = this.state.players.find(pl => pl.id === playerId);
         if (!p) return false;
 
-        const hex = this.state.grid.hexes.get(hexId);
-        if (!hex) return false;
+        const node = this.state.grid.nodes.get(nodeId);
+        if (!node) return false;
 
-        if (hex.army) return false;
+        if (node.army) return false;
 
         const currentUid = p.nextUnitId();
-        const unit = { uid: currentUid, type: 'kilicli', hp: 1, moved: false };
+        const unit = { uid: currentUid, type: 'kilicli', hp: 1, movesLeft: 0 };
 
-        p.units.push({ ...unit, hexId });
-        hex.army = { playerId, units: [unit] };
+        p.units.push({ ...unit, nodeId });
+        node.army = { playerId, units: [unit] };
 
-        this.state.addLog(`${p.name} başlangıç askerini yerleştirdi.`, 'info');
+        this.state.addLog(`${p.name} başlangıç askerini düğmeye yerleştirdi.`, 'info');
         return true;
     }
 
@@ -101,6 +101,12 @@ class Actions {
         this.state.recalcPopulation(p);
         this.state.updateVisibility();
         
+        // İlk köy kurulduğunda her kaynaktan 1 adet ver
+        if (p.settlements.length === 1) {
+            RESOURCES.forEach(r => p.gain(r, 1));
+            this.state.addLog(`🎁 ${p.name} ilk köyünü kurdu ve başlangıç kaynaklarını aldı!`, 'info');
+        }
+        
         this.state.addLog(`${p.name} yeni bir köy kurdu!`, 'success');
         this.state.checkVictory();
         return true;
@@ -113,23 +119,19 @@ class Actions {
         if (!p || !hex || !hex.settlement || hex.settlement.playerId !== playerId) return false;
         if (hex.settlement.buildings.has(buildingType)) return false;
 
-        let cost = BUILD_COSTS[buildingType];
+        let cost = {...BUILD_COSTS[buildingType]};
 
-        if (hex.settlement.type !== 'koy' && p.bonusState.theatreCostReduction > 0) {
-              let c = {...cost};
-              const mostRes = Object.keys(c).reduce((a, b) => c[a] > c[b] ? a : b);
-              c[mostRes] -= Math.min(c[mostRes], p.bonusState.theatreCostReduction);
-              if (c[mostRes] <= 0) delete c[mostRes];
-              cost = c;
+        // Tiyatro Seviye 1 Bonusu: Diğer yapılar -1 kaynak
+        if (hex.settlement.buildings.has('tiyatro') && buildingType !== 'tiyatro') {
+             const mostRes = Object.keys(cost).reduce((a, b) => cost[a] > cost[b] ? a : b);
+             if (cost[mostRes]) cost[mostRes] = Math.max(0, cost[mostRes] - 1);
         }
 
-        if (buildingType === 'ciftlik' && p.bonusState.ciftlikCostReduction > 0) {
-            let c = {...cost};
-            Object.keys(c).forEach(rk => {
-                c[rk] = Math.max(0, c[rk] - p.bonusState.ciftlikCostReduction);
-                if (c[rk] === 0) delete c[rk];
+        // Çiftlik Seviye 2B Bonusu: Çiftlik maliyeti her kaynakta -1
+        if (buildingType === 'ciftlik' && p.buildingCounts.ciftlik >= 2) {
+            Object.keys(cost).forEach(rk => {
+                cost[rk] = Math.max(0, cost[rk] - 1);
             });
-            cost = c;
         }
 
         if (!p.canAfford(cost)) return false;
@@ -165,12 +167,12 @@ class Actions {
         }
     }
 
-    trainUnit(playerId, unitType, hexId) {
+    trainUnit(playerId, unitType, nodeId) {
         const p = this.state.players.find(pl => pl.id === playerId);
-        const hex = this.state.grid.hexes.get(hexId);
+        const node = this.state.grid.nodes.get(nodeId);
         const udata = UNIT_DATA[unitType];
 
-        if (!p || !hex || !udata) return false;
+        if (!p || !node || !udata) return false;
         
         if (p.units.length >= p.maxPopulation) return false;
 
@@ -185,111 +187,105 @@ class Actions {
 
         p.gold -= cost;
         const currentUid = p.nextUnitId();
-        const unit = { uid: currentUid, type: unitType, hp: 1, moved: true }; 
+        const unit = { uid: currentUid, type: unitType, hp: 1, movesLeft: 0 }; 
 
-        p.units.push({ ...unit, hexId });
+        p.units.push({ ...unit, nodeId });
 
-        if (!hex.army) hex.army = { playerId, units: [] };
-        hex.army.units.push(unit);
+        if (!node.army) node.army = { playerId, units: [] };
+        node.army.units.push(unit);
 
         this.state.addLog(`${p.name}, ${udata.name} üretti.`, 'info');
         return true;
     }
 
-    moveUnit(playerId, unitUid, targetHexId) {
+    moveUnit(playerId, unitUid, targetNodeId) {
         const p = this.state.players.find(pl => pl.id === playerId);
         const unitDef = p?.units.find(u => u.uid === unitUid);
-        if (!unitDef || unitDef.moved) return false;
+        if (!unitDef || unitDef.movesLeft <= 0) return false;
 
-        const startHexId = unitDef.hexId;
-        const targetHex = this.state.grid.hexes.get(targetHexId);
-        if (!targetHex) return false;
+        const startNodeId = unitDef.nodeId;
+        const targetNode = this.state.grid.nodes.get(targetNodeId);
+        if (!targetNode) return false;
 
-        const startHex = this.state.grid.hexes.get(startHexId);
-        const uIdx = startHex.army.units.findIndex(u => u.uid === unitUid);
-        const movingUnit = startHex.army.units[uIdx]; 
+        const startNode = this.state.grid.nodes.get(startNodeId);
+        if (!startNode.adjacentNodes.includes(targetNodeId)) return false; 
 
-        let overwatchKiller = null;
-        const checkOverwatch = (hexToCheck) => {
-            if (hexToCheck.army && hexToCheck.army.playerId !== playerId) {
-                const siegeUnit = hexToCheck.army.units.find(u => ['mancinik', 'topcu'].includes(u.type));
-                if (siegeUnit) return { playerId: hexToCheck.army.playerId, unit: siegeUnit };
-            }
-            return null;
-        };
-
-        overwatchKiller = checkOverwatch(targetHex);
-        if (!overwatchKiller) {
-            for (const adjId of targetHex.adjacentHexes) {
-                overwatchKiller = checkOverwatch(this.state.grid.hexes.get(adjId));
-                if (overwatchKiller) break;
-            }
+        // Hareket maliyeti hesapla
+        const edgeId = this.state.grid.getEdgeBetweenNodes(startNodeId, targetNodeId);
+        const edge = this.state.grid.edges.get(edgeId);
+        const udata = UNIT_DATA[unitDef.type];
+        
+        let cost = 1.0;
+        if (edge && edge.road === playerId && udata.cls !== 'kusatma') {
+            cost = 0.5; // Kendi yolu +1 hız verir (maliyeti yarıya düşürür)
         }
 
-        if (overwatchKiller) {
-            startHex.army.units.splice(uIdx, 1);
-            if (startHex.army.units.length === 0) startHex.army = null;
-            p.units = p.units.filter(u => u.uid !== unitUid);
-            
-            const defPlayer = this.state.players.find(pl => pl.id === overwatchKiller.playerId);
-            this.state.addLog(`💥 ${p.name}'e ait ${UNIT_DATA[movingUnit.type].name}, düşman mancınığının menziline girdiği için yok edildi!`, 'danger');
-            
-            this.state.actionsDone.movedUnits.push(unitUid);
-            this.state.recalcPopulation(p);
-            this.state.updateVisibility();
+        if (unitDef.movesLeft < cost) return false;
 
-            return {
-                 type: 'overwatch',
-                 attacker: { player: p, unit: movingUnit, id: playerId },
-                 defender: { player: defPlayer, unit: overwatchKiller.unit, id: overwatchKiller.playerId },
-                 winner: 'defender',
-                 casualty: 'attacker'
-            };
-        }
+        const uIdx = startNode.army.units.findIndex(u => u.uid === unitUid);
+        const movingUnit = startNode.army.units[uIdx]; 
 
-        startHex.army.units.splice(uIdx, 1);
-        if (startHex.army.units.length === 0) startHex.army = null;
+        startNode.army.units.splice(uIdx, 1);
+        if (startNode.army.units.length === 0) startNode.army = null;
 
-        movingUnit.moved = true;
-        unitDef.hexId = targetHexId;
+        unitDef.movesLeft -= cost;
+        movingUnit.movesLeft = unitDef.movesLeft;
+        unitDef.nodeId = targetNodeId;
 
-        if (targetHex.army && targetHex.army.playerId !== playerId) {
-            const combat = this.state.resolveCombat(movingUnit, p, targetHex);
+        if (targetNode.army && targetNode.army.playerId !== playerId) {
+            if (udata.special === 'no_attack') {
+                this.state.addLog(`⚠️ ${udata.name} saldırı yapamaz!`, 'warning');
+                // Hareketi geri al
+                unitDef.movesLeft += cost;
+                unitDef.nodeId = startNodeId;
+                if (!startNode.army) startNode.army = { playerId, units: [] };
+                startNode.army.units.push(movingUnit);
+                return false;
+            }
+
+            const combat = this.state.resolveCombat(movingUnit, p, targetNode);
             
             if (combat.casualty === 'attacker' || combat.casualty === 'both') {
                 p.units = p.units.filter(u => u.uid !== unitUid);
             }
             
             if (combat.casualty === 'defender' || combat.casualty === 'both') {
-                const defPlayer = this.state.players.find(pl => pl.id === targetHex.army.playerId);
-                defPlayer.units = defPlayer.units.filter(u => u.uid !== targetHex.army.units[0].uid);
-                targetHex.army.units.shift();
+                const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
                 
-                if (targetHex.army.units.length === 0) {
-                    targetHex.army = null;
+                // Topçu ise 2 birim yok edebilir
+                const killCount = (udata.special === 'multi_2') ? 2 : 1;
+                for (let i = 0; i < killCount; i++) {
+                    if (targetNode.army && targetNode.army.units.length > 0) {
+                        const killed = targetNode.army.units.shift();
+                        defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
+                    }
+                }
+                
+                if (targetNode.army && targetNode.army.units.length === 0) {
+                    targetNode.army = null;
                 }
             }
 
-            if (p.units.find(u => u.uid === unitUid) && !targetHex.army) {
-                movingUnit.hexId = targetHexId;
-                targetHex.army = { playerId: p.id, units: [movingUnit] };
+            if (p.units.find(u => u.uid === unitUid) && !targetNode.army) {
+                movingUnit.nodeId = targetNodeId;
+                targetNode.army = { playerId: p.id, units: [movingUnit] };
             }
             
-            this.state.actionsDone.movedUnits.push(unitUid);
             this.state.recalcPopulation(p);
             this.state.updateVisibility();
             
             return combat; 
-        } else {
-            if (!targetHex.army) targetHex.army = { playerId, units: [] };
-            targetHex.army.units.push(movingUnit);
+        }
+ else {
+            if (!targetNode.army) targetNode.army = { playerId, units: [] };
+            targetNode.army.units.push(movingUnit);
             
             this.state.updateVisibility();
             
-            targetHex.adjacentHexes.forEach(ahid => {
-                const adjHex = this.state.grid.hexes.get(ahid);
-                if (adjHex && adjHex.settlement && adjHex.settlement.playerId !== playerId) {
-                    this.startSiege(playerId, targetHexId, ahid);
+            targetNode.hexes.forEach(hid => {
+                const hex = this.state.grid.hexes.get(hid);
+                if (hex && hex.settlement && hex.settlement.playerId !== playerId) {
+                    this.startSiege(playerId, targetNodeId, hid);
                 }
             });
         }
@@ -297,11 +293,11 @@ class Actions {
         return true;
     }
 
-    startSiege(playerId, attackerHexId, targetHexId) {
+    startSiege(playerId, attackerNodeId, targetHexId) {
         if (!this.state.sieges[targetHexId]) {
             this.state.sieges[targetHexId] = {
                 attackerId: playerId,
-                attackerHexId: attackerHexId,
+                attackerNodeId: attackerNodeId,
                 points: 1,
                 turnsActive: 0
             };
@@ -339,64 +335,79 @@ class Actions {
         if (!p) return false;
 
         if (sellRes === 'gold') {
-            if (p.gold < sellAmount) return false;
-            p.gold -= sellAmount;
-            p.gain(buyRes, sellAmount * 1); 
-            this.state.addLog(`${p.name} bankadan ${sellAmount} altın karşılığı ${sellAmount} ${buyRes} aldı.`, 'info');
-        } else if (buyRes === 'gold') {
+            // 1 altın -> 2 kaynak (Kervansaray Seviye 2, Seçenek A ise 3 kaynak)
+            let rate = 2;
+            if (p.chosenBonuses.kervansaray && p.chosenBonuses.kervansaray[2] === 'A') {
+                rate = 3;
+            }
+            
+            if (p.resources.gold < sellAmount) return false;
+            p.spend({ gold: sellAmount });
+            p.gain(buyRes, sellAmount * rate);
+            this.state.addLog(`${p.name} bankaya ${sellAmount} altın verip ${sellAmount * rate} ${buyRes} aldı.`, 'info');
+        } else {
+            // 6 kaynak -> 1 altın
+            const rate = 6; 
             if (p.resources[sellRes] < sellAmount) return false;
-            const rate = p.bonusState.bankRate || BANK_TRADE_RATE; 
             if (sellAmount < rate) return false;
 
             const goldGained = Math.floor(sellAmount / rate);
             p.spend({ [sellRes]: goldGained * rate });
-            p.gold += goldGained;
-            this.state.addLog(`${p.name} bankaya ${goldGained * rate} ${sellRes} satarak ${goldGained} altın aldı.`, 'info');
-        } else {
-            const rate = 3; 
-            if (p.resources[sellRes] < sellAmount) return false;
-            if (sellAmount < rate) return false;
-
-            const resGained = Math.floor(sellAmount / rate);
-            p.spend({ [sellRes]: resGained * rate });
-            p.gain(buyRes, resGained);
-            this.state.addLog(`${p.name} bankaya ${resGained * rate} ${sellRes} verip ${resGained} ${buyRes} aldı.`, 'info');
+            p.gain('gold', goldGained);
+            this.state.addLog(`${p.name} bankaya ${goldGained * rate} ${sellRes} verip ${goldGained} altın aldı.`, 'info');
         }
         return true;
     }
 
-    attackHex(playerId, attackerUnitUid, targetHexId) {
+    rangeAttack(playerId, attackerUnitUid, targetNodeId) {
         const p = this.state.players.find(pl => pl.id === playerId);
-        const unit = p.units.find(u => u.uid === attackerUnitUid);
-        const targetHex = this.state.grid.hexes.get(targetHexId);
+        const attackerUnit = p.units.find(u => u.uid === attackerUnitUid);
+        const targetNode = this.state.grid.nodes.get(targetNodeId);
+
+        if (!attackerUnit || !targetNode || !targetNode.army || targetNode.army.playerId === playerId) return false;
         
-        if (!unit || !targetHex || !targetHex.army) return false;
-        if (targetHex.army.playerId === playerId) return false;
-        
-        const data = UNIT_DATA[unit.type];
-        if (!data.range || data.range < 1) return false;
-        
-        const attackerHex = this.state.grid.hexes.get(unit.hexId);
-        if (!attackerHex || !attackerHex.adjacentHexes.includes(targetHexId)) {
-             return false; 
+        const udata = UNIT_DATA[attackerUnit.type];
+        if (!udata.range) return false;
+        if (attackerUnit.movesLeft <= 0) return false;
+
+        // Mesafe kontrolü (1 menzil = 1 düğme)
+        const sourceNode = this.state.grid.nodes.get(attackerUnit.nodeId);
+        if (!sourceNode.adjacentNodes.includes(targetNodeId)) return false;
+
+        const res = this.state.resolveRangeAttack(attackerUnit, p, targetNode);
+        if (!res) return false;
+
+        attackerUnit.movesLeft = 0; // Menzilli saldırı tüm hareketi tüketir
+
+        if (res.casualty === 'defender') {
+            const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
+            
+            // Topçu ise 2 birim yok edebilir
+            const killCount = (udata.special === 'multi_2') ? 2 : 1;
+            for (let i = 0; i < killCount; i++) {
+                if (targetNode.army && targetNode.army.units.length > 0) {
+                    const killed = targetNode.army.units.shift();
+                    defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
+                }
+            }
+            
+            if (targetNode.army && targetNode.army.units.length === 0) {
+                targetNode.army = null;
+            }
         }
 
-        this.state.addLog(`🏹 ${p.name}, ${data.name} ile uzaktan saldırıyor!`, 'info');
-        const combat = this.state.resolveCombat(unit, p, targetHex);
-        
-        if (combat.winner === 'attacker') {
-            const defPlayer = this.state.players.find(pl => pl.id === targetHex.army.playerId);
-            defPlayer.units = defPlayer.units.filter(u => u.uid !== targetHex.army.units[0].uid);
-            targetHex.army.units.shift();
-            if (targetHex.army.units.length === 0) targetHex.army = null;
-            this.state.addLog(`🎯 İsabetli atış! Düşman birimi yok edildi.`, 'success');
-        } else {
-            this.state.addLog(`❌ Atış ıska geçti veya etkili olamadı.`, 'info');
-            combat.winner = 'none';
-            combat.casualty = 'none';
-        }
+        this.state.updateVisibility();
+        return res;
+    }
 
-        this.state.actionsDone.movedUnits.push(attackerUnitUid);
-        return combat;
+    chooseBonus(playerId, buildingType, level, choice) {
+        const p = this.state.players.find(pl => pl.id === playerId);
+        if (!p) return false;
+        if (!p.chosenBonuses[buildingType]) p.chosenBonuses[buildingType] = {};
+        p.chosenBonuses[buildingType][level] = choice;
+        
+        this.state.recalcPopulation(p);
+        this.state.addLog(`${p.name} ${BUILDING_NAMES[buildingType]} ${level}. Seviye bonusu: ${choice}`, 'info');
+        return true;
     }
 }

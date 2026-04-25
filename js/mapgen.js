@@ -32,17 +32,7 @@ class MapGen {
         });
 
         // ── 2. Kaynak ataması ────────────────────────────────────
-        const allResources = [...RESOURCES];
-        hexList.forEach(hex => {
-            const info = BIOME_INFO[hex.biome];
-            if (!info || info.fixedRes.length === 0) {
-                hex.resources = [];
-                return;
-            }
-            // 2 sabit + 1 rastgele
-            const variable = MapGen._pickRandom(allResources);
-            hex.resources  = [...info.fixedRes, variable];
-        });
+        MapGen._assignBalancedResources(grid, productionSlots);
 
         // ── 3. Numara ataması (2-12, 7 yok, 6/8 komşu değil) ───
         const productionHexIds = productionSlots.map(h => h.id);
@@ -108,6 +98,59 @@ class MapGen {
         });
 
         return result;
+    }
+
+    // ── Dengeli Kaynak Ataması ────────────────────────────────────
+
+    static _assignBalancedResources(grid, productionSlots) {
+        // 1. Sabit kaynakların toplam sayılarını hesapla
+        const counts = {};
+        RESOURCES.forEach(r => counts[r] = 0);
+
+        productionSlots.forEach(hex => {
+            const info = BIOME_INFO[hex.biome];
+            if (info && info.fixedRes) {
+                info.fixedRes.forEach(r => counts[r]++);
+            }
+        });
+
+        // 2. Her hex için 1 adet değişken kaynak havuzu oluştur
+        // Toplamda her kaynağın haritadaki toplam "üretim merkezi" (hex) sayısını eşitlemeye çalış
+        const variablePool = [];
+        const n = productionSlots.length;
+
+        const currentTotal = {};
+        RESOURCES.forEach(r => currentTotal[r] = counts[r]);
+
+        for (let i = 0; i < n; i++) {
+            // Şu an en az olan kaynağı bul ve havuza ekle
+            let bestRes = RESOURCES[0];
+            let minVal = Infinity;
+
+            RESOURCES.forEach(r => {
+                if (currentTotal[r] < minVal) {
+                    minVal = currentTotal[r];
+                    bestRes = r;
+                }
+            });
+
+            variablePool.push(bestRes);
+            currentTotal[bestRes]++;
+        }
+
+        // 3. Karıştır ve ata
+        MapGen._shuffle(variablePool);
+        productionSlots.forEach((hex, i) => {
+            const info = BIOME_INFO[hex.biome];
+            hex.resources = [...info.fixedRes, variablePool[i]];
+        });
+        
+        // Kaynak üretmeyen hex'leri temizle
+        grid.hexes.forEach(hex => {
+            if (!PRODUCTION_BIOMES.includes(hex.biome)) {
+                hex.resources = [];
+            }
+        });
     }
 
     // ── Numara ataması ────────────────────────────────────────────
