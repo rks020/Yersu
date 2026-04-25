@@ -192,7 +192,8 @@ class MapGen {
             for (const hid of hexIds) {
                 if (usedIds.has(hid)) continue;
                 const h = grid.hexes.get(hid);
-                const adjHot = grid.getAdjacentHexIds(hid).some(aid => usedIds.has(aid));
+                if (!h) continue;
+                const adjHot = h.adjacentHexes.some(aid => usedIds.has(aid));
                 if (!adjHot) {
                     result.push({ hexId: hid, num });
                     usedIds.add(hid);

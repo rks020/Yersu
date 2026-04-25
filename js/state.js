@@ -648,7 +648,9 @@ class GameState {
     }
 
     hexAdjacentToBataklik(hexId) {
-        return this.grid.getAdjacentHexIds(hexId).some(aid => {
+        const hex = this.grid.hexes.get(hexId);
+        if (!hex) return false;
+        return hex.adjacentHexes.some(aid => {
             const h = this.grid.hexes.get(aid);
             return h && h.biome === 'bataklik';
         });
