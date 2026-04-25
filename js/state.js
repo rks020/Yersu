@@ -58,15 +58,6 @@ class Player {
             tiyatroLv3First:     false,
             gameEnder:           false,
         };
-
-        this.firstToLv3 = {
-            ciftlik: null,
-            kisla: null,
-            kervansaray: null,
-            tapinak: null,
-            tiyatro: null,
-            muhendishane: null
-        };
         this.setupDone = false; 
         this.actionsDoneThisTurn = new Set();
     }
@@ -131,7 +122,7 @@ class GameState {
 
         this.lastRoll          = null; 
         this.sieges            = {};
-        this.firstLv3          = {}; 
+        this.firstToLv3        = {}; 
         this.winner            = null;
         this.gameOver          = false;
         this.log               = [];
