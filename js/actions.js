@@ -181,11 +181,11 @@ class Actions {
             cost = Math.max(1, cost - p.bonusState.sovGoldReduction);
         }
 
-        if (p.gold < cost) return false;
-
+        if (p.resources.gold < cost) return false;
+        
         if (udata.cls === 'kusatma' && !p.bonusState.canBuildSiege) return false;
 
-        p.gold -= cost;
+        p.resources.gold -= cost;
         const currentUid = p.nextUnitId();
         const unit = { uid: currentUid, type: unitType, hp: 1, movesLeft: 0 }; 
 

@@ -7,7 +7,7 @@ class Player {
     constructor(id, name, color, isAI = false) {
         this.id      = id;
         this.name    = name;
-        this.color   = color.code;
+        this.color   = color.hex;
         this.colorId = color.id;
         this.isAI    = isAI;
         
@@ -149,8 +149,8 @@ class GameState {
 
         this.resetTurnActions();
         this.discoveredHexes = new Set();
-        this.initDiscovery();
         this.initSetupPositions();
+        this.initDiscovery();
     }
 
     initSetupPositions() {

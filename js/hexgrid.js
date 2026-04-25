@@ -5,11 +5,13 @@
 // ============================================================
 
 class HexGrid {
-    constructor(size = 50) {
-        this.hexSize = size;
+    constructor(radius = 3, hexSize = 50) {
+        this.radius  = radius;
+        this.hexSize = hexSize;
         this.hexes = new Map();
         this.nodes = new Map();
         this.edges = new Map();
+        this._generate(radius);
     }
 
     // ── Grid Üretimi ─────────────────────────────────────────────

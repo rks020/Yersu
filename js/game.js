@@ -5,21 +5,27 @@
 
 class Game {
     constructor(playerConfigs, mapSizeKey) {
-        // Core systems
-        this.state    = new GameState(playerConfigs, mapSizeKey);
-        this.actions  = new Actions(this.state);
-        
-        // Canvas & Renderer
-        const canvas = document.getElementById('gameCanvas');
-        this.renderer = new Renderer(canvas, this.state);
-        
-        // UI & AI
-        this.ui       = new UI(this.state, this.actions, this.renderer);
-        this.aiEngine = new AIEngine(this.state, this.actions);
+        try {
+            // Core systems
+            this.state    = new GameState(playerConfigs, mapSizeKey);
+            this.actions  = new Actions(this.state);
+            
+            // Canvas & Renderer
+            const canvas = document.getElementById('gameCanvas');
+            if (!canvas) throw new Error("gameCanvas bulunamadı!");
+            this.renderer = new Renderer(canvas, this.state);
+            
+            // UI & AI
+            this.ui       = new UI(this.state, this.actions, this.renderer);
+            this.aiEngine = new AIEngine(this.state, this.actions);
 
-        this._initWindowResize();
-        this.renderer.startAnimationLoop(); // FX Döngüsünü başlat
-        this._start();
+            this._initWindowResize();
+            this.renderer.startAnimationLoop(); // FX Döngüsünü başlat
+            this._start();
+        } catch (err) {
+            console.error("OYUN BAŞLATILAMADI:", err);
+            alert("Oyun başlatılırken bir hata oluştu: " + err.message);
+        }
     }
 
     _initWindowResize() {
