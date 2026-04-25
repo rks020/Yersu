@@ -59,7 +59,9 @@ class AIEngine {
             if (hex) {
                 const nodeId = hex.nodeIds[Math.floor(Math.random() * hex.nodeIds.length)];
                 if (this.actions.setupPlaceInitialUnit(player.id, nodeId)) {
-                    this.state.nextTurn();
+                    // UI'yı güncelle ve sıradaki oyuncuya geç
+                    if (window.appMain) window.appMain.nextTurn();
+                    else this.state.nextTurn();
                     return;
                 }
             }
@@ -67,7 +69,8 @@ class AIEngine {
 
         // Eğer buraya geldiyse ve hala setup'taysa bir sorun var demektir, turu geç
         if (this.state.phase === 'setup') {
-            this.state.nextTurn();
+            if (window.appMain) window.appMain.nextTurn();
+            else this.state.nextTurn();
         }
     }
 
