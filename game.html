@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yersu - Oyun Ekranı</title>
+    <!-- Modern Fontlar -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        
+        <!-- ÜST BİLGİ ALANI -->
+        <header class="game-header">
+            <h1>YERSU</h1>
+            <div id="setupInstruction"></div>
+            <div id="turnIndicator" class="turn-indicator">Tur Yükleniyor...</div>
+            <button id="btnRollDice" class="btn-primary" disabled>🎲 Zar At</button>
+            <button id="btnEndTurn" class="btn-primary" disabled>Turu Bitir ⏭</button>
+            <button id="btnRestart" class="btn-primary" style="background: #111; border-color: #555;">Yeniden Başlat 🔄</button>
+        </header>
+
+        <!-- SOL PANEL (Oyuncu Bilgileri) -->
+        <aside class="side-panel left-panel">
+            
+            <div class="panel-section">
+                <div class="panel-title">Kaynaklarım</div>
+                <div class="resource-grid">
+                    <div class="res-item"><span class="res-icon">🌾</span> <span id="resBesin" class="res-val">0</span></div>
+                    <div class="res-item"><span class="res-icon">🪵</span> <span id="resOdun" class="res-val">0</span></div>
+                    <div class="res-item"><span class="res-icon">🪨</span> <span id="resTas" class="res-val">0</span></div>
+                    <div class="res-item"><span class="res-icon">🧱</span> <span id="resKil" class="res-val">0</span></div>
+                    <div class="res-item"><span class="res-icon">⚙️</span> <span id="resMaden" class="res-val">0</span></div>
+                    <div class="res-item" style="border-color: var(--gold);"><span class="res-icon">💰</span> <span id="resGold" class="res-val">0</span></div>
+                </div>
+            </div>
+
+            <div class="panel-section" style="margin-top: 10px;">
+                <div class="panel-title">İstatistikler</div>
+                <div class="stat-item">
+                    <span>Asker Popülasyonu</span>
+                    <span id="popCounter" class="res-val">0 / 0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Zafer Puanı</span>
+                    <span id="vpCounter" class="res-val" style="color: var(--gold);">0</span>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- MERKEZ CANVAS (Harita) -->
+        <main id="canvasWrapper">
+            <canvas id="gameCanvas"></canvas>
+        </main>
+
+        <!-- SAĞ PANEL (Aksiyonlar ve Etkileşim) -->
+        <aside class="side-panel right-panel">
+            
+            <div class="panel-section">
+                <div class="panel-title">Eylemler</div>
+                <div id="actionMenu" style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="action-btn" data-action="build_village" disabled>🏕 Köy Kur</button>
+                    <button class="action-btn" data-action="build_road" disabled>🛤 Yol İnşa Et</button>
+                    <button class="action-btn" data-action="build_building" disabled>🏛 Yapı İnşa Et</button>
+                    <button class="action-btn" data-action="train_unit" disabled>⚔️ Asker Üret</button>
+                    <button class="action-btn" data-action="move_unit" disabled>🏇 Birim Taşı / Saldır</button>
+                    <button class="action-btn" data-action="trade" disabled>⚖️ Ticaret Yap</button>
+                </div>
+            </div>
+
+            <div class="panel-section" style="flex:1; margin-top: 10px; display: flex; flex-direction: column;">
+                <div class="panel-title">Oyun Kaydı</div>
+                <div id="logContainer" class="log-box"></div>
+            </div>
+
+        </aside>
+
+    </div>
+
+    <!-- BİYOM DETAY KARTI -->
+    <div id="biomeDetail" class="biome-card">
+        <div id="biome-name" class="card-header">Bölge</div>
+        <div id="biome-body">
+            <!-- Dinamik içerik -->
+        </div>
+    </div>
+
+    <!-- BİLDİRİM KONTEYNERI -->
+    <div id="floatingNoticeContainer"></div>
+
+    <!-- ZAR MODALI -->
+    <div id="diceModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Üretim Zarı Sonucu</h3>
+            <div id="diceResult" class="dice-result">7</div>
+        </div>
+    </div>
+
+    <!-- BİNA / ASKER SEÇİM MODALI -->
+    <div id="choiceModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 800px; width: 90%;">
+            <h2 id="choiceModalTitle">Başlık</h2>
+            <div id="choiceGrid" class="choice-modal">
+                <!-- Dinamik olarak dolacak -->
+            </div>
+            <button class="btn-primary" style="margin-top: 20px; font-size: 0.9rem;" onclick="document.getElementById('choiceModal').classList.remove('active')">Kapat</button>
+        </div>
+    </div>
+
+
+    <!-- TİCARET MODALI -->
+    <div id="tradeModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>Banka Ticareti</h2>
+            <p style="font-size: 0.85rem; margin-bottom: 20px; color: #ccc;">6 Aynı Kaynak = 1 Altın<br>1 Altın = 2 Seçili Kaynak<br>3 Aynı Kaynak = 1 Seçili Kaynak</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px; text-align: left;">
+                <div>
+                    <label>Satılacak:</label>
+                    <select id="tradeSellType" class="input-style" style="width: 100%;">
+                        <option value="besin">🌾 Besin</option>
+                        <option value="odun">🪵 Odun</option>
+                        <option value="tas">🪨 Taş</option>
+                        <option value="kil">🧱 Kil</option>
+                        <option value="maden">⚙️ Maden</option>
+                        <option value="gold">💰 Altın</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Alınacak:</label>
+                    <select id="tradeBuyType" class="input-style" style="width: 100%;">
+                        <option value="gold">💰 Altın</option>
+                        <option value="besin">🌾 Besin</option>
+                        <option value="odun">🪵 Odun</option>
+                        <option value="tas">🪨 Taş</option>
+                        <option value="kil">🧱 Kil</option>
+                        <option value="maden">⚙️ Maden</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Miktar (Satılacak):</label>
+                    <input type="number" id="tradeAmount" class="input-style" value="6" min="1" style="width: 100%;">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button id="btnConfirmTrade" class="btn-primary" style="flex:1;">Takas Et</button>
+                <button class="btn-primary" style="flex:1; background: #555;" onclick="document.getElementById('tradeModal').classList.remove('active')">İptal</button>
+            </div>
+        </div>
+    </div>
+    <!-- SAVAŞ RAPORU MODALI -->
+    <div id="combatModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px; text-align: center;">
+            <h2 id="combatTitle" style="margin-bottom: 5px;">Savaş Raporu</h2>
+            <p id="combatDesc" style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">Detaylar yükleniyor...</p>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+                <div style="flex: 1;">
+                    <div id="combatAttackerName" style="font-weight: bold; margin-bottom: 5px; color: #FFCDD2;">Saldıran</div>
+                    <div id="combatAttackerEmoji" style="font-size: 3rem; margin-bottom: 5px;">⚔️</div>
+                    <div id="combatAttackerStr" style="font-size: 1.2rem; font-weight: bold;">Güç: 4</div>
+                </div>
+                
+                <div style="font-size: 2rem; font-weight: bold; color: var(--gold); padding: 0 15px;">VS</div>
+                
+                <div style="flex: 1;">
+                    <div id="combatDefenderName" style="font-weight: bold; margin-bottom: 5px; color: #BBDEFB;">Savunan</div>
+                    <div id="combatDefenderEmoji" style="font-size: 3rem; margin-bottom: 5px;">🛡️</div>
+                    <div id="combatDefenderStr" style="font-size: 1.2rem; font-weight: bold;">Güç: 3</div>
+                </div>
+            </div>
+
+            <div id="combatResultText" style="font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; padding: 10px; border-radius: 4px; background: rgba(255,255,255,0.1);">
+                Saldıran Kazandı!
+            </div>
+
+            <button class="btn-primary" style="width: 100%;" onclick="document.getElementById('combatModal').classList.remove('active')">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Gerekli JS dosyaları sırayla -->
+    <script src="js/config.js"></script>
+    <script src="js/hexgrid.js"></script>
+    <script src="js/mapgen.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/actions.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+
+</body>
+</html>
