@@ -375,6 +375,7 @@
     overflow-y: auto;
     padding: 8px;
     font-size: 0.78rem;
+    color: #fff;
 }
 .hex-info-panel::-webkit-scrollbar { width: 4px; }
 .hex-info-panel::-webkit-scrollbar-thumb { background: rgba(201,162,39,0.3); border-radius: 2px; }
@@ -414,11 +415,12 @@
     border-radius: 12px;
     padding: 2px 8px;
     font-size: 0.72rem;
+    color: #fff;
 }
 
 .hex-section-title {
     font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1px; color: var(--muted); margin: 6px 0 4px;
+    letter-spacing: 1px; color: #fff; margin: 6px 0 4px;
 }
 
 .hex-settlement-card {

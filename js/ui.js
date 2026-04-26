@@ -674,7 +674,7 @@ class UI {
                     <span class="hex-biome-emoji">${b.emoji}</span>
                     <div>
                         <div class="hex-biome-name">${b.name.toUpperCase()}</div>
-                        <div style="font-size:0.65rem; color:#888;">ID: ${h.id} | Üretim: ${b.resName || '-'}</div>
+                        <div style="font-size:0.65rem; color:#ccc;">ID: ${h.id} | Üretim: ${b.resName || '-'}</div>
                     </div>
                     <div class="hex-num-badge">${h.number || '-'}</div>
                 </div>
