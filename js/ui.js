@@ -100,7 +100,7 @@ class UI {
         if (this.els.actionMenu) {
             this.els.actionMenu.addEventListener('click', (e) => {
                 const btn = e.target.closest('button[data-action]');
-                if (btn) this.handleActionClick(btn.dataset.action);
+                if (btn) this.handleActionClick(btn.dataset.action, btn.dataset.btype);
             });
         }
 
@@ -325,7 +325,7 @@ class UI {
 
     // ── Eylem Butonları ───────────────────────────────────────────
 
-    handleActionClick(actionType) {
+    handleActionClick(actionType, btype = null) {
         this.state.clearSelection();
         const p = this.state.currentPlayer;
 
@@ -345,7 +345,23 @@ class UI {
                 this.showNotice("Yol kuracağınız kenarı seçin.", "info");
                 break;
             case 'build_building':
-                this.showBuildingChoice();
+                if (btype) {
+                    if (!p.canAfford(BUILD_COSTS[btype])) {
+                        this.showNotice(`${BUILDING_NAMES[btype]} için kaynak yetersiz!`, "danger");
+                        return;
+                    }
+                    this.state.actionMode = 'buildBuilding';
+                    this.state.selectedBuildingType = btype;
+                    this.showNotice(`${BUILDING_NAMES[btype]} inşa etmek için yerleşim yeriniz olan bir HEX'e tıklayın.`, "info");
+                    p.settlements.forEach(hid => {
+                        const hex = this.state.grid.hexes.get(hid);
+                        if (hex && (!hex.settlement.buildings || !hex.settlement.buildings.has(btype))) {
+                            this.state.highlightedHexes.add(hid);
+                        }
+                    });
+                } else {
+                    this.showBuildingChoice();
+                }
                 break;
             case 'train_unit':
                 this.showUnitChoice();
@@ -471,15 +487,20 @@ class UI {
     _updateActionButtons() {
         const p   = this.state.currentPlayer;
         const sub = this.state.subPhase;
-        const isMain = this.state.phase === 'Main' && !p.isAI;
+        const isTurn = !p.isAI && !this.state.gameOver;
+        const isMain = this.state.phase === 'Main';
 
-        // Sol paneldeki yapı butonları + genel actionMenu
         document.querySelectorAll('.action-btn').forEach(btn => {
             const action = btn.dataset.action;
             if (action === 'move_unit') {
-                btn.disabled = !isMain || sub !== 'move';
+                btn.disabled = !isTurn || !isMain || sub !== 'move';
             } else {
-                btn.disabled = !isMain || sub !== 'build';
+                // İnşa eylemleri Main'de build aşamasında, Setup'ta ise her zaman (köy kurma için) aktif olabilir
+                if (!isMain) {
+                    btn.disabled = !isTurn || action !== 'build_village';
+                } else {
+                    btn.disabled = !isTurn || sub !== 'build';
+                }
             }
         });
     }

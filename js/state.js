@@ -198,7 +198,7 @@ class GameState {
         
         player.settlements.forEach(hid => {
             const hex = this.grid.hexes.get(hid);
-            if (!hex || !hex.settlement) return;
+            if (!hex || !hex.settlement || !hex.settlement.buildings) return;
             hex.settlement.buildings.forEach(b => {
                 if (counts[b] !== undefined) counts[b]++;
             });
@@ -212,7 +212,7 @@ class GameState {
             
             if (newLv > oldLv && newLv > 1) {
                 // Sadece 2 ve 3. seviye için seçim gerekir
-                player.pendingChoices.push({ type: b, level: newLv });
+                player.pendingChoices.push({ type: b, level: newLv, options: ['A', 'B'] });
             }
 
             if (!this.firstToLv3[b] && counts[b] >= 4) {
@@ -223,6 +223,38 @@ class GameState {
 
         player.buildingCounts = counts; 
         player.buildings = counts;
+    }
+
+    applyBuildingBonus(player, type) {
+        // Seviye 1 bonusları otomatik uygulanır (bazıları distributeResources içinde)
+        this.recalcBuildings(player);
+        this.recalcPopulation(player);
+    }
+
+    applyBuildingChoiceBonus(player, type, level, choice) {
+        if (!player.bonusState) return;
+
+        if (type === 'ciftlik') {
+            if (level === 2) {
+                if (choice === 'A') player.bonusState.ciftlikResPerTurn += 1;
+                else player.bonusState.ciftlikCostReduction = 1;
+            } else if (level === 3) {
+                if (choice === 'A') player.bonusState.ciftlikPopBonus += 2;
+                else player.bonusState.ciftlikSiegeBonus = true;
+            }
+        } else if (type === 'kervansaray') {
+            if (level === 2) {
+                if (choice === 'A') player.bonusState.bankRate = Math.max(2, player.bonusState.bankRate - 2);
+                else player.bonusState.roadCostReduction = 1;
+            }
+        } else if (type === 'kisla') {
+            if (level === 2) {
+                if (choice === 'A') player.bonusState.spawnUnitXp += 20;
+                else player.bonusState.sovGoldReduction = 1;
+            }
+        }
+        
+        this.recalcPopulation(player);
     }
 
     calculateVP(player) {
