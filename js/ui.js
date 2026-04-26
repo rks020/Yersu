@@ -49,7 +49,9 @@ class UI {
             biomeBody: document.getElementById('biome-body'),
         };
 
+        this.activeBonusTab = 'ciftlik';
         this._bindEvents();
+        this._initBonusPanel();
     }
 
     _bindEvents() {
@@ -109,11 +111,19 @@ class UI {
         const btnRestart = document.getElementById('btnRestart');
         if (btnRestart) {
             btnRestart.addEventListener('click', () => {
-                if (confirm("Oyunu yeniden başlatmak istediğinize emin misiniz?")) {
-                    window.location.reload();
-                }
+                if (confirm("Oyunu yeniden başlatmak istediğinize emin misiniz?")) location.reload();
             });
         }
+
+        // Bonus tabları
+        document.querySelectorAll('.bonus-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                this.activeBonusTab = tab.dataset.btab;
+                document.querySelectorAll('.bonus-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                this._updateBonusCards();
+            });
+        });
     }
 
     // ── Tıklama ──────────────────────────────────────────────────
@@ -379,7 +389,9 @@ class UI {
     update() {
         this._updateResources();
         this._updatePanel();
-        this._updateUnitPanel();
+        this._updateMilitaryTable();
+        this._updateBuildingDots();
+        this._updateBonusCards();
         this._updateLogs();
         this._updateTurnUI();
         this._updateActionButtons();
@@ -405,26 +417,48 @@ class UI {
         if (this.els.resKil)   this.els.resKil.textContent   = p.resources.kil;
         if (this.els.resMaden) this.els.resMaden.textContent = p.resources.maden;
         if (this.els.resGold)  this.els.resGold.textContent  = p.resources.gold;
-        if (this.els.popCounter) this.els.popCounter.textContent = `${p.getPopulationUsed()}/${p.maxPopulation}`;
-        if (this.els.vpCounter) this.els.vpCounter.textContent = this.state.calculateVP(p);
+        const pop = `${p.getPopulationUsed()}/${p.maxPopulation}`;
+        if (this.els.popCounter) this.els.popCounter.textContent = pop;
+        const vp  = this.state.calculateVP(p);
+        if (this.els.vpCounter) this.els.vpCounter.textContent = `⭐${vp}`;
+
+        // Başlık yapımcı
+        const nameEl = document.getElementById('playerNameHeader');
+        if (nameEl) nameEl.textContent = p.name;
+        const crestEl = document.getElementById('playerCrest');
+        if (crestEl) { crestEl.style.background = p.color + '33'; crestEl.style.borderColor = p.color; }
+
+        // Üretim oranları (tahmini - o an seçiliyse)
+        const prodSuffix = ['Besin','Odun','Tas','Kil','Maden','Gold'];
+        const prodKeys   = ['besin','odun','tas','kil','maden','gold'];
+        prodKeys.forEach((key, i) => {
+            const el = document.getElementById(`res${prodSuffix[i]}Prod`);
+            if (el) {
+                // Oyuncu yerleşimlerinden beklenen üretimi hesapla
+                let prod = 0;
+                if (p.settlements) {
+                    p.settlements.forEach(hid => {
+                        const hex = this.state.grid?.hexes?.get(hid);
+                        if (hex && hex.resources) {
+                            prod += (hex.resources[key] || 0);
+                        }
+                    });
+                }
+                el.textContent = prod > 0 ? `+${prod}` : '';
+            }
+        });
     }
 
     _updateTurnUI() {
         const p = this.state.currentPlayer;
-        const sub   = (this.state.subPhase === 'production') ? 'Üretim' : 
-                      (this.state.subPhase === 'build') ? 'İnşa & Ticaret' :
-                      (this.state.subPhase === 'move') ? 'Hareket' : 'Eylem';
-        
-        if (this.els.turnIndicator) {
-            this.els.turnIndicator.innerHTML = `
-                <span style="color:${p.color}">●</span> ${p.name} 
-                <small>(${this.state.phase} - ${sub})</small>
-            `;
-        }
+        const sub = (this.state.subPhase === 'production') ? 'Üretim' : 
+                    (this.state.subPhase === 'build') ? 'İnşa & Ticaret' :
+                    (this.state.subPhase === 'move') ? 'Hareket' : 'Eylem';
 
-        if (this.els.rollDiceBtn) {
-            this.els.rollDiceBtn.disabled = (this.state.subPhase !== 'production' || p.isAI);
+        if (this.els.turnIndicator) {
+            this.els.turnIndicator.innerHTML = `Tur ${this.state.turn} — <span style="color:${p.color}">${p.name}</span> (${sub})`;
         }
+        if (this.els.rollDiceBtn) this.els.rollDiceBtn.disabled = (this.state.subPhase !== 'production' || p.isAI);
         if (this.els.endTurnBtn) {
             this.els.endTurnBtn.disabled = (this.state.subPhase === 'production' || p.isAI);
             this.els.endTurnBtn.textContent = (this.state.subPhase === 'build') ? '⏭ Hareket Aşaması' : '🏁 Turu Bitir';
@@ -435,21 +469,96 @@ class UI {
     }
 
     _updateActionButtons() {
-        if (!this.els.actionMenu) return;
-        const p = this.state.currentPlayer;
+        const p   = this.state.currentPlayer;
         const sub = this.state.subPhase;
         const isMain = this.state.phase === 'Main' && !p.isAI;
-        
-        const buttons = this.els.actionMenu.querySelectorAll('.action-btn');
-        buttons.forEach(btn => {
+
+        // Sol paneldeki yapı butonları + genel actionMenu
+        document.querySelectorAll('.action-btn').forEach(btn => {
             const action = btn.dataset.action;
             if (action === 'move_unit') {
                 btn.disabled = !isMain || sub !== 'move';
             } else {
-                // Ticaret, Köy, Yol, Yapı, Asker (Bunlar inşa/ticaret aşamasında)
                 btn.disabled = !isMain || sub !== 'build';
             }
         });
+    }
+
+    _updateBuildingDots() {
+        const p = this.state.currentPlayer;
+        document.querySelectorAll('.bld-row').forEach(row => {
+            const btype = row.dataset.btype;
+            if (!btype) return;
+            const count = p.buildings?.[btype] || 0;
+            const level = count >= 4 ? 3 : count >= 2 ? 2 : count >= 1 ? 1 : 0;
+            const dots  = row.querySelectorAll('.bld-dot');
+            dots.forEach((dot, i) => dot.classList.toggle('active', i < level));
+        });
+    }
+
+    _updateMilitaryTable() {
+        const tbody = document.getElementById('militaryTableBody');
+        const popEl = document.getElementById('popCounterMilitary');
+        if (!tbody) return;
+        const p = this.state.currentPlayer;
+        if (popEl) popEl.textContent = `${p.getPopulationUsed()}/${p.maxPopulation}`;
+
+        if (!p.units || p.units.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#666;font-size:0.78rem;">Henüz birim yok</td></tr>';
+            return;
+        }
+
+        // Tip bazında grupla
+        const grouped = {};
+        p.units.forEach(u => { if (!grouped[u.type]) grouped[u.type] = []; grouped[u.type].push(u); });
+
+        let html = '';
+        for (const [type, units] of Object.entries(grouped)) {
+            const data = UNIT_DATA[type];
+            if (!data) continue;
+
+            // Temel bonuslar
+            const baseParts = [];
+            if (data.duel > 0)  baseParts.push(`Düello +${data.duel}`);
+            if (data.duel < 0)  baseParts.push(`Düello ${data.duel}`);
+            if (data.range > 0) baseParts.push(`Menzil +${data.range}`);
+            if (data.siege > 0) baseParts.push(`Kuşatma +${data.siege}`);
+            if (data.special === 'anti_cavalry') baseParts.push('+1 vs Süvari');
+            if (data.special === 'anti_infantry') baseParts.push('+1 vs Piyade');
+
+            // Yapı bonusları
+            const bldParts = [];
+            let duelBonus = 0;
+            const kislaLv = p.buildings?.['kisla'] >= 4 ? 3 : p.buildings?.['kisla'] >= 2 ? 2 : p.buildings?.['kisla'] >= 1 ? 1 : 0;
+            if (kislaLv >= 1 && ['mizrakci','kilicli','okcu'].includes(type)) { duelBonus += 1; bldParts.push('Kışla: +1'); }
+            if (kislaLv >= 2 && type === 'sovalye') { duelBonus += 1; bldParts.push('Kışla: +1'); }
+
+            const tapinak = p.buildings?.['tapinak'] >= 1;
+            if (tapinak) bldParts.push('Tapınak: +1 (Kuşatmada)');
+
+            const muhLv = p.buildings?.['muhendishane'] >= 2 ? 2 : 0;
+            if (muhLv >= 2 && data.range > 0) bldParts.push('Mühendishane: Menzil +1');
+
+            // Toplam
+            const totalDuel = data.duel + duelBonus;
+            const totalParts = [];
+            if (totalDuel !== 0) totalParts.push(`Düello ${totalDuel > 0 ? '+' : ''}${totalDuel}`);
+            if (data.range > 0)  totalParts.push(`Menzil ${data.range + (muhLv >= 2 ? 1 : 0)}`);
+            if (data.siege > 0)  totalParts.push(`Kuşatma +${data.siege}`);
+
+            html += `
+            <tr>
+                <td><div class="mil-unit-cell">
+                    <span class="mil-unit-emoji">${data.emoji}</span>
+                    <span class="mil-unit-name">${data.name}</span>
+                </div></td>
+                <td class="mil-count">${units.length}</td>
+                <td class="mil-bonus-base">${baseParts.join(', ') || '-'}</td>
+                <td class="mil-bonus-bld">${bldParts.join('<br>') || '-'}</td>
+                <td class="mil-bonus-total total-col">${totalParts.join(', ') || '-'}</td>
+            </tr>`;
+        }
+        tbody.innerHTML = html;
     }
 
     _updatePanel() {
@@ -462,92 +571,131 @@ class UI {
 
         if (sel.type === 'hex') {
             const h = this.state.grid.hexes.get(sel.id);
+            if (!h) return;
             const b = BIOME_INFO[h.biome];
-            let html = `<h3>${b.emoji} ${b.name} (${h.id})</h3>`;
-            html += `<p>Zar: <b>${h.number || '-'}</b></p>`;
+            
+            let html = `
+                <div class="hex-biome-header">
+                    <span class="hex-biome-emoji">${b.emoji}</span>
+                    <div>
+                        <div class="hex-biome-name">${b.name.toUpperCase()}</div>
+                        <div style="font-size:0.65rem; color:#888;">ID: ${h.id}</div>
+                    </div>
+                    <div class="hex-num-badge">${h.number || '-'}</div>
+                </div>
+
+                <div class="hex-section-title">ÜRETİLEN KAYNAKLAR</div>
+                <div class="hex-res-row">
+                    ${Object.entries(h.resources).map(([res, val]) => val > 0 ? `
+                        <div class="hex-res-chip">${RESOURCE_INFO[res].emoji} ${val}</div>
+                    ` : '').join('')}
+                </div>
+            `;
             
             if (h.settlement) {
                 const owner = this.state.players.find(p => p.id === h.settlement.playerId);
-                html += `<div class="panel-section">
-                    <h4>🏗️ Yerleşim: ${h.settlement.type.toUpperCase()}</h4>
-                    <p>Sahibi: <span style="color:${owner.color}">${owner.name}</span></p>
-                    <p>Yapılar: ${[...h.settlement.buildings].map(b => BUILDING_NAMES[b]).join(', ') || 'Yok'}</p>
-                </div>`;
+                html += `
+                    <div class="hex-section-title">YERLEŞİM</div>
+                    <div class="hex-settlement-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div class="hex-settlement-name">${h.settlement.type === 'koy' ? '🛖 Köy' : h.settlement.type === 'sehir' ? '🏰 Şehir' : '🏛️ Metropol'}</div>
+                            <div style="width:16px; height:16px; border-radius:3px; background:${owner.color}; border:1px solid rgba(255,255,255,0.3);"></div>
+                        </div>
+                        <div style="font-size:0.65rem; color:#aaa; margin-top:2px;">${owner.name}</div>
+                        
+                        <div class="hex-section-title" style="font-size:0.55rem; margin-top:8px;">YAPILAR</div>
+                        <div class="hex-buildings-list">
+                            ${[...h.settlement.buildings].map(btype => `
+                                <div class="hex-bld-item">
+                                    <span>${BUILDING_ICONS[btype]} ${BUILDING_NAMES[btype]}</span>
+                                    <span class="hex-bld-lv">Sv. ${this.state.players.find(p => p.id === h.settlement.playerId).buildings[btype]}</span>
+                                </div>
+                            `).join('')}
+                            ${h.settlement.buildings.size < 6 ? `
+                                <div class="hex-bld-item hex-empty-slot">Boş - İnşa edilebilir</div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="hex-section-title">YERLEŞİM</div>
+                    <div class="hex-settlement-card" style="border-style:dashed; opacity:0.6;">
+                        <div class="hex-empty-slot">Boş Hex - Köy kurulabilir</div>
+                    </div>
+                `;
             }
+
             if (h.army) {
                 const owner = this.state.players.find(p => p.id === h.army.playerId);
-                html += `<div class="panel-section">
-                    <h4>⚔️ Ordu (Eski Sistem)</h4>
-                    <p>Mevcut: <span style="color:${owner.color}">${owner.name}</span></p>
-                    <ul>${h.army.units.map(u => `<li>${u.type}</li>`).join('')}</ul>
-                </div>`;
+                html += `
+                    <div class="hex-section-title">ORDU</div>
+                    <div class="hex-settlement-card">
+                        <div style="font-size:0.75rem; color:#ddd; font-weight:600; margin-bottom:4px;">${owner.name} Birliği</div>
+                        <div style="display:flex; flex-wrap:wrap; gap:3px;">
+                            ${h.army.units.map(u => `<span title="${u.type}">${UNIT_DATA[u.type].emoji}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
             }
-            
-            // Hex'e bağlı düğmelerdeki ordular
-            h.nodeIds.forEach(nid => {
-                const node = this.state.grid.nodes.get(nid);
-                if (node.army) {
-                    const owner = this.state.players.find(p => p.id === node.army.playerId);
-                    html += `<div class="panel-section">
-                        <h4>⚔️ Düğme Ordusu (${nid})</h4>
-                        <p>Sahibi: <span style="color:${owner.color}">${owner.name}</span></p>
-                        <ul>${node.army.units.map(u => `<li>${u.type} (Hız: ${u.movesLeft})</li>`).join('')}</ul>
-                    </div>`;
-                }
-            });
 
             this.els.panelInfo.innerHTML = html;
         }
     }
 
-    _updateUnitPanel() {
-        const unitPanel = document.getElementById('unitPanel');
-        if (!unitPanel) return;
+    _initBonusPanel() {
+        this._updateBonusCards();
+    }
 
+    _updateBonusCards() {
+        const wrap = document.getElementById('bonusCardsWrap');
+        if (!wrap) return;
+        const btype = this.activeBonusTab;
         const p = this.state.currentPlayer;
-        if (p.units.length === 0) {
-            unitPanel.innerHTML = '<div style="font-size:0.75rem; color:#888; text-align:center;">Henüz birim yok</div>';
-            return;
-        }
+        const bonuses = BUILDING_BONUSES[btype];
+        if (!bonuses) return;
 
-        // Birimleri tiplerine göre grupla
-        const grouped = {};
-        p.units.forEach(u => {
-            if (!grouped[u.type]) grouped[u.type] = [];
-            grouped[u.type].push(u);
-        });
+        const builtCount = p.buildings?.[btype] || 0;
+        const currentLevel = builtCount >= 4 ? 3 : builtCount >= 2 ? 2 : builtCount >= 1 ? 1 : 0;
 
         let html = '';
-        for (const [type, units] of Object.entries(grouped)) {
-            const data = UNIT_DATA[type];
-            let duelBonus = 0;
-            // Kışla 1. seviye piyade bonusu (örnek)
-            if (data.cls === 'piyade' && p.buildings['kisla'] > 0) {
-                duelBonus += 1;
-            }
-            // Kışla 2. seviye şövalye bonusu (örnek)
-            if (type === 'sovalye' && p.chosenBonuses['kisla'] && p.chosenBonuses['kisla'][2] === 'B') {
-                duelBonus += 1;
-            }
+        [1, 2, 3].forEach(lv => {
+            const lvBonuses = bonuses[lv];
+            const isActive = lv <= currentLevel;
+            const isNext   = lv === currentLevel + 1;
+            
+            html += `
+                <div class="bonus-card ${isActive ? 'active-level' : ''}" style="opacity: ${isActive || isNext ? 1 : 0.4}">
+                    <div class="bonus-card-header">${BUILDING_NAMES[btype].toUpperCase()} - SEVİYE ${lv}</div>
+                    <div class="bonus-card-options">
+            `;
 
-            const totalDuel = data.duel + duelBonus;
-            const duelStr = totalDuel >= 0 ? `+${totalDuel}` : `${totalDuel}`;
+            if (lvBonuses.length > 1) {
+                // Seçmeli bonuslar (A, B)
+                lvBonuses.forEach((desc, idx) => {
+                    const letter = String.fromCharCode(65 + idx); // A, B...
+                    const isChosen = p.chosenBonuses?.[btype]?.[lv] === letter;
+                    html += `
+                        <div class="bonus-option ${isChosen ? 'chosen' : ''}">
+                            <div class="bonus-option-badge">${letter}</div>
+                            <div>${desc}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                // Tek bonus
+                html += `<div class="bonus-card-single">${lvBonuses[0]}</div>`;
+            }
 
             html += `
-                <div style="font-size:0.8rem; background:rgba(0,0,0,0.3); padding:8px; border-radius:6px; margin-bottom:5px; border-left:3px solid ${p.color};">
-                    <div style="font-weight:bold; margin-bottom:4px; font-size:0.9rem;">
-                        ${data.emoji} ${data.name} × ${units.length}
-                    </div>
-                    <div style="color:#aaa; display:flex; gap:10px; font-size:0.75rem;">
-                        <span>🏃 Hız: ${data.speed}</span>
-                        <span>⚔️ Düello: ${duelStr}</span>
-                        ${data.range > 0 ? `<span>🏹 Menzil: ${data.range}</span>` : ''}
                     </div>
                 </div>
             `;
-        }
-        unitPanel.innerHTML = html;
+        });
+        wrap.innerHTML = html;
     }
+
+
 
 
     _updateLogs() {
