@@ -318,6 +318,7 @@ class GameState {
                         if (res === 'besin' && hex.settlement.buildings.has('ciftlik')) amount += 1;
                         owner.gain(res, amount);
                         gained.push({ playerId: owner.id, res, amount });
+                        this.addLog(`🌾 ${owner.name}, ${hex.number} zarından ${amount} ${res} kazandı.`, 'success');
                     });
                 }
             }
@@ -327,6 +328,7 @@ class GameState {
             if (p.bonusState.ciftlikResPerTurn > 0) {
                 p.gain('besin', p.bonusState.ciftlikResPerTurn);
                 gained.push({ playerId: p.id, res: 'besin', amount: p.bonusState.ciftlikResPerTurn });
+                this.addLog(`🌾 ${p.name}, Çiftlik bonusundan ${p.bonusState.ciftlikResPerTurn} besin kazandı.`, 'success');
             }
         });
 
