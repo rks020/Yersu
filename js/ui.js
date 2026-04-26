@@ -287,6 +287,20 @@ class UI {
         else {
             if (clickedNode && clickedNode.army) {
                 this.state.selected = { type: 'node', id: clickedNode.id };
+                
+                // OTOMATİK HAREKET MODU: Hareket aşamasındaysak ve kendi birimimizse doğrudan hareket moduna geç
+                if (this.state.subPhase === 'move' && clickedNode.army.playerId === current.id) {
+                    const unit = clickedNode.army.units[0];
+                    if (unit.movesLeft > 0) {
+                        this.state.selectedUnit = unit;
+                        this.state.selectedUnitNode = clickedNode.id;
+                        this.state.actionMode = 'moveOrAttack';
+                        this._updateMovementHighlights(clickedNode.id, unit);
+                        this.showNotice("Birim seçildi. Hedef noktaya tıklayarak hareket edin veya saldırın.", "info");
+                    } else {
+                        this.showNotice("Bu birimin hareket puanı bitti!", "warning");
+                    }
+                }
             } else if (clickedHex) {
                 this.state.selected = { type: 'hex', id: clickedHex.id };
             } else {
