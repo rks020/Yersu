@@ -127,7 +127,7 @@ const BUILDING_BONUSES = {
         3: ['(A) Asker popülasyonu +2 artar (Maks 16)', '(B) Çiftlik bulunan her yerleşim için kuşatma puanı +1 artar'],
     },
     kervansaray: {
-        1: ['Yol için gerekli temel kaynak maliyeti -1 azalır (Kaynağı Oyuncu Seçer)'],
+        1: ['(A) Yol maliyetinde -1 Odun', '(B) Yol maliyetinde -1 Taş'],
         2: ['(A) Altın karşılığında artık kasadan 3 temel kaynak alınabilir', '(B) Oyuncu yolundan geçenlerden her seferinde 1 temel kaynak alır'],
         3: ['(A) Oyuncu her turunda kasadan kendi seçeceği bir temel kaynağı alır', '(B) Diğer oyuncular her ticaret yaptığında kasadan seçtiğin bir temel kaynak alırsın'],
     },

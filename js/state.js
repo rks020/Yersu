@@ -37,6 +37,7 @@ class Player {
             ciftlikCostReduction: 0,
             ciftlikSiegeBonus: false,
             roadCostReduction: 0,
+            roadDiscountRes: null, // 'odun' veya 'tas'
             bankRate: 6,
             spawnUnitXp: 0,
             sovGoldReduction: 0,
@@ -245,7 +246,6 @@ class GameState {
         player.buildings = counts;
 
         // Seviye 1 Pasif Bonusları Uygula
-        player.bonusState.roadCostReduction = (counts.kervansaray >= 1) ? 1 : 0;
         player.bonusState.canBuildSiege     = (counts.muhendishane >= 1);
     }
 
@@ -267,7 +267,11 @@ class GameState {
                 else player.bonusState.ciftlikSiegeBonus = true;
             }
         } else if (type === 'kervansaray') {
-            if (level === 2) {
+            if (level === 1) {
+                if (choice === 'A') player.bonusState.roadDiscountRes = 'odun';
+                else player.bonusState.roadDiscountRes = 'tas';
+                player.bonusState.roadCostReduction = 1;
+            } else if (level === 2) {
                 if (choice === 'A') player.bonusState.bankRate = Math.max(2, player.bonusState.bankRate - 2);
                 else player.bonusState.roadCostReduction = 1;
             }

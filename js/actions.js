@@ -60,8 +60,9 @@ class Actions {
         const edge = this.state.grid.edges.get(edgeId);
         if (!p || !edge || edge.road !== null) return false;
         let actualCost = {...BUILD_COSTS.yol};
-        if (p.bonusState.roadCostReduction > 0) {
-            actualCost.tas = Math.max(0, actualCost.tas - 1);
+        if (p.bonusState.roadDiscountRes) {
+            const res = p.bonusState.roadDiscountRes; // 'odun' veya 'tas'
+            actualCost[res] = Math.max(0, actualCost[res] - 1);
         }
 
         if (!p.canAfford(actualCost)) return false;
