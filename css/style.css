@@ -674,3 +674,29 @@ canvas {
     font-weight: bold;
     cursor: pointer;
 }
+
+/* ────────────────────────────────────────────────────────
+   BİRİM PANELİ & TİCARET MODALI
+   ──────────────────────────────────────────────────────── */
+
+.unit-panel {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+.unit-panel::-webkit-scrollbar {
+    width: 6px;
+}
+.unit-panel::-webkit-scrollbar-thumb {
+    background: rgba(201, 162, 39, 0.4);
+    border-radius: 4px;
+}
+
+.pt-res-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: rgba(0,0,0,0.2);
+    padding: 10px;
+    border-radius: 6px;
+}

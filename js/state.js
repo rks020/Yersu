@@ -141,6 +141,19 @@ class GameState {
         this.resetTurnActions();
         this.discoveredHexes = new Set();
         this.initDiscovery();
+        this.initStartingResources();
+    }
+
+    initStartingResources() {
+        this.players.forEach(p => {
+            p.resources.besin = 3;
+            p.resources.odun  = 3;
+            p.resources.tas   = 3;
+            p.resources.kil   = 3;
+            p.resources.maden = 3;
+            p.resources.gold  = 3;
+        });
+        this.addLog('🎁 Herkes başlangıç kaynakları aldı (her kaynaktan 3).', 'success');
     }
 
     get currentPlayer() { return this.players[this.currentPlayerIdx]; }
@@ -275,6 +288,11 @@ class GameState {
             this.subPhase = 'move'; 
         } else {
             this.distributeResources(this.lastRoll);
+            // Main aşamada zar atılınca tüm birimlere hareket puanı ver
+            this.currentPlayer.units.forEach(u => {
+                const data = UNIT_DATA[u.type];
+                u.movesLeft = data ? (data.speed || 2) : 2;
+            });
             this.subPhase = 'build'; // Üretimden sonra İnşa/Ticaret başlar
         }
         return this.lastRoll;

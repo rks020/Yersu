@@ -48,6 +48,13 @@
                 </div>
             </div>
 
+            <div class="panel-section" style="margin-top: 10px;">
+                <div class="panel-title">Birimlerim</div>
+                <div id="unitPanel" class="unit-panel">
+                    <div style="font-size:0.75rem; color:#888; text-align:center;">Henüz birim yok</div>
+                </div>
+            </div>
+
         </aside>
 
         <!-- MERKEZ CANVAS (Harita) -->
@@ -148,6 +155,32 @@
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button id="btnConfirmTrade" class="btn-primary" style="flex:1;">Takas Et</button>
                 <button class="btn-primary" style="flex:1; background: #555;" onclick="document.getElementById('tradeModal').classList.remove('active')">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OYUNCULAR ARASI TİCARET MODALI -->
+    <div id="playerTradeModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 560px;">
+            <h2>⚖️ Oyuncu Ticareti</h2>
+            <p style="font-size: 0.82rem; color: #ccc; margin-bottom: 15px;">Karşı tarafa teklif sun. Onaylarsa kaynaklar aktarılır.</p>
+            <div style="margin-bottom: 14px;">
+                <label>Teklif Edilen Oyuncu:</label>
+                <select id="ptTargetPlayer" class="input-style" style="width:100%; margin-top:4px;"></select>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div>
+                    <div style="font-weight:bold; margin-bottom:8px; color:#aef;">Veriyorum</div>
+                    <div id="ptOfferGrid" class="pt-res-grid"></div>
+                </div>
+                <div>
+                    <div style="font-weight:bold; margin-bottom:8px; color:#fca;">İstiyorum</div>
+                    <div id="ptRequestGrid" class="pt-res-grid"></div>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:18px;">
+                <button id="btnConfirmPlayerTrade" class="btn-primary" style="flex:1;">Teklif Gönder</button>
+                <button class="btn-primary" style="flex:1; background:#555;" onclick="document.getElementById('playerTradeModal').classList.remove('active')">İptal</button>
             </div>
         </div>
     </div>

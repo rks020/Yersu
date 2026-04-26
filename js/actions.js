@@ -304,6 +304,34 @@ class Actions {
         return true;
     }
 
+    tradeWithPlayer(fromId, toId, offer, request) {
+        // offer / request: { besin:0, odun:0, tas:0, kil:0, maden:0, gold:0 }
+        const from = this.state.players.find(pl => pl.id === fromId);
+        const to   = this.state.players.find(pl => pl.id === toId);
+        if (!from || !to || from === to) return false;
+
+        // Kaynak kontrolü
+        for (const [res, amt] of Object.entries(offer)) {
+            if (amt > 0 && (from.resources[res] || 0) < amt) return false;
+        }
+        for (const [res, amt] of Object.entries(request)) {
+            if (amt > 0 && (to.resources[res] || 0) < amt) return false;
+        }
+
+        // Transfer
+        for (const [res, amt] of Object.entries(offer)) {
+            if (amt > 0) { from.resources[res] -= amt; to.resources[res] = (to.resources[res] || 0) + amt; }
+        }
+        for (const [res, amt] of Object.entries(request)) {
+            if (amt > 0) { to.resources[res] -= amt; from.resources[res] = (from.resources[res] || 0) + amt; }
+        }
+
+        const offerStr   = Object.entries(offer).filter(([,v])=>v>0).map(([r,v])=>`${v} ${r}`).join(', ');
+        const requestStr = Object.entries(request).filter(([,v])=>v>0).map(([r,v])=>`${v} ${r}`).join(', ');
+        this.state.addLog(`🤝 ${from.name} → ${to.name}: [${offerStr}] karşılığında [${requestStr}]`, 'success');
+        return true;
+    }
+
     chooseBonus(playerId, buildingType, level, choice) {
         const p = this.state.players.find(pl => pl.id === playerId);
         if (!p) return false;

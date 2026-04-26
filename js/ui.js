@@ -379,6 +379,7 @@ class UI {
     update() {
         this._updateResources();
         this._updatePanel();
+        this._updateUnitPanel();
         this._updateLogs();
         this._updateTurnUI();
         this._updateActionButtons();
@@ -649,8 +650,107 @@ class UI {
     }
 
     showTradeModal() {
-        if (!this.els.tradeModal) return;
-        this.els.tradeModal.classList.add('active');
+        this.showChoiceModalWithDesc("Ticaret Türü", [
+            { id: 'bank', name: 'Banka Ticareti', icon: '🏦', enabled: true, costStr: '', desc: 'Sistemle takas yap (6:1 vs)' },
+            { id: 'player', name: 'Oyuncu Ticareti', icon: '🤝', enabled: true, costStr: '', desc: 'Diğer oyunculara teklif sun' }
+        ], (choice) => {
+            if (choice === 'bank') {
+                if (this.els.tradeModal) this.els.tradeModal.classList.add('active');
+            } else {
+                this.showPlayerTradeModal();
+            }
+        });
+    }
+
+    showPlayerTradeModal() {
+        const modal = document.getElementById('playerTradeModal');
+        const select = document.getElementById('ptTargetPlayer');
+        const offerGrid = document.getElementById('ptOfferGrid');
+        const requestGrid = document.getElementById('ptRequestGrid');
+        if (!modal || !select || !offerGrid || !requestGrid) return;
+
+        // Hedef oyuncuları doldur
+        select.innerHTML = '';
+        this.state.players.forEach(p => {
+            if (p.id !== this.state.currentPlayer.id) {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.name;
+                select.appendChild(opt);
+            }
+        });
+
+        const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden', 'gold'];
+        const resIcons = { besin:'🌾', odun:'🪵', tas:'🪨', kil:'🧱', maden:'⚙️', gold:'💰' };
+        
+        offerGrid.innerHTML = '';
+        requestGrid.innerHTML = '';
+        
+        resKeys.forEach(r => {
+            offerGrid.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-size:0.8rem;">${resIcons[r]} ${r.toUpperCase()}</span>
+                    <input type="number" id="ptOffer_${r}" class="input-style" value="0" min="0" style="width:50px; padding:2px; height:24px;">
+                </div>`;
+            requestGrid.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-size:0.8rem;">${resIcons[r]} ${r.toUpperCase()}</span>
+                    <input type="number" id="ptReq_${r}" class="input-style" value="0" min="0" style="width:50px; padding:2px; height:24px;">
+                </div>`;
+        });
+
+        document.getElementById('btnConfirmPlayerTrade').onclick = () => this.handleConfirmPlayerTrade();
+        modal.classList.add('active');
+    }
+
+    handleConfirmPlayerTrade() {
+        const targetId = parseInt(document.getElementById('ptTargetPlayer').value);
+        const offer = {};
+        const request = {};
+        const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden', 'gold'];
+        
+        let offerTotal = 0;
+        let reqTotal = 0;
+        resKeys.forEach(r => {
+            offer[r] = parseInt(document.getElementById(`ptOffer_${r}`).value) || 0;
+            request[r] = parseInt(document.getElementById(`ptReq_${r}`).value) || 0;
+            offerTotal += offer[r];
+            reqTotal += request[r];
+        });
+
+        if (offerTotal === 0 && reqTotal === 0) {
+            this.showNotice("Lütfen geçerli bir teklif girin.", "warning");
+            return;
+        }
+
+        const targetP = this.state.players.find(p => p.id === targetId);
+        if (targetP.isAI) {
+            // Basit AI kabul mantığı: Sadece kârlıysa (istediği verdiğinden az/eşitse) kabul etsin
+            if (offerTotal >= reqTotal) {
+                if (this.actions.tradeWithPlayer(this.state.currentPlayer.id, targetId, offer, request)) {
+                    this.showNotice(`${targetP.name} teklifinizi KABUL ETTİ!`, "success");
+                    document.getElementById('playerTradeModal').classList.remove('active');
+                    this.update();
+                } else {
+                    this.showNotice("Yetersiz kaynaklar!", "danger");
+                }
+            } else {
+                this.showNotice(`${targetP.name} teklifinizi REDDETTİ!`, "danger");
+            }
+        } else {
+            // İnsan oyuncu için confirm
+            if (confirm(`${targetP.name}, ${this.state.currentPlayer.name} size bir ticaret teklif ediyor.\nKabul ediyor musunuz?`)) {
+                if (this.actions.tradeWithPlayer(this.state.currentPlayer.id, targetId, offer, request)) {
+                    this.showNotice("Ticaret gerçekleştirildi!", "success");
+                    document.getElementById('playerTradeModal').classList.remove('active');
+                    this.update();
+                } else {
+                    this.showNotice("Bir tarafta yeterli kaynak yok!", "danger");
+                }
+            } else {
+                this.showNotice("Teklif reddedildi.", "warning");
+            }
+        }
     }
 
     handleConfirmTrade() {
@@ -659,13 +759,15 @@ class UI {
         const buyType  = this.els.tradeBuyType?.value;
         const amount   = parseInt(this.els.tradeAmount?.value);
         if (!sellType || !buyType || isNaN(amount) || amount <= 0) return;
-        const ok = this.actions.bankTrade(p.id, sellType, amount, buyType);
+        
+        // Actions.js içerisindeki bankTrade yerine tradeWithBank çağrılmalıydı!
+        const ok = this.actions.tradeWithBank(p.id, sellType, buyType);
         if (ok) {
             this.els.tradeModal.classList.remove('active');
             this.showNotice("Takas başarılı!", "success");
             this.update();
         } else {
-            this.showNotice("Takas gerçekleştirilemedi!", "danger");
+            this.showNotice("Takas gerçekleştirilemedi! (Yetersiz kaynak)", "danger");
         }
     }
 
