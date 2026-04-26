@@ -734,6 +734,7 @@ class UI {
                 <div class="unit-info-list" style="margin-top:10px;">
                     ${node.army.units.map(u => {
                         const data = UNIT_DATA[u.type];
+                        if (!data) return '';
                         return `
                             <div class="hex-settlement-card" style="margin-bottom:8px; border-left: 3px solid ${owner.color};">
                                 <div style="display:flex; align-items:center; gap:10px;">
@@ -741,16 +742,15 @@ class UI {
                                     <div style="flex:1;">
                                         <div style="font-weight:700; color:#eee;">${data.name}</div>
                                         <div style="display:flex; gap:8px; font-size:0.65rem; color:#aaa; margin-top:2px;">
-                                            <span>❤️ Can: ${u.hp}/${data.hp}</span>
                                             <span>👣 Hareket: ${u.movesLeft.toFixed(1)}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
-                                    <div style="font-size:0.65rem; color:#ccc;">⚔️ Güç: <b>${data.power}</b></div>
-                                    <div style="font-size:0.65rem; color:#ccc;">🛡️ Zırh: <b>${data.armor}</b></div>
-                                    ${data.range > 0 ? `<div style="font-size:0.65rem; color:#ccc;">🏹 Menzil: <b>${data.range}</b></div>` : ''}
+                                    <div style="font-size:0.65rem; color:#ccc;">🎲 Düello: <b>${data.duel >= 0 ? '+' : ''}${data.duel}</b></div>
                                     <div style="font-size:0.65rem; color:#ccc;">⚡ Hız: <b>${data.speed}</b></div>
+                                    ${data.range > 0 ? `<div style="font-size:0.65rem; color:#ccc;">🏹 Menzil: <b>${data.range}</b></div>` : ''}
+                                    ${data.siege > 0 ? `<div style="font-size:0.65rem; color:#ccc;">🛡️ Kuşatma: <b>+${data.siege}</b></div>` : ''}
                                 </div>
                             </div>
                         `;
@@ -923,9 +923,23 @@ class UI {
     showUnitChoice() {
         const p = this.state.currentPlayer;
         const items = Object.entries(UNIT_DATA).map(([id, data]) => {
-            let canBuild = p.gold >= data.gold && p.units.length < p.maxPopulation;
+            const hasGold = (p.resources.gold || 0) >= (data.gold || 0);
+            const hasPop = p.units.length < p.maxPopulation;
+            let canBuild = hasGold && hasPop;
+            
             if (data.cls === 'kusatma' && !p.bonusState?.canBuildSiege) canBuild = false;
-            return { id, name: data.name, icon: data.emoji, costStr: `💰${data.gold}`, enabled: canBuild };
+            
+            let statusText = "";
+            if (!hasGold) statusText = ` (Yetersiz Altın: ${p.resources.gold}/${data.gold})`;
+            else if (!hasPop) statusText = " (Nüfus Dolu)";
+
+            return { 
+                id, 
+                name: data.name + statusText, 
+                icon: data.emoji, 
+                costStr: `💰${data.gold}`, 
+                enabled: canBuild 
+            };
         });
 
         this.showChoiceModalWithDesc("Üretilecek Asker Seçin", items, (uType) => {
