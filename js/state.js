@@ -140,29 +140,7 @@ class GameState {
 
         this.resetTurnActions();
         this.discoveredHexes = new Set();
-        this.initSetupPositions();
         this.initDiscovery();
-    }
-
-    initSetupPositions() {
-        const corners = this.grid.getCornerNodes(this.players.length);
-        this.players.forEach((p, i) => {
-            const nodeId = corners[i];
-            const uid = p.nextUnitId();
-            const unit = { 
-                uid, 
-                type: 'kilicli', 
-                hp: 1, 
-                movesLeft: 0, 
-                nodeId: nodeId 
-            };
-            p.units.push(unit);
-            const node = this.grid.nodes.get(nodeId);
-            if (node) {
-                node.army = { playerId: p.id, units: [{ uid, type: 'kilicli', hp: 1, movesLeft: 0 }] };
-            }
-        });
-        this.addLog("Harita köşelerine başlangıç birlikleri yerleştirildi.", "info");
     }
 
     get currentPlayer() { return this.players[this.currentPlayerIdx]; }
