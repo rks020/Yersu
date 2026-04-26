@@ -880,17 +880,16 @@ class UI {
     }
 
     showChoiceModalWithDesc(title, items, onSelect) {
-        if (!this.els.choiceModal) return;
-        this.els.choiceTitle.textContent = title;
+        this.els.choiceModalTitle.textContent = title;
         this.els.choiceGrid.innerHTML = '';
         
         items.forEach(item => {
             const div = document.createElement('div');
             div.className = `choice-item ${item.enabled ? 'enabled' : 'disabled'}`;
             div.innerHTML = `
-                <div class="icon" style="font-size:2rem;">${item.icon}</div>
+                <div class="icon">${item.icon}</div>
                 <div class="name">${item.name}</div>
-                <div class="desc" style="font-size:0.75rem; color:#aaa; margin:4px 0; line-height:1.3;">${item.desc || ''}</div>
+                <div class="desc">${item.desc || ''}</div>
                 <div class="cost">${item.costStr}</div>
             `;
             if (item.enabled) {
@@ -899,7 +898,7 @@ class UI {
                     onSelect(item.id);
                 };
             } else {
-                div.onclick = () => this.showNotice("Yeterli kaynak yok veya kısıtlama var!", "danger");
+                div.onclick = () => this.showNotice(item.error || "Yeterli kaynak yok!", "danger");
             }
             this.els.choiceGrid.appendChild(div);
         });
@@ -909,22 +908,30 @@ class UI {
     showBuildingChoice() {
         const p = this.state.currentPlayer;
         const items = ALL_BUILDINGS.map(bType => {
-            const lv1Bonus = BUILDING_BONUSES[bType]?.[1] || [];
             const cost = BUILD_COSTS[bType];
-            const enabled = p.canAfford(cost);
-            const costStr = Object.entries(cost).map(([r, a]) => `${RESOURCE_INFO[r]?.emoji || ''}${a}`).join(' ');
-            // Yapının mevcut seviyesini hesapla
-            const builtCount = this.state.players.reduce((acc, pl) => {
-                return acc + (pl.buildings?.[bType] || 0);
-            }, 0);
+            let canAfford = true;
+            let missing = [];
+            for (const [res, amt] of Object.entries(cost)) {
+                if ((p.resources[res] || 0) < amt) {
+                    canAfford = false;
+                    missing.push(`${RESOURCE_INFO[res].name}`);
+                }
+            }
+            
             const playerBuilt = p.buildings?.[bType] || 0;
             const level = playerBuilt >= 4 ? 3 : playerBuilt >= 2 ? 2 : playerBuilt >= 1 ? 1 : 0;
             const nextLevel = level + 1;
-            const nextBonuses = BUILDING_BONUSES[bType]?.[nextLevel] || lv1Bonus;
-            const desc = nextBonuses.join(' | ');
-            const icon = BUILDING_ICONS[bType] || '🏗️';
-            const levelLabel = level > 0 ? ` (Sv.${level}→${nextLevel})` : ' (Yeni)';
-            return { id: bType, name: BUILDING_NAMES[bType] + levelLabel, icon, costStr, enabled, desc };
+            const nextBonuses = BUILDING_BONUSES[bType]?.[nextLevel] || BUILDING_BONUSES[bType]?.[1] || [];
+            
+            return { 
+                id: bType, 
+                name: BUILDING_NAMES[bType] + (level > 0 ? ` (Sv.${level}→${nextLevel})` : ' (Yeni)'), 
+                icon: BUILDING_ICONS[bType] || '🏗️', 
+                costStr: Object.entries(cost).map(([r, a]) => `${RESOURCE_INFO[r]?.emoji || ''}${a}`).join(' '), 
+                enabled: canAfford,
+                desc: nextBonuses.join(' | '),
+                error: canAfford ? "" : `Eksik: ${missing.join(", ")}`
+            };
         });
 
         this.showChoiceModalWithDesc("İnşa Edilecek Yapı Seçin", items, (bType) => {
@@ -946,19 +953,25 @@ class UI {
             const hasGold = (p.resources.gold || 0) >= (data.gold || 0);
             const hasPop = p.units.length < p.maxPopulation;
             let canBuild = hasGold && hasPop;
+            let error = "";
             
-            if (data.cls === 'kusatma' && !p.bonusState?.muhendishane_kusatma) canBuild = false;
-            
-            let statusText = "";
-            if (!hasGold) statusText = ` (Yetersiz Altın: ${p.resources.gold}/${data.gold})`;
-            else if (!hasPop) statusText = " (Nüfus Dolu)";
+            if (data.cls === 'kusatma' && !p.bonusState?.muhendishane_kusatma) {
+                canBuild = false;
+                error = "Kuşatma birimi için Mühendishane gerekir!";
+            } else if (!hasGold) {
+                error = `Yetersiz Altın! (${p.resources.gold}/${data.gold})`;
+            } else if (!hasPop) {
+                error = "Nüfus kapasitesi dolu!";
+            }
 
             return { 
                 id, 
-                name: data.name + statusText, 
+                name: data.name, 
                 icon: data.emoji, 
-                costStr: `💰${data.gold}`, 
-                enabled: canBuild 
+                desc: `${data.duel}⚔️ | ${data.speed}🏃 | ${data.range}🎯`,
+                costStr: `💰 ${data.gold} Altın`, 
+                enabled: canBuild,
+                error
             };
         });
 

@@ -652,3 +652,103 @@
     padding: 4px 0;
     font-style: italic;
 }
+/* ────────────────────────────────────────────────────────
+   MODALLAR & SEÇİM UI (GELİŞMİŞ)
+   ──────────────────────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(201, 162, 39, 0.1);
+    color: var(--text);
+    text-align: center;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.choice-modal {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.choice-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(201, 162, 39, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 180px;
+}
+
+.choice-item:hover.enabled {
+    background: rgba(201, 162, 39, 0.15);
+    border-color: var(--gold);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4), 0 0 15px rgba(201, 162, 39, 0.2);
+}
+
+.choice-item.disabled {
+    opacity: 0.5;
+    filter: grayscale(1);
+    cursor: not-allowed;
+    background: rgba(0,0,0,0.2);
+}
+
+.choice-item .icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+}
+
+.choice-item .name {
+    font-family: var(--font-heading);
+    font-weight: bold;
+    color: var(--gold);
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+}
+
+.choice-item .desc {
+    font-size: 0.78rem;
+    color: #bbb;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.choice-item .cost {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: #fff;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.1);
+}
