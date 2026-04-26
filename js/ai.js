@@ -151,7 +151,11 @@ class AIEngine {
                 const unit = unitsWithMoves[0];
                 const node = this.state.grid.nodes.get(unit.nodeId);
                 const targetId = node.adjacentNodes[Math.floor(Math.random() * node.adjacentNodes.length)];
-                this.actions.moveUnit(player.id, unit.uid, targetId);
+                const ok = this.actions.moveUnit(player.id, unit.uid, targetId);
+                if (!ok) {
+                    // Eğer hareket geçerli değilse, takılmasını önlemek için MP'sini sıfırla
+                    unit.movesLeft = 0;
+                }
                 // Hareket sonrası tekrar kontrol için
                 setTimeout(() => this.doMainTurn(player), 500);
                 return;
