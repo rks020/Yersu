@@ -44,7 +44,9 @@ class AIEngine {
 
         // Setup aşamasında köy yoksa kur
         if (!player.setupDone) {
-            const hexes = this.state.grid.getBuildableSettlementHexes(player.id);
+            const hexes = Array.from(this.state.grid.hexes.values())
+                               .filter(h => this.state.grid.hexIsSettlable(h.id))
+                               .map(h => h.id);
             if (hexes.length > 0) {
                 const target = hexes[Math.floor(Math.random() * hexes.length)];
                 if (this.actions.setupSettleVillage(player.id, target)) {
