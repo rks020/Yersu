@@ -59,7 +59,12 @@ class Actions {
         const p = this.state.players.find(pl => pl.id === playerId);
         const edge = this.state.grid.edges.get(edgeId);
         if (!p || !edge || edge.road !== null) return false;
-        if (!p.canAfford(BUILD_COSTS.yol)) return false;
+        let actualCost = {...BUILD_COSTS.yol};
+        if (p.bonusState.roadCostReduction > 0) {
+            actualCost.tas = Math.max(0, actualCost.tas - 1);
+        }
+
+        if (!p.canAfford(actualCost)) return false;
 
         // Yol kuralı: Kenarın en az bir ucunda oyuncunun yolu veya yerleşimi olmalı
         const n1Ok = this.state.grid.playerConnectedToNode(playerId, edge.node1)
@@ -68,7 +73,7 @@ class Actions {
                   || this.state.grid.nodeHasPlayerSettlement(playerId, edge.node2);
         if (!n1Ok && !n2Ok) return false;
 
-        p.spend(BUILD_COSTS.yol);
+        p.spend(actualCost);
         edge.road = playerId;
         p.roads.push(edgeId);
 
@@ -197,13 +202,11 @@ class Actions {
         if (!startNode.adjacentNodes.includes(targetNodeId)) return false;
 
         const udata = UNIT_DATA[unitDef.type];
-        let cost = 2; // Patika (yol yok) maliyeti 2 MP
-
-        // Yol bonusu: Kendi yolunda ise maliyet 1 MP
+        let cost = 3; // Patika (yol yok) maliyeti 3 MP
         const edgeId = this.state.grid.getEdgeBetweenNodes(startNodeId, targetNodeId);
         const edge = this.state.grid.edges.get(edgeId);
-        if (edge && edge.road === playerId) {
-            cost = 1;
+        if (edge && edge.road === playerId && udata.cls !== 'kusatma') {
+            cost = 2; // Yol bonusu: Maliyet 2 MP
         }
 
         if (unitDef.movesLeft < cost) return false;

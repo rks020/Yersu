@@ -243,6 +243,10 @@ class GameState {
 
         player.buildingCounts = counts; 
         player.buildings = counts;
+
+        // Seviye 1 Pasif Bonusları Uygula
+        player.bonusState.roadCostReduction = (counts.kervansaray >= 1) ? 1 : 0;
+        player.bonusState.canBuildSiege     = (counts.muhendishane >= 1);
     }
 
     applyBuildingBonus(player, type) {
