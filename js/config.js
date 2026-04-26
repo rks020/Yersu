@@ -46,6 +46,15 @@ const BUILDING_NAMES = {
     tiyatro:      'Tiyatro',
 };
 
+const BUILDING_ICONS = {
+    ciftlik:      '🚜',
+    kisla:        '⚔️',
+    kervansaray:  '🐪',
+    tapinak:      '🏛️',
+    muhendishane: '⚙️',
+    tiyatro:      '🎭',
+};
+
 const ALL_BUILDINGS = ['ciftlik', 'kisla', 'kervansaray', 'tapinak', 'muhendishane', 'tiyatro'];
 
 // ==================== ASKERİ BİRİMLER ====================
@@ -113,33 +122,33 @@ const VP = {
 // ==================== YAPI BONUSLARI (açıklama) ====================
 const BUILDING_BONUSES = {
     ciftlik: {
-        1: ['Üretim zarı denk gelirse +1 Besin (biyomdan bağımsız)'],
-        2: ['(A) Her tur +1 Besin', '(B) Çiftlik inşa maliyeti tüm kaynaklarda -1'],
-        3: ['(A) Asker popülasyonu +2', '(B) Çiftlikli yerleşimlerde kuşatma puanı +1'],
+        1: ['Üretim zarı sonucu bu yerleşim yerine denk geldiyse +1 besin kazanılır (Biyomda besin olmasına gerek yoktur)'],
+        2: ['(A) Oyuncu her turunda 1 besin kazanır', '(B) Çiftlik inşası için gerekli temel kaynak türlerinin her biri için maliyet -1 azalır'],
+        3: ['(A) Asker popülasyonu +2 artar (Maks 16)', '(B) Çiftlik bulunan her yerleşim için kuşatma puanı +1 artar'],
     },
     kervansaray: {
-        1: ['Yol maliyeti -1 (Kaynağı oyuncu seçer)'],
-        2: ['(A) 1 Altın → 3 Temel Kaynak', '(B) Yolunuzdan geçenden 1 kaynak al (Saldırı hariç)'],
-        3: ['(A) Her tur kasadan seçtiğin 1 kaynak', '(B) Başkası ticaret yapınca kasadan 1 kaynak al'],
+        1: ['Yol için gerekli temel kaynak maliyeti -1 azalır (Kaynağı Oyuncu Seçer)'],
+        2: ['(A) Altın karşılığında artık kasadan 3 temel kaynak alınabilir', '(B) Oyuncu yolundan geçenlerden her seferinde 1 temel kaynak alır'],
+        3: ['(A) Oyuncu her turunda kasadan kendi seçeceği bir temel kaynağı alır', '(B) Diğer oyuncular her ticaret yaptığında kasadan seçtiğin bir temel kaynak alırsın'],
     },
     muhendishane: {
-        1: ['Kuşatma birimleri üretilebilir'],
-        2: ['(A) Topçu menzil +1', '(B) Üretimden önce hex kaynak rakamını değiştirebilme'],
-        3: ['(A) Mühendishaneli yerleşimlerde kuşatma puanı +1', '(B) Kuşatmada mancınık/topçu yok edilemez'],
+        1: ['Oyuncu artık kuşatma birimleri üretebilir'],
+        2: ['(A) Topçu birimi menzili +1 artar', '(B) Üretim zarı atmadan önce yerleşim kurduğu biyomlara atanan kaynağı değiştirebilir'],
+        3: ['(A) Mühendishane bulunan her yerleşim için kuşatma puanı +1 artar', '(B) Kuşatma altındaki yerleşim yerindeki mancınık ve topçu rakip şehri ele geçirene kadar yok edilemez'],
     },
     tiyatro: {
-        1: ['Tiyatrolu yerleşimde diğer yapılar -1 kaynak (Seçimli)'],
-        2: ['(A) 5 tur kuşatmaya dayanılırsa 1 düşman taraf değiştirir', '(B) Her ticarette kasadan 1 kaynak al'],
-        3: ['(A) Hedef kuşatma puanı -1 azalır', '(B) Düello kazanınca düşman taraf değiştirir (1 kez)'],
+        1: ['Tiyatro bulunan şehirlere yapılacak diğer yapılar için gerekli temel kaynak maliyeti -1 azalır (Oyuncu seçer)'],
+        2: ['(A) Kuşatma altındaki şehir 5 tur dayanırsa rakip birimlerden biri taraf değiştirir', '(B) Diğer oyuncularla yapılan her ticaret için kasadan seçilen 1 temel kaynak kazanılır'],
+        3: ['(A) Ele geçirilmek istenen yerleşim yeri için gereken kuşatma puanı -1 azalır', '(B) Savaşta turda bir kere düello kazanıldığında rakip asker birimi ölmek yerine taraf değiştirir'],
     },
     kisla: {
-        1: ['Mızrakçı, Kılıçlı ve Okçu düello zarı +1'],
-        2: ['(A) Hafif Süvari ve Atlı Okçu patikada +1 hız', '(B) Şövalye düello zarı +1'],
-        3: ['(A) Ölen birimleri -1 altınla dirilt', '(B) Düelloda 1 kez yeniden zar at'],
+        1: ['(A) Mızrakçı Düello Zarına +1', '(B) Kılıçlı Düello Zarına +1', '(C) Okçu Düello Zarına +1'],
+        2: ['(A) Hafif Süvari ve Atlı Okçu patikalarda +1 Hız alır', '(B) Şövalye Düello Zarına +1'],
+        3: ['(A) Bir önceki turda ölen asker birimleri -1 altın maliyetiyle diriltilebilir', '(B) Turda bir defa düello sırasında oyuncu tekrar zar atabilir'],
     },
     tapinak: {
-        1: ['Kuşatma altındaki yerleşim askerleri düello +1'],
-        2: ['(A) Rakip kuşatma zarı -1', '(B) Berabere kalsa da düelloyu kazanan sayıl'],
-        3: ['(A) Şövalye altın maliyeti -1', '(B) Ölen 1 birim tapınaklı yerde bedelsiz dirilir'],
+        1: ['Kuşatma altındaki yerleşim yerindeki askeri birimlerin düello zarlarına +1 eklenir'],
+        2: ['(A) Tapınak bulunan yerleşimlerde rakip oyuncuların kuşatma zarları -1 düşer', '(B) Düello zarlarında berabere kalınsa dahi oyuncu kazanmış sayılır'],
+        3: ['(A) Şövalye üretimi için gerekli altın maliyeti -1 azalır', '(B) Ölen bir askeri birim tapınak bulunan bir yerleşimde bedelsiz dirilir'],
     },
 };

@@ -623,11 +623,22 @@ class UI {
     showBuildingChoice() {
         const p = this.state.currentPlayer;
         const items = ALL_BUILDINGS.map(bType => {
-            const detail = BUILDING_BONUSES[bType]?.[1] || { desc: '' };
+            const lv1Bonus = BUILDING_BONUSES[bType]?.[1] || [];
             const cost = BUILD_COSTS[bType];
             const enabled = p.canAfford(cost);
-            let costStr = Object.entries(cost).map(([r, a]) => `${RESOURCE_INFO[r]?.emoji || ''}${a}`).join(' ');
-            return { id: bType, name: BUILDING_NAMES[bType], icon: '🏗️', costStr, enabled, desc: detail.desc || '' };
+            const costStr = Object.entries(cost).map(([r, a]) => `${RESOURCE_INFO[r]?.emoji || ''}${a}`).join(' ');
+            // Yapının mevcut seviyesini hesapla
+            const builtCount = this.state.players.reduce((acc, pl) => {
+                return acc + (pl.buildings?.[bType] || 0);
+            }, 0);
+            const playerBuilt = p.buildings?.[bType] || 0;
+            const level = playerBuilt >= 4 ? 3 : playerBuilt >= 2 ? 2 : playerBuilt >= 1 ? 1 : 0;
+            const nextLevel = level + 1;
+            const nextBonuses = BUILDING_BONUSES[bType]?.[nextLevel] || lv1Bonus;
+            const desc = nextBonuses.join(' | ');
+            const icon = BUILDING_ICONS[bType] || '🏗️';
+            const levelLabel = level > 0 ? ` (Sv.${level}→${nextLevel})` : ' (Yeni)';
+            return { id: bType, name: BUILDING_NAMES[bType] + levelLabel, icon, costStr, enabled, desc };
         });
 
         this.showChoiceModalWithDesc("İnşa Edilecek Yapı Seçin", items, (bType) => {
