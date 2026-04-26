@@ -179,9 +179,9 @@ class GameState {
             const hex = this.grid.hexes.get(hid);
             if (!hex || !hex.settlement) return;
             const t = hex.settlement.type;
-            if (t === 'koy')      base += 1;
-            if (t === 'sehir')    base += 2;
-            if (t === 'metropol') base += 3;
+            if (t === 'koy')      base += 2;
+            if (t === 'sehir')    base += 4;
+            if (t === 'metropol') base += 6;
         });
         player._basePopFromSettlements = base;
         
