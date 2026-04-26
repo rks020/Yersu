@@ -201,8 +201,8 @@ class UI {
             this.state.clearSelection();
         }
         // ── YAPI İNŞA ──
-        else if (mode.startsWith('build_') && clickedHex) {
-            const bType = mode.split('_')[1];
+        else if ((mode === 'buildBuilding' || mode.startsWith('build_')) && clickedHex) {
+            const bType = this.state.selectedBuildingType || mode.split('_')[1];
             if (this.actions.buildBuilding(current.id, clickedHex.id, bType)) {
                 this.showNotice(`${BUILDING_NAMES[bType]} inşa edildi!`, "success");
             } else {
