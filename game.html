@@ -88,7 +88,7 @@
                 <div class="build-icon-sm">🛤️</div>
                 <div class="build-info">
                     <div class="build-name">Yol</div>
-                    <div class="build-cost-row"><span>🪵2</span><span>🪨2</span></div>
+                    <div class="build-cost-row"><span>🪵1</span><span>🪨2</span></div>
                 </div>
                 <button class="btn-build action-btn" data-action="build_road" disabled>Yol İnşa Et</button>
             </div>
@@ -273,11 +273,18 @@
                     <option value="maden">⚙️ Maden</option><option value="gold">💰 Altın</option>
                 </select>
             </div>
-            <div><label>Alınacak:</label>
+            <div><label>Alınacak 1:</label>
                 <select id="tradeBuyType" class="input-style" style="width:100%;">
                     <option value="gold">💰 Altın</option><option value="besin">🌾 Besin</option>
                     <option value="odun">🪵 Odun</option><option value="tas">🪨 Taş</option>
                     <option value="kil">🧱 Kil</option><option value="maden">⚙️ Maden</option>
+                </select>
+            </div>
+            <div id="tradeBuyType2Row" style="display:none;"><label>Alınacak 2 (Altın için):</label>
+                <select id="tradeBuyType2" class="input-style" style="width:100%;">
+                    <option value="besin">🌾 Besin</option><option value="odun">🪵 Odun</option>
+                    <option value="tas">🪨 Taş</option><option value="kil">🧱 Kil</option>
+                    <option value="maden">⚙️ Maden</option>
                 </select>
             </div>
             <div><label>Miktar:</label>

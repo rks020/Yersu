@@ -128,9 +128,22 @@ class Actions {
         if (hex.settlement.buildings.has(buildingType)) return false;
 
         const cost = BUILD_COSTS[buildingType];
-        if (!cost || !p.canAfford(cost)) return false;
+        if (!cost) return false;
 
-        p.spend(cost);
+        let actualCost = {...cost};
+        // Tiyatro Seviye 1 Bonusu: Maliyet -1 azalır (En pahalı kaynaktan düşelim)
+        if (hex.settlement.buildings.has('tiyatro')) {
+            let maxRes = null;
+            let maxVal = -1;
+            for (const [r, v] of Object.entries(actualCost)) {
+                if (v > maxVal) { maxVal = v; maxRes = r; }
+            }
+            if (maxRes) actualCost[maxRes] = Math.max(0, actualCost[maxRes] - 1);
+        }
+
+        if (!p.canAfford(actualCost)) return false;
+
+        p.spend(actualCost);
         hex.settlement.buildings.add(buildingType);
 
         this.state.applyBuildingBonus(p, buildingType);
@@ -184,12 +197,14 @@ class Actions {
         if (!startNode.adjacentNodes.includes(targetNodeId)) return false;
 
         const udata = UNIT_DATA[unitDef.type];
-        let cost = 1;
+        let cost = 2; // Patika (yol yok) maliyeti 2 MP
 
-        // Yol bonusu: Kendi yolunda asker birimi için 0.5 hareket
+        // Yol bonusu: Kendi yolunda ise maliyet 1 MP
         const edgeId = this.state.grid.getEdgeBetweenNodes(startNodeId, targetNodeId);
         const edge = this.state.grid.edges.get(edgeId);
-        if (edge && edge.road === playerId && udata.cls === 'asker') cost = 0.5;
+        if (edge && edge.road === playerId) {
+            cost = 1;
+        }
 
         if (unitDef.movesLeft < cost) return false;
 
@@ -290,18 +305,38 @@ class Actions {
         return combat;
     }
 
-    tradeWithBank(playerId, sellRes, buyRes) {
+    tradeWithBank(playerId, sellRes, buyRes, buyRes2 = null) {
         const p = this.state.players.find(pl => pl.id === playerId);
         if (!p) return false;
 
-        const rate = (p.bonusState && p.bonusState.bankRate) ? p.bonusState.bankRate : 6;
-        if (p.resources[sellRes] < rate) return false;
-
-        p.resources[sellRes] -= rate;
-        p.resources[buyRes] = (p.resources[buyRes] || 0) + 1;
-
-        this.state.addLog(`${p.name} banka ticareti: ${rate} ${sellRes} → 1 ${buyRes}`, 'info');
-        return true;
+        if (sellRes === 'gold') {
+            // ALTIN SATIŞI: 1 Altın -> 2 (veya Kervansaray bonusuyla 3) Temel Kaynak
+            if (p.resources.gold < 1) return false;
+            
+            const buyAmount = (p.bonusState && p.bonusState.goldToResRate) ? p.bonusState.goldToResRate : 2;
+            
+            p.resources.gold -= 1;
+            
+            // Eğer buyRes2 varsa, ikisinden de al. Yoksa sadece ilkini buyAmount kadar al.
+            if (buyRes2 && buyRes2 !== buyRes) {
+                p.gain(buyRes, Math.ceil(buyAmount / 2));
+                p.gain(buyRes2, Math.floor(buyAmount / 2));
+            } else {
+                p.gain(buyRes, buyAmount);
+            }
+            
+            this.state.addLog(`${p.name} 1 Altın bozdurarak kaynak aldı.`, 'info');
+            return true;
+        } else {
+            // TEMEL KAYNAK SATIŞI: X:1 (Default 6:1)
+            const rate = (p.bonusState && p.bonusState.bankRate) ? p.bonusState.bankRate : 6;
+            if (p.resources[sellRes] < rate) return false;
+            
+            p.resources[sellRes] -= rate;
+            p.gain(buyRes, 1);
+            this.state.addLog(`${p.name} banka ticareti: ${rate} ${sellRes} → 1 ${buyRes}`, 'info');
+            return true;
+        }
     }
 
     tradeWithPlayer(fromId, toId, offer, request) {

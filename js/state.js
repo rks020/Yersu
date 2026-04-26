@@ -199,9 +199,26 @@ class GameState {
         player.settlements.forEach(hid => {
             const hex = this.grid.hexes.get(hid);
             if (!hex || !hex.settlement || !hex.settlement.buildings) return;
+            
             hex.settlement.buildings.forEach(b => {
                 if (counts[b] !== undefined) counts[b]++;
             });
+
+            // Seviye hesaplama: 3 yapı = Şehir, 6 yapı = Metropol
+            const bCount = hex.settlement.buildings.size;
+            if (bCount >= 6) {
+                if (hex.settlement.type !== 'metropol') {
+                    hex.settlement.type = 'metropol';
+                    this.addLog(`🏛️ ${player.name} bir Metropol sahibi oldu!`, 'success');
+                }
+            } else if (bCount >= 3) {
+                if (hex.settlement.type !== 'sehir') {
+                    hex.settlement.type = 'sehir';
+                    this.addLog(`🏰 ${player.name} bir Şehir sahibi oldu!`, 'success');
+                }
+            } else {
+                hex.settlement.type = 'koy';
+            }
         });
 
         const getLv = (c) => (c >= 4 ? 3 : (c >= 2 ? 2 : (c >= 1 ? 1 : 0)));
@@ -210,9 +227,12 @@ class GameState {
             const oldLv = getLv(oldCounts[b] || 0);
             const newLv = getLv(counts[b]);
             
-            if (newLv > oldLv && newLv > 1) {
-                // Sadece 2 ve 3. seviye için seçim gerekir
-                player.pendingChoices.push({ type: b, level: newLv, options: ['A', 'B'] });
+            if (newLv > oldLv) {
+                // Eğer bu seviye için birden fazla seçenek varsa (Array ise), seçim gerekir
+                const bonusInfo = BUILDING_BONUSES[b][newLv];
+                if (Array.isArray(bonusInfo) && bonusInfo.length > 1) {
+                    player.pendingChoices.push({ type: b, level: newLv, options: bonusInfo.map((_, i) => String.fromCharCode(65 + i)) });
+                }
             }
 
             if (!this.firstToLv3[b] && counts[b] >= 4) {

@@ -40,6 +40,8 @@ class UI {
             tradeModal:     document.getElementById('tradeModal'),
             tradeSellType:  document.getElementById('tradeSellType'),
             tradeBuyType:   document.getElementById('tradeBuyType'),
+            tradeBuyType2:  document.getElementById('tradeBuyType2'),
+            tradeBuyType2Row: document.getElementById('tradeBuyType2Row'),
             tradeAmount:    document.getElementById('tradeAmount'),
             btnConfirmTrade:document.getElementById('btnConfirmTrade'),
 
@@ -106,6 +108,14 @@ class UI {
 
         if (this.els.btnConfirmTrade) {
             this.els.btnConfirmTrade.addEventListener('click', () => this.handleConfirmTrade());
+        }
+
+        if (this.els.tradeSellType) {
+            this.els.tradeSellType.addEventListener('change', () => {
+                const isGold = this.els.tradeSellType.value === 'gold';
+                if (this.els.tradeBuyType2Row) this.els.tradeBuyType2Row.style.display = isGold ? 'block' : 'none';
+                if (this.els.tradeAmount) this.els.tradeAmount.value = isGold ? 1 : 6;
+            });
         }
 
         const btnRestart = document.getElementById('btnRestart');
@@ -638,7 +648,7 @@ class UI {
                     <span class="hex-biome-emoji">${b.emoji}</span>
                     <div>
                         <div class="hex-biome-name">${b.name.toUpperCase()}</div>
-                        <div style="font-size:0.65rem; color:#888;">ID: ${h.id}</div>
+                        <div style="font-size:0.65rem; color:#888;">ID: ${h.id} | Üretim: ${b.resName || '-'}</div>
                     </div>
                     <div class="hex-num-badge">${h.number || '-'}</div>
                 </div>
@@ -1074,11 +1084,11 @@ class UI {
         const p = this.state.currentPlayer;
         const sellType = this.els.tradeSellType?.value;
         const buyType  = this.els.tradeBuyType?.value;
+        const buyType2 = this.els.tradeBuyType2?.value;
         const amount   = parseInt(this.els.tradeAmount?.value);
         if (!sellType || !buyType || isNaN(amount) || amount <= 0) return;
         
-        // Actions.js içerisindeki bankTrade yerine tradeWithBank çağrılmalıydı!
-        const ok = this.actions.tradeWithBank(p.id, sellType, buyType);
+        const ok = this.actions.tradeWithBank(p.id, sellType, buyType, (sellType === 'gold' ? buyType2 : null));
         if (ok) {
             this.els.tradeModal.classList.remove('active');
             this.showNotice("Takas başarılı!", "success");

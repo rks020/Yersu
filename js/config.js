@@ -13,14 +13,14 @@ const RESOURCE_INFO = {
 
 // ==================== BİYOMLAR ====================
 const BIOME_INFO = {
-    ova:      { name: 'Ova',      fixedRes: ['besin', 'kil'],  color: '#8BC34A', dark: '#558B2F', emoji: '🌿', canSettle: true  },
-    koruluk:  { name: 'Koruluk',  fixedRes: ['besin', 'odun'], color: '#388E3C', dark: '#1B5E20', emoji: '🌲', canSettle: true  },
-    daglik:   { name: 'Dağlık',   fixedRes: ['tas', 'maden'],  color: '#8D6E63', dark: '#4E342E', emoji: '⛰️', canSettle: true  },
-    cayir:    { name: 'Çayır',    fixedRes: ['besin', 'odun'], color: '#AED581', dark: '#689F38', emoji: '🌱', canSettle: true  },
-    kumsal:   { name: 'Kumsal',   fixedRes: ['tas', 'kil'],    color: '#FFD54F', dark: '#F9A825', emoji: '🏖️', canSettle: true  },
-    vaha:     { name: 'Vaha',     fixedRes: ['besin', 'maden'],color: '#26C6DA', dark: '#00838F', emoji: '🌴', canSettle: true  },
-    col:      { name: 'Çöl',      fixedRes: [],                color: '#FFA726', dark: '#E65100', emoji: '🏜️', canSettle: false },
-    bataklik: { name: 'Bataklık', fixedRes: [],                color: '#546E7A', dark: '#263238', emoji: '🌫️', canSettle: false },
+    ova:      { name: 'Ova',      fixedRes: ['besin', 'kil'],  resName: 'Besin & Kil',   color: '#8BC34A', dark: '#558B2F', emoji: '🌿', canSettle: true  },
+    koruluk:  { name: 'Koruluk',  fixedRes: ['besin', 'odun'], resName: 'Besin & Odun',  color: '#388E3C', dark: '#1B5E20', emoji: '🌲', canSettle: true  },
+    daglik:   { name: 'Dağlık',   fixedRes: ['tas', 'maden'],  resName: 'Taş & Maden',   color: '#8D6E63', dark: '#4E342E', emoji: '⛰️', canSettle: true  },
+    cayir:    { name: 'Çayır',    fixedRes: ['besin', 'odun'], resName: 'Besin & Odun',  color: '#AED581', dark: '#689F38', emoji: '🌱', canSettle: true  },
+    kumsal:   { name: 'Kumsal',   fixedRes: ['tas', 'kil'],    resName: 'Taş & Kil',    color: '#FFD54F', dark: '#F9A825', emoji: '🏖️', canSettle: true  },
+    vaha:     { name: 'Vaha',     fixedRes: ['besin', 'maden'],resName: 'Besin & Maden', color: '#26C6DA', dark: '#00838F', emoji: '🌴', canSettle: true  },
+    col:      { name: 'Çöl',      fixedRes: [],                resName: 'Yok',           color: '#FFA726', dark: '#E65100', emoji: '🏜️', canSettle: false },
+    bataklik: { name: 'Bataklık', fixedRes: [],                resName: 'Yok',           color: '#546E7A', dark: '#263238', emoji: '🌫️', canSettle: false },
 };
 
 const PRODUCTION_BIOMES = ['ova', 'koruluk', 'daglik', 'cayir', 'kumsal', 'vaha'];
