@@ -161,13 +161,13 @@ class MapGen {
         const numbers = MapGen._buildNumberPool(hexIds.length);
         MapGen._shuffle(numbers);
 
-        // Önce 6 ve 8'leri yerleştir, ardından geri kalanı
-        const hot   = numbers.filter(n => n === 6 || n === 8);
-        const rest  = numbers.filter(n => n !== 6 && n !== 8);
+        // Önce 6, 7 ve 8'leri yerleştir, ardından geri kalanı
+        const hot   = numbers.filter(n => n === 6 || n === 7 || n === 8);
+        const rest  = numbers.filter(n => n !== 6 && n !== 7 && n !== 8);
 
         const assigned = new Map(); // hexId → number
 
-        // 6 ve 8'leri komşu olmayacak şekilde yerleştir
+        // 6, 7 ve 8'leri komşu olmayacak şekilde yerleştir
         const hotHexes = MapGen._placeHotNumbers(grid, hexIds, hot);
         hotHexes.forEach(({ hexId, num }) => assigned.set(hexId, num));
 
@@ -216,12 +216,26 @@ class MapGen {
     }
 
     static _buildNumberPool(count) {
-        // 2-12 (7 hariç) eşit ağırlıkta dağıt
-        const nums   = [2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12];
-        const result = [];
+        // 2-12 arası sayılar (7 dahil)
+        // Kural: 2 ve 12'den kesinlikle 1 adet olmalı.
+        // Diğerlerinden (3,4,5,6,7,8,9,10,11) eşit dağıtılmalı.
+        const mustInclude = [2, 12];
+        const others = [3, 4, 5, 6, 7, 8, 9, 10, 11];
+        
+        const result = [...mustInclude];
+        
+        // Önce her rakamdan birer tane daha ekle (eşitlik için)
+        others.forEach(n => result.push(n));
+        
+        // Kalan boşlukları others ile doldur
         while (result.length < count) {
-            result.push(...nums.slice(0, count - result.length));
+            MapGen._shuffle(others);
+            for (const n of others) {
+                if (result.length >= count) break;
+                result.push(n);
+            }
         }
+        
         return result.slice(0, count);
     }
 
