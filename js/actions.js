@@ -42,11 +42,12 @@ class Actions {
         if (!ownsAdjacent) return false;
 
         const uid = p.nextUnitId();
-        const unitData = { uid, type: 'kilicli', hp: 1, movesLeft: 0 };
-        p.units.push({ ...unitData, nodeId });
+        const unitData = { uid, type: 'kilicli', hp: 1, movesLeft: 0, nodeId };
+        
+        p.units.push(unitData);
 
         if (!node.army) node.army = { playerId, units: [] };
-        node.army.units.push({ ...unitData });
+        node.army.units.push(unitData);
 
         this.state.addLog(`${p.name} ilk birliğini yerleştirdi.`, 'success');
         return true;
@@ -159,11 +160,11 @@ class Actions {
 
         p.resources.gold -= cost;
         const uid = p.nextUnitId();
-        const unitData = { uid, type: unitType, hp: 1, movesLeft: 0 };
-        p.units.push({ ...unitData, nodeId });
+        const unitData = { uid, type: unitType, hp: 1, movesLeft: 0, nodeId };
+        p.units.push(unitData);
 
         if (!node.army) node.army = { playerId, units: [] };
-        node.army.units.push({ ...unitData });
+        node.army.units.push(unitData);
 
         this.state.addLog(`${p.name} ${udata.name} üretti.`, 'info');
         return true;
