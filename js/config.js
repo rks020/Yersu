@@ -28,7 +28,7 @@ const PRODUCTION_BIOMES = ['ova', 'koruluk', 'daglik', 'cayir', 'kumsal', 'vaha'
 // ==================== İNŞAAT MALİYETLERİ ====================
 const BUILD_COSTS = {
     yol:          { odun: 1, tas: 2 },
-    koy:          { besin: 1, odun: 1, kil: 1, tas: 1 },
+    koy:          { odun: 1, kil: 1, tas: 1, besin: 1 },
     ciftlik:      { besin: 7, odun: 1, kil: 1 },
     kisla:        { maden: 5, tas: 2, odun: 2 },
     kervansaray:  { odun: 4, kil: 3, tas: 2 },
@@ -59,15 +59,15 @@ const ALL_BUILDINGS = ['ciftlik', 'kisla', 'kervansaray', 'tapinak', 'muhendisha
 
 // ==================== ASKERİ BİRİMLER ====================
 const UNIT_DATA = {
-    mizrakci:     { name: 'Mızrakçı',    cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 4, siege: 0, special: 'anti_cavalry',  duelBonusVs: 'suvari', emoji: '🗡️'  },
-    kilicli:      { name: 'Kılıçlı',     cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 4, siege: 0, special: 'anti_infantry', duelBonusVs: 'piyade', emoji: '⚔️'  },
-    okcu:         { name: 'Okçu',         cls: 'piyade',  gold: 2, duel: -1, range: 1, speed: 4, siege: 0, special: null,                                   emoji: '🏹'  },
-    sovalye:      { name: 'Şövalye',      cls: 'suvari',  gold: 4, duel: 2,  range: 0, speed: 4, siege: 0, special: null,                                   emoji: '🐴'  },
-    hafif_suvari: { name: 'Hafif Süvari', cls: 'suvari',  gold: 3, duel: 0,  range: 0, speed: 6, siege: 0, special: null,                                   emoji: '🏇'  },
-    atli_okcu:    { name: 'Atlı Okçu',    cls: 'suvari',  gold: 3, duel: -1, range: 1, speed: 6, siege: 0, special: null,                                   emoji: '🎯'  },
-    kocbasi:      { name: 'Koçbaşı',      cls: 'kusatma', gold: 3, duel: -3, range: 0, speed: 3, siege: 1, special: 'no_attack',                            emoji: '🐏'  },
-    mancinik:     { name: 'Mancınık',     cls: 'kusatma', gold: 4, duel: -3, range: 1, speed: 3, siege: 1, special: null,                                   emoji: '💥'  },
-    topcu:        { name: 'Topçu',        cls: 'kusatma', gold: 5, duel: -2, range: 0, speed: 3, siege: 1, special: 'multi_2',                              emoji: '💣'  },
+    mizrakci:     { name: 'Mızrakçı',    cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 1, siege: 0, special: 'anti_cavalry',  duelBonusVs: 'suvari', emoji: '🗡️'  },
+    kilicli:      { name: 'Kılıçlı',     cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 1, siege: 0, special: 'anti_infantry', duelBonusVs: 'piyade', emoji: '⚔️'  },
+    okcu:         { name: 'Okçu',         cls: 'piyade',  gold: 2, duel: -1, range: 1, speed: 1, siege: 0, special: null,                                   emoji: '🏹'  },
+    sovalye:      { name: 'Şövalye',      cls: 'suvari',  gold: 4, duel: 2,  range: 0, speed: 2, siege: 0, special: null,                                   emoji: '🐴'  },
+    hafif_suvari: { name: 'Hafif Süvari', cls: 'suvari',  gold: 3, duel: 0,  range: 0, speed: 2, siege: 0, special: null,                                   emoji: '🏇'  },
+    atli_okcu:    { name: 'Atlı Okçu',    cls: 'suvari',  gold: 3, duel: -1, range: 1, speed: 2, siege: 0, special: null,                                   emoji: '🎯'  },
+    kocbasi:      { name: 'Koçbaşı',      cls: 'kusatma', gold: 3, duel: -3, range: 0, speed: 1, siege: 1, special: 'no_attack',                            emoji: '🐏'  },
+    mancinik:     { name: 'Mancınık',     cls: 'kusatma', gold: 4, duel: -3, range: 1, speed: 1, siege: 1, special: null,                                   emoji: '💥'  },
+    topcu:        { name: 'Topçu',        cls: 'kusatma', gold: 5, duel: -2, range: 0, speed: 1, siege: 1, special: 'multi_2',                              emoji: '💣'  },
 };
 
 const UNIT_CLASSES = {

@@ -664,8 +664,11 @@ class GameState {
         
         if (!defenderUnit) return null;
 
-        let aStr = this.calculateDuelStrength(attackerUnit, attackerPlayer, this.grid.nodes.get(attackerUnit.nodeId));
-        let dStr = this.calculateDuelStrength(defenderUnit, defenderPlayer, targetNode);
+        const aRes = this.calculateDuelStrength(attackerUnit, attackerPlayer, this.grid.nodes.get(attackerUnit.nodeId));
+        const dRes = this.calculateDuelStrength(defenderUnit, defenderPlayer, targetNode);
+        
+        let aStr = aRes.total;
+        let dStr = dRes.total;
 
         const aData = UNIT_DATA[attackerUnit.type];
         const dData = UNIT_DATA[defenderUnit.type];

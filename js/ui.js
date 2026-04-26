@@ -552,6 +552,18 @@ class UI {
                 el.textContent = text.trim();
             }
         });
+
+        // Kervansaray Yol İndirimi UI Güncelleme (Sol Paneldeki Yol Satırı)
+        const roadCostEl = document.getElementById('cost-road');
+        if (roadCostEl) {
+            const p = this.state.currentPlayer;
+            let roadCost = {...BUILD_COSTS.yol};
+            if (p.bonusState.roadDiscountRes) {
+                roadCost[p.bonusState.roadDiscountRes] = Math.max(0, roadCost[p.bonusState.roadDiscountRes] - 1);
+            }
+            let html = `<span>🪵${roadCost.odun}</span><span>🪨${roadCost.tas}</span>`;
+            roadCostEl.innerHTML = html;
+        }
     }
 
     _updateActionButtons() {
@@ -716,8 +728,11 @@ class UI {
 
                 <div class="hex-section-title">ÜRETİLEN KAYNAKLAR</div>
                 <div class="hex-res-row">
-                    ${h.resources.map(res => `
+                    ${(b.fixedRes || []).map(res => `
                         <div class="hex-res-chip">${RESOURCE_INFO[res].emoji} ${RESOURCE_INFO[res].name}</div>
+                    `).join('')}
+                    ${h.resources.filter(r => !(b.fixedRes || []).includes(r)).map(res => `
+                        <div class="hex-res-chip" style="border-color:var(--gold);">${RESOURCE_INFO[res].emoji} ${RESOURCE_INFO[res].name} (Zar)</div>
                     `).join('')}
                 </div>
             `;
@@ -996,7 +1011,10 @@ class UI {
             let canBuild = hasGold && hasPop;
             let error = "";
             
-            if (data.cls === 'kusatma' && !p.bonusState?.muhendishane_kusatma) {
+            // Fix check for siege
+            const siegeAllowed = p.bonusState?.canBuildSiege || p.buildingCounts?.muhendishane >= 1;
+            
+            if (data.cls === 'kusatma' && !siegeAllowed) {
                 canBuild = false;
                 error = "Kuşatma birimi için Mühendishane gerekir!";
             } else if (!hasGold) {
@@ -1019,7 +1037,7 @@ class UI {
         this.showChoiceModalWithDesc("Üretilecek Asker Seçin", items, (uType) => {
             this.state.actionMode = 'trainUnit';
             this.state.selectedUnitType = uType;
-            this.showNotice("Askeri yerleştirmek için bir düğme seçin.", "info");
+            this.showNotice("Askeri yerleştirmek için bir YERLEŞİM düğmesine tıklayın.", "info");
             p.settlements.forEach(hid => {
                 const hex = this.state.grid.hexes.get(hid);
                 if (hex) hex.nodeIds.forEach(nid => this.state.highlightedNodes.add(nid));

@@ -203,14 +203,19 @@ class Actions {
         if (!startNode.adjacentNodes.includes(targetNodeId)) return false;
 
         const udata = UNIT_DATA[unitDef.type];
-        let cost = 3; // Patika (yol yok) maliyeti 3 MP
+        let cost = 1; // Temel maliyet 1 MP
         const edgeId = this.state.grid.getEdgeBetweenNodes(startNodeId, targetNodeId);
         const edge = this.state.grid.edges.get(edgeId);
+        
         if (edge && edge.road === playerId && udata.cls !== 'kusatma') {
-            cost = 2; // Yol bonusu: Maliyet 2 MP
+            // Yol bonusu: Kullanıcının isteği üzerine hızı +1 adım artıracak maliyet hesaplanır.
+            // Formül: cost = speed / (speed + 1)
+            // Speed 1 -> 0.5 (2 steps)
+            // Speed 2 -> 0.66 (3 steps)
+            cost = udata.speed / (udata.speed + 1);
         }
 
-        if (unitDef.movesLeft < cost) return false;
+        if (unitDef.movesLeft < cost - 0.001) return false;
 
         // Mevcut node'dan çıkar
         const movingUnit = startNode.army.units.find(u => u.uid === unitUid);
@@ -236,38 +241,31 @@ class Actions {
             const combat = this.state.resolveCombat(movingUnit, p, targetNode);
             combat.animation = '⚔️';
 
-            if (combat.casualty === 'attacker' || combat.casualty === 'both') {
+            if (combat.casualty === 'attacker') {
                 p.units = p.units.filter(u => u.uid !== unitUid);
-            } else {
-                // Saldıran hayatta, hedef node'a gir
-                if (!targetNode.army || combat.casualty === 'defender') {
-                    if (!targetNode.army) targetNode.army = { playerId, units: [] };
-                    else targetNode.army.playerId = playerId;
-                    targetNode.army.units.push(movingUnit);
-                }
-            }
-
-            if (combat.casualty === 'defender' || combat.casualty === 'both') {
-                const defPlayer = this.state.players.find(pl => pl.id === targetNode.army?.playerId);
-                if (defPlayer && targetNode.army) {
-                    const killCount = (udata.special === 'multi_2') ? 2 : 1;
-                    for (let i = 0; i < killCount && targetNode.army.units.length > 0; i++) {
-                        const killed = targetNode.army.units.shift();
-                        defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
-                    }
-                    if (targetNode.army.units.length === 0) targetNode.army = null;
-                }
-                // Kazanan saldıran, node'a gir
-                if (!targetNode.army) {
+            } else if (combat.casualty === 'defender') {
+                const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
+                const killed = targetNode.army.units.shift();
+                if (killed) defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
+                
+                if (targetNode.army.units.length === 0) {
                     targetNode.army = { playerId, units: [movingUnit] };
+                } else {
+                    unitDef.nodeId = startNodeId;
+                    if (!startNode.army) startNode.army = { playerId, units: [] };
+                    startNode.army.units.push(movingUnit);
                 }
+            } else {
+                unitDef.nodeId = startNodeId;
+                if (!startNode.army) startNode.army = { playerId, units: [] };
+                startNode.army.units.push(movingUnit);
             }
 
             this.state.checkVictory();
             return combat;
         }
 
-        // Dostane node veya boş node
+        // Dostane node veya boş node (Combat olmadıysa buraya düşer)
         if (!targetNode.army) targetNode.army = { playerId, units: [] };
         targetNode.army.units.push(movingUnit);
         return { type: 'move' };
@@ -292,11 +290,11 @@ class Actions {
 
         unit.movesLeft -= 1;
 
-        const combat = this.state.resolveCombat(unit, p, targetNode);
-        combat.type = 'range';
+        const combat = this.state.resolveRangeAttack(unit, p, targetNode);
+        if (!combat) return false;
         combat.animation = '🏹';
 
-        if (combat.casualty === 'defender' || combat.casualty === 'both') {
+        if (combat.casualty === 'defender') {
             const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
             if (defPlayer && targetNode.army.units.length > 0) {
                 const killed = targetNode.army.units.shift();

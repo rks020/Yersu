@@ -83,8 +83,8 @@ class AIEngine {
     doMainTurn(player) {
         if (this.state.subPhase === 'production') {
             const roll = this.state.rollProductionDice();
-            this.state.addLog(`🎲 ${player.name} zar attı: ${roll.d1} + ${roll.d2} = ${roll.total}`, 'info');
-            setTimeout(() => this.doMainTurn(player), 1000);
+            if (window.appMain) window.appMain.updateUI();
+            setTimeout(() => this.doMainTurn(player), 1200);
             return;
         }
 

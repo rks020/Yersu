@@ -256,7 +256,9 @@
     <div class="modal-content" style="max-width:800px;width:90%;">
         <h2 id="choiceModalTitle">Başlık</h2>
         <div id="choiceGrid" class="choice-modal"></div>
-        <button class="btn-primary" style="margin-top:20px;" onclick="document.getElementById('choiceModal').classList.remove('active')">Kapat</button>
+        <div class="modal-footer">
+            <button class="btn-secondary btn-premium-close" onclick="document.getElementById('choiceModal').classList.remove('active')">Kapat</button>
+        </div>
     </div>
 </div>
 
@@ -291,9 +293,9 @@
                 <input type="number" id="tradeAmount" class="input-style" value="6" min="1" style="width:100%;">
             </div>
         </div>
-        <div style="display:flex;gap:10px;margin-top:20px;">
-            <button id="btnConfirmTrade" class="btn-primary" style="flex:1;">Takas Et</button>
-            <button class="btn-primary" style="flex:1;background:#555;" onclick="document.getElementById('tradeModal').classList.remove('active')">İptal</button>
+        <div class="modal-footer" style="gap: 12px;">
+            <button id="btnConfirmTrade" class="btn-primary" style="flex:1.5;">Takas Et</button>
+            <button class="btn-secondary btn-premium-close" style="flex:1;" onclick="document.getElementById('tradeModal').classList.remove('active')">İptal</button>
         </div>
     </div>
 </div>
@@ -317,9 +319,9 @@
                 <div id="ptRequestGrid" class="pt-res-grid"></div>
             </div>
         </div>
-        <div style="display:flex;gap:10px;margin-top:18px;">
-            <button id="btnConfirmPlayerTrade" class="btn-primary" style="flex:1;">Teklif Gönder</button>
-            <button class="btn-primary" style="flex:1;background:#555;" onclick="document.getElementById('playerTradeModal').classList.remove('active')">İptal</button>
+        <div class="modal-footer" style="gap: 12px;">
+            <button id="btnConfirmPlayerTrade" class="btn-primary" style="flex:1.5;">Teklif Gönder</button>
+            <button class="btn-secondary btn-premium-close" style="flex:1;" onclick="document.getElementById('playerTradeModal').classList.remove('active')">İptal</button>
         </div>
     </div>
 </div>
@@ -343,7 +345,9 @@
             </div>
         </div>
         <div id="combatResultText" style="font-size:1.1rem;font-weight:bold;margin-bottom:20px;padding:10px;border-radius:4px;background:rgba(255,255,255,0.1);">Sonuç</div>
-        <button class="btn-primary" style="width:100%;" onclick="document.getElementById('combatModal').classList.remove('active')">Kapat</button>
+        <div class="modal-footer">
+            <button class="btn-secondary btn-premium-close" onclick="document.getElementById('combatModal').classList.remove('active')">Kapat</button>
+        </div>
     </div>
 </div>
 
