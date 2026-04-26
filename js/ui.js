@@ -101,8 +101,10 @@ class UI {
 
         if (this.els.actionMenu) {
             this.els.actionMenu.addEventListener('click', (e) => {
-                const btn = e.target.closest('button[data-action]');
-                if (btn) this.handleActionClick(btn.dataset.action, btn.dataset.btype);
+                const btn = e.target.closest('.action-btn');
+                if (btn && !btn.disabled) {
+                    this.handleActionClick(btn.dataset.action, btn.dataset.btype);
+                }
             });
         }
 
@@ -352,56 +354,61 @@ class UI {
     // ── Eylem Butonları ───────────────────────────────────────────
 
     handleActionClick(actionType, btype = null) {
-        this.state.clearSelection();
-        const p = this.state.currentPlayer;
+        try {
+            this.state.clearSelection();
+            const p = this.state.currentPlayer;
 
-        switch(actionType) {
-            case 'build_village':
-                if (!p.canAfford(BUILD_COSTS.koy)) {
-                    this.showNotice("Köy kurmak için yeterli kaynağınız yok!", "danger");
-                    return;
-                }
-                this.state.actionMode = 'buildVillage';
-                this.state.grid.getBuildableSettlementHexes(p.id).forEach(hid => this.state.highlightedHexes.add(hid));
-                this.showNotice("Köy kuracağınız HEX'i seçin.", "info");
-                break;
-            case 'build_road':
-                this.state.actionMode = 'buildRoad';
-                this.state.grid.getBuildableRoadEdges(p.id).forEach(eid => this.state.highlightedEdges.add(eid));
-                this.showNotice("Yol kuracağınız kenarı seçin.", "info");
-                break;
-            case 'build_building':
-                if (btype) {
-                    if (!p.canAfford(BUILD_COSTS[btype])) {
-                        this.showNotice(`${BUILDING_NAMES[btype]} için kaynak yetersiz!`, "danger");
+            switch(actionType) {
+                case 'build_village':
+                    if (!p.canAfford(BUILD_COSTS.koy)) {
+                        this.showNotice("Köy kurmak için yeterli kaynağınız yok!", "danger");
                         return;
                     }
-                    this.state.actionMode = 'buildBuilding';
-                    this.state.selectedBuildingType = btype;
-                    this.showNotice(`${BUILDING_NAMES[btype]} inşa etmek için yerleşim yeriniz olan bir HEX'e tıklayın.`, "info");
-                    p.settlements.forEach(hid => {
-                        const hex = this.state.grid.hexes.get(hid);
-                        if (hex && (!hex.settlement.buildings || !hex.settlement.buildings.has(btype))) {
-                            this.state.highlightedHexes.add(hid);
+                    this.state.actionMode = 'buildVillage';
+                    this.state.grid.getBuildableSettlementHexes(p.id).forEach(hid => this.state.highlightedHexes.add(hid));
+                    this.showNotice("Köy kuracağınız HEX'i seçin.", "info");
+                    break;
+                case 'build_road':
+                    this.state.actionMode = 'buildRoad';
+                    this.state.grid.getBuildableRoadEdges(p.id).forEach(eid => this.state.highlightedEdges.add(eid));
+                    this.showNotice("Yol kuracağınız kenarı seçin.", "info");
+                    break;
+                case 'build_building':
+                    if (btype) {
+                        if (!p.canAfford(BUILD_COSTS[btype])) {
+                            this.showNotice(`${BUILDING_NAMES[btype]} için kaynak yetersiz!`, "danger");
+                            return;
                         }
-                    });
-                } else {
-                    this.showBuildingChoice();
-                }
-                break;
-            case 'train_unit':
-                this.showUnitChoice();
-                break;
-            case 'move_unit':
-                this.state.actionMode = 'selectUnitForMove';
-                this.showNotice("Saldırmak veya hareket etmek için kendi askerinize tıklayın.", "info");
-                p.units.forEach(u => this.state.highlightedNodes.add(u.nodeId));
-                break;
-            case 'trade':
-                this.showTradeModal();
-                break;
+                        this.state.actionMode = 'buildBuilding';
+                        this.state.selectedBuildingType = btype;
+                        this.showNotice(`${BUILDING_NAMES[btype]} inşa etmek için yerleşim yeriniz olan bir HEX'e tıklayın.`, "info");
+                        p.settlements.forEach(hid => {
+                            const hex = this.state.grid.hexes.get(hid);
+                            if (hex && (!hex.settlement.buildings || !hex.settlement.buildings.has(btype))) {
+                                this.state.highlightedHexes.add(hid);
+                            }
+                        });
+                    } else {
+                        this.showBuildingChoice();
+                    }
+                    break;
+                case 'train_unit':
+                    this.showUnitChoice();
+                    break;
+                case 'move_unit':
+                    this.state.actionMode = 'selectUnitForMove';
+                    this.showNotice("Saldırmak veya hareket etmek için kendi askerinize tıklayın.", "info");
+                    p.units.forEach(u => this.state.highlightedNodes.add(u.nodeId));
+                    break;
+                case 'trade':
+                    this.showTradeModal();
+                    break;
+            }
+            this.update();
+        } catch (err) {
+            console.error("UI Aksiyon Hatası:", err);
+            this.showNotice("İşlem sırasında hata oluştu: " + err.message, "danger");
         }
-        this.update();
     }
 
     handleRollDice() {
@@ -940,7 +947,7 @@ class UI {
             const hasPop = p.units.length < p.maxPopulation;
             let canBuild = hasGold && hasPop;
             
-            if (data.cls === 'kusatma' && !p.bonusState?.canBuildSiege) canBuild = false;
+            if (data.cls === 'kusatma' && !p.bonusState?.muhendishane_kusatma) canBuild = false;
             
             let statusText = "";
             if (!hasGold) statusText = ` (Yetersiz Altın: ${p.resources.gold}/${data.gold})`;
