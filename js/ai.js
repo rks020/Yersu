@@ -29,7 +29,11 @@ class AIEngine {
         if (player.pendingChoices.length > 0) {
             const choice = player.pendingChoices.shift();
             const pick = Math.random() > 0.5 ? 'A' : 'B';
+            console.log(`🤖 AI Seçim Yapıyor: ${choice.type} Sv.${choice.level} -> ${pick}`);
             this.actions.chooseBonus(player.id, choice.type, choice.level, pick);
+            
+            // Seçim sonrası tura devam et
+            setTimeout(() => this.playTurn(player), 600);
             return true;
         }
         return false;
