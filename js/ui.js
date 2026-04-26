@@ -444,6 +444,7 @@ class UI {
         this._updateLogs();
         this._updateTurnUI();
         this._updateActionButtons();
+        this._updateCostLabels();
         this.renderer.render();
         this.checkPendingChoices();
 
@@ -523,6 +524,36 @@ class UI {
         }
     }
 
+    _updateCostLabels() {
+        const p = this.state.currentPlayer;
+        
+        // Yol Maliyeti Güncelle
+        const roadEl = document.getElementById('cost-road');
+        if (roadEl) {
+            let odun = BUILD_COSTS.yol.odun;
+            let tas = BUILD_COSTS.yol.tas;
+            if (p.bonusState.roadDiscountRes === 'odun') odun = Math.max(0, odun - 1);
+            if (p.bonusState.roadDiscountRes === 'tas')  tas = Math.max(0, tas - 1);
+            roadEl.innerHTML = `<span>🪵${odun}</span><span>🪨${tas}</span>`;
+        }
+
+        // Genel Yapı Maliyetleri (Statik)
+        ALL_BUILDINGS.forEach(b => {
+            const el = document.getElementById(`cost-${b}`);
+            if (el) {
+                const cost = BUILD_COSTS[b];
+                let text = "";
+                if (cost.besin) text += `🌾${cost.besin} `;
+                if (cost.odun)  text += `🪵${cost.odun} `;
+                if (cost.tas)   text += `🪨${cost.tas} `;
+                if (cost.kil)   text += `🧱${cost.kil} `;
+                if (cost.maden) text += `⚙️${cost.maden} `;
+                if (cost.gold)  text += `💰${cost.gold} `;
+                el.textContent = text.trim();
+            }
+        });
+    }
+
     _updateActionButtons() {
         const p   = this.state.currentPlayer;
         const sub = this.state.subPhase;
@@ -535,8 +566,12 @@ class UI {
             let cost = null;
 
             if (action === 'build_village') cost = BUILD_COSTS.koy;
-            else if (action === 'build_road') cost = BUILD_COSTS.yol;
-            else if (action === 'build_building' && btype) {
+            else if (action === 'build_road') {
+                cost = {...BUILD_COSTS.yol};
+                if (p.bonusState.roadDiscountRes) {
+                    cost[p.bonusState.roadDiscountRes] = Math.max(0, cost[p.bonusState.roadDiscountRes] - 1);
+                }
+            } else if (action === 'build_building' && btype) {
                 cost = BUILD_COSTS[btype];
                 if (BUILD_COSTS[btype].gold) cost = {...cost, gold: BUILD_COSTS[btype].gold};
             }
