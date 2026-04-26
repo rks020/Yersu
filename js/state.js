@@ -463,7 +463,6 @@ class GameState {
         });
 
         // Tur sonu eylemleri
-        this.applyUpkeep(p);
         this.checkVictory();
         if (this.gameOver) return;
 
@@ -689,26 +688,6 @@ class GameState {
         };
     }
 
-    applyUpkeep(player) {
-        const soldierCount = player.units.length;
-        if (soldierCount < 2) return;
-
-        const foodCost = Math.floor(soldierCount / 2);
-        if (player.resources.besin >= foodCost) {
-            player.resources.besin -= foodCost;
-            if (foodCost > 0) this.addLog(`🍽️ ${player.name} ordusunu besledi (-${foodCost} Besin).`, 'info');
-        } else {
-            const lost = player.units.pop();
-            this.addLog(`⚠️ ${player.name} ordusunu besleyemedi! 1 birim dağıldı.`, 'danger');
-            if (lost) {
-                const node = this.grid.nodes.get(lost.nodeId);
-                if (node && node.army) {
-                    node.army.units = node.army.units.filter(u => u.uid !== lost.uid);
-                    if (node.army.units.length === 0) node.army = null;
-                }
-            }
-        }
-    }
 
     hexAdjacentToBataklik(hexId) {
         const hex = this.grid.hexes.get(hexId);
