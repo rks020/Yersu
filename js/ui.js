@@ -525,7 +525,6 @@ class UI {
             else if (action === 'build_road') cost = BUILD_COSTS.yol;
             else if (action === 'build_building' && btype) {
                 cost = BUILD_COSTS[btype];
-                // Altın gereksinimi varsa onu da kontrol et
                 if (BUILD_COSTS[btype].gold) cost = {...cost, gold: BUILD_COSTS[btype].gold};
             }
 
@@ -543,20 +542,21 @@ class UI {
                 if (!canAfford) titleText = "⚠️ Yetersiz Kaynak: " + missing.join(", ");
             }
 
-            // Nüfus Kontrolü (Sadece Asker Üret için)
             if (action === 'train_unit') {
                 const hasPop = p.units.length < p.maxPopulation;
                 if (!hasPop) titleText = "⚠️ Nüfus Dolu (Yeni yerleşim kurun veya geliştirin)";
-                // Butonu kapatmıyoruz ki kullanıcı modalı açıp durumu görsün veya tooltip okusun
             }
 
-            btn.title = titleText;
+            // Debug için buton başlığına faz bilgisi ekleyelim
+            btn.title = `${titleText} [Sıra:${isTurn ? 'Sende' : 'Başkası'}, Faz:${this.state.phase}, AltFaz:${sub}]`;
 
             if (action === 'move_unit') {
-                btn.disabled = !isTurn || !isMain || sub !== 'move';
+                btn.disabled = !isTurn || sub !== 'move';
             } else if (action === 'train_unit' || action === 'trade') {
-                btn.disabled = !isTurn || !isMain || sub !== 'build';
+                // Bu butonları daha esnek yapalım: Sıra sendeyse ve ana oyundaysan (Main) her zaman tıklansın
+                btn.disabled = !isTurn || (this.state.phase === 'Main' && sub !== 'build');
             } else {
+                // İnşa butonları
                 if (!isMain) {
                     btn.disabled = !isTurn || action !== 'build_village' || !canAfford;
                 } else {
