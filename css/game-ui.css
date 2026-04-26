@@ -328,7 +328,8 @@
     transition: all 0.15s;
 }
 .btn-build-sm:hover:not(:disabled) { background: rgba(201,162,39,0.3); }
-.btn-build-sm:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-build-sm:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
+.btn-build:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
 
 .btn-action-full {
     padding: 6px 10px;

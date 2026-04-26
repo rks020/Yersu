@@ -508,14 +508,36 @@ class UI {
 
         document.querySelectorAll('.action-btn').forEach(btn => {
             const action = btn.dataset.action;
+            const btype = btn.dataset.btype;
+            let cost = null;
+
+            if (action === 'build_village') cost = BUILD_COSTS.koy;
+            else if (action === 'build_road') cost = BUILD_COSTS.yol;
+            else if (action === 'build_building' && btype) cost = BUILD_COSTS[btype];
+
+            let canAfford = true;
+            let titleText = "";
+            if (cost) {
+                const missing = [];
+                for (const [res, amt] of Object.entries(cost)) {
+                    const has = p.resources[res] || 0;
+                    if (has < amt) {
+                        missing.push(`${RESOURCE_INFO[res].name} (${amt - has} eksik)`);
+                        canAfford = false;
+                    }
+                }
+                if (!canAfford) titleText = "⚠️ Yetersiz Kaynak: " + missing.join(", ");
+            }
+
+            btn.title = titleText;
+
             if (action === 'move_unit') {
                 btn.disabled = !isTurn || !isMain || sub !== 'move';
             } else {
-                // İnşa eylemleri Main'de build aşamasında, Setup'ta ise her zaman (köy kurma için) aktif olabilir
                 if (!isMain) {
-                    btn.disabled = !isTurn || action !== 'build_village';
+                    btn.disabled = !isTurn || action !== 'build_village' || !canAfford;
                 } else {
-                    btn.disabled = !isTurn || sub !== 'build';
+                    btn.disabled = !isTurn || sub !== 'build' || !canAfford;
                 }
             }
         });
