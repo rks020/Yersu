@@ -27,7 +27,7 @@ const PRODUCTION_BIOMES = ['ova', 'koruluk', 'daglik', 'cayir', 'kumsal', 'vaha'
 
 // ==================== İNŞAAT MALİYETLERİ ====================
 const BUILD_COSTS = {
-    yol:          { odun: 1, tas: 1 },
+    yol:          { odun: 1, tas: 2 },
     koy:          { besin: 1, odun: 1, kil: 1, tas: 1 },
     ciftlik:      { besin: 7, odun: 1, kil: 1 },
     kisla:        { maden: 5, tas: 2, odun: 2 },
