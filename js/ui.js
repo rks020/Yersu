@@ -446,6 +446,12 @@ class UI {
         this._updateActionButtons();
         this.renderer.render();
         this.checkPendingChoices();
+
+        // AI Zarını Görselleştir
+        if (this.state.lastRoll && !this.state.lastRoll.uiShown) {
+            this.showDiceModal(this.state.lastRoll.total);
+            this.state.lastRoll.uiShown = true;
+        }
     }
 
     checkPendingChoices() {
@@ -675,9 +681,9 @@ class UI {
 
                 <div class="hex-section-title">ÜRETİLEN KAYNAKLAR</div>
                 <div class="hex-res-row">
-                    ${Object.entries(h.resources).map(([res, val]) => val > 0 ? `
-                        <div class="hex-res-chip">${RESOURCE_INFO[res].emoji} ${val}</div>
-                    ` : '').join('')}
+                    ${h.resources.map(res => `
+                        <div class="hex-res-chip">${RESOURCE_INFO[res].emoji} ${RESOURCE_INFO[res].name}</div>
+                    `).join('')}
                 </div>
             `;
             
@@ -880,7 +886,7 @@ class UI {
     }
 
     showChoiceModalWithDesc(title, items, onSelect) {
-        this.els.choiceModalTitle.textContent = title;
+        this.els.choiceTitle.textContent = title;
         this.els.choiceGrid.innerHTML = '';
         
         items.forEach(item => {
@@ -1218,7 +1224,7 @@ class UI {
             <div style="margin-bottom: 8px;">Zar Numarası: <b>${hex.number || '-'}</b></div>
             <div>Üretilen Kaynaklar:</div>
             <div style="display: flex; gap: 4px; margin-top: 4px;">
-                ${Object.keys(hex.resources).map(r => `<span title="${RESOURCE_INFO[r]?.name}">${RESOURCE_INFO[r]?.emoji}</span>`).join(' ')}
+                ${hex.resources.map(r => `<span title="${RESOURCE_INFO[r]?.name}">${RESOURCE_INFO[r]?.emoji}</span>`).join(' ')}
             </div>
             ${hex.settlement ? `<div style="margin-top:8px; color:var(--gold);">🏗️ Yerleşim: ${this.state.players.find(p=>p.id===hex.settlement.playerId)?.name}</div>` : ''}
         `;
