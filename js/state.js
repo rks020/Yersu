@@ -336,18 +336,18 @@ class GameState {
 
         this.grid.hexes.forEach(hex => {
             if (hex.number !== total) return;
-            if (hex.resources.length === 0) return;
+            if (!hex.resources || Object.keys(hex.resources).length === 0) return;
 
             if (hex.settlement) {
                 const owner = this.players.find(p => p.id === hex.settlement.playerId);
                 if (owner) {
-                    hex.resources.forEach(res => {
+                    for (const res in hex.resources) {
                         let amount = 3; 
                         if (res === 'besin' && hex.settlement.buildings.has('ciftlik')) amount += 1;
                         owner.gain(res, amount);
                         gained.push({ playerId: owner.id, res, amount });
-                        this.addLog(`🌾 ${owner.name}, ${hex.number} zarından ${amount} ${res} kazandı.`, 'success');
-                    });
+                        this.addLog(`🌾 ${owner.name}, ${hex.number} zarından ${amount} ${RESOURCE_INFO[res].name} kazandı.`, 'success');
+                    }
                 }
             }
         });
