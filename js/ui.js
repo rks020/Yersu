@@ -285,7 +285,9 @@ class UI {
         }
         // ── STANDART SEÇİM (BİLGİ GÖRÜNATÜLEME) ──
         else {
-            if (clickedHex) {
+            if (clickedNode && clickedNode.army) {
+                this.state.selected = { type: 'node', id: clickedNode.id };
+            } else if (clickedHex) {
                 this.state.selected = { type: 'hex', id: clickedHex.id };
             } else {
                 this.state.selected = null;
@@ -660,6 +662,55 @@ class UI {
                 `;
             }
 
+            this.els.panelInfo.innerHTML = html;
+        } 
+        else if (sel.type === 'node') {
+            const node = this.state.grid.nodes.get(sel.id);
+            if (!node || !node.army) {
+                this.state.selected = null;
+                this._updatePanel();
+                return;
+            }
+            const owner = this.state.players.find(p => p.id === node.army.playerId);
+            
+            let html = `
+                <div class="hex-biome-header">
+                    <span class="hex-biome-emoji">🚩</span>
+                    <div>
+                        <div class="hex-biome-name">ORDU / BİRLİK</div>
+                        <div style="font-size:0.65rem; color:#888;">Konum ID: ${node.id}</div>
+                    </div>
+                    <div style="width:20px; height:20px; border-radius:50%; background:${owner.color}; border:2px solid rgba(255,255,255,0.4); box-shadow:0 0 10px ${owner.color}88;"></div>
+                </div>
+
+                <div class="hex-section-title">SAHİBİ: ${owner.name.toUpperCase()}</div>
+                
+                <div class="unit-info-list" style="margin-top:10px;">
+                    ${node.army.units.map(u => {
+                        const data = UNIT_DATA[u.type];
+                        return `
+                            <div class="hex-settlement-card" style="margin-bottom:8px; border-left: 3px solid ${owner.color};">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <span style="font-size:1.8rem;">${data.emoji}</span>
+                                    <div style="flex:1;">
+                                        <div style="font-weight:700; color:#eee;">${data.name}</div>
+                                        <div style="display:flex; gap:8px; font-size:0.65rem; color:#aaa; margin-top:2px;">
+                                            <span>❤️ Can: ${u.hp}/${data.hp}</span>
+                                            <span>👣 Hareket: ${u.movesLeft.toFixed(1)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:8px; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
+                                    <div style="font-size:0.65rem; color:#ccc;">⚔️ Güç: <b>${data.power}</b></div>
+                                    <div style="font-size:0.65rem; color:#ccc;">🛡️ Zırh: <b>${data.armor}</b></div>
+                                    ${data.range > 0 ? `<div style="font-size:0.65rem; color:#ccc;">🏹 Menzil: <b>${data.range}</b></div>` : ''}
+                                    <div style="font-size:0.65rem; color:#ccc;">⚡ Hız: <b>${data.speed}</b></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
             this.els.panelInfo.innerHTML = html;
         }
     }
