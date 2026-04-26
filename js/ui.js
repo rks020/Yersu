@@ -500,6 +500,56 @@ class UI {
         }
     }
 
+    _updateUnitPanel() {
+        const unitPanel = document.getElementById('unitPanel');
+        if (!unitPanel) return;
+
+        const p = this.state.currentPlayer;
+        if (p.units.length === 0) {
+            unitPanel.innerHTML = '<div style="font-size:0.75rem; color:#888; text-align:center;">Henüz birim yok</div>';
+            return;
+        }
+
+        // Birimleri tiplerine göre grupla
+        const grouped = {};
+        p.units.forEach(u => {
+            if (!grouped[u.type]) grouped[u.type] = [];
+            grouped[u.type].push(u);
+        });
+
+        let html = '';
+        for (const [type, units] of Object.entries(grouped)) {
+            const data = UNIT_DATA[type];
+            let duelBonus = 0;
+            // Kışla 1. seviye piyade bonusu (örnek)
+            if (data.cls === 'piyade' && p.buildings['kisla'] > 0) {
+                duelBonus += 1;
+            }
+            // Kışla 2. seviye şövalye bonusu (örnek)
+            if (type === 'sovalye' && p.chosenBonuses['kisla'] && p.chosenBonuses['kisla'][2] === 'B') {
+                duelBonus += 1;
+            }
+
+            const totalDuel = data.duel + duelBonus;
+            const duelStr = totalDuel >= 0 ? `+${totalDuel}` : `${totalDuel}`;
+
+            html += `
+                <div style="font-size:0.8rem; background:rgba(0,0,0,0.3); padding:8px; border-radius:6px; margin-bottom:5px; border-left:3px solid ${p.color};">
+                    <div style="font-weight:bold; margin-bottom:4px; font-size:0.9rem;">
+                        ${data.emoji} ${data.name} × ${units.length}
+                    </div>
+                    <div style="color:#aaa; display:flex; gap:10px; font-size:0.75rem;">
+                        <span>🏃 Hız: ${data.speed}</span>
+                        <span>⚔️ Düello: ${duelStr}</span>
+                        ${data.range > 0 ? `<span>🏹 Menzil: ${data.range}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        unitPanel.innerHTML = html;
+    }
+
+
     _updateLogs() {
         if (!this.els.logContainer) return;
         this.els.logContainer.innerHTML = this.state.log.map(l => `
