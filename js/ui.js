@@ -560,8 +560,8 @@ class UI {
             if (action === 'move_unit') {
                 btn.disabled = !isTurn || sub !== 'move';
             } else if (action === 'train_unit' || action === 'trade') {
-                // Bu butonları daha esnek yapalım: Sıra sendeyse ve ana oyundaysan (Main) her zaman tıklansın
-                btn.disabled = !isTurn || (this.state.phase === 'Main' && sub !== 'build');
+                // Ana oyunda sıra sendeyse her zaman aktif olsun (üretim zarı atılmamışsa kapat)
+                btn.disabled = !isTurn || !isMain || sub === 'production';
             } else {
                 // İnşa butonları
                 if (!isMain) {
@@ -1205,7 +1205,7 @@ class UI {
             <div style="margin-bottom: 8px;">Zar Numarası: <b>${hex.number || '-'}</b></div>
             <div>Üretilen Kaynaklar:</div>
             <div style="display: flex; gap: 4px; margin-top: 4px;">
-                ${hex.resources.map(r => `<span title="${RESOURCE_INFO[r]?.name}">${RESOURCE_INFO[r]?.emoji}</span>`).join(' ')}
+                ${Object.keys(hex.resources).map(r => `<span title="${RESOURCE_INFO[r]?.name}">${RESOURCE_INFO[r]?.emoji}</span>`).join(' ')}
             </div>
             ${hex.settlement ? `<div style="margin-top:8px; color:var(--gold);">🏗️ Yerleşim: ${this.state.players.find(p=>p.id===hex.settlement.playerId)?.name}</div>` : ''}
         `;
