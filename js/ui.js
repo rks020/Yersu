@@ -500,6 +500,13 @@ class UI {
             this.showDiceModal(this.state.lastRoll.total);
             this.state.lastRoll.uiShown = true;
         }
+
+        // Bekleyen Seçimleri Kontrol Et (Sıra gerçek oyuncudaysa)
+        const curP = this.state.currentPlayer;
+        if (!curP.isAI && curP.pendingChoices && curP.pendingChoices.length > 0 && !this.choiceModalOpen) {
+            const nextChoice = curP.pendingChoices[0];
+            this.showChoiceModal(nextChoice.type, nextChoice.level);
+        }
     }
 
     showVictoryModal(winner) {
@@ -563,7 +570,10 @@ class UI {
                     p.settlements.forEach(hid => {
                         const hex = this.state.grid?.hexes?.get(hid);
                         if (hex && hex.resources) {
-                            prod += (hex.resources[key] || 0);
+                            // hex.resources bir dizi (Array), key ('besin' vb.) var mı bakmalıyız
+                            if (hex.resources.includes(key)) {
+                                prod += 1; // Her yerleşim o kaynağı içeren hex'teyse +1 üretim (tahmini)
+                            }
                         }
                     });
                 }
@@ -921,7 +931,6 @@ class UI {
         const p = this.state.currentPlayer;
         const bonuses = BUILDING_BONUSES[btype];
         if (!bonuses) return;
-
         const builtCount = p.buildings?.[btype] || 0;
         const currentLevel = builtCount >= 4 ? 3 : builtCount >= 2 ? 2 : builtCount >= 1 ? 1 : 0;
 

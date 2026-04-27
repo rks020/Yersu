@@ -189,7 +189,10 @@ class HexGrid {
     playerConnectedToNode(playerId, nodeId) {
         const node = this.nodes.get(nodeId);
         if (!node) return false;
-        return node.edges.some(eid => this.edges.get(eid).road === playerId);
+        // Bir düğme ya oyuncunun yoluyla ya da oyuncunun yerleşimiyle bağlı olmalı
+        const hasRoad = node.edges.some(eid => this.edges.get(eid).road === playerId);
+        const hasSettlement = this.nodeHasPlayerSettlement(playerId, nodeId);
+        return hasRoad || hasSettlement;
     }
 
     // Oyuncunun köy kurabileceği hex'leri döndür
