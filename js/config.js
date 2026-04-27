@@ -98,7 +98,7 @@ const SIEGE_NORMAL = 3;
 const SIEGE_DESERT = 5;
 const VP_GOAL = 10;
 const MAX_TURNS = 100;
-const GAME_END_CITIES = 6; // player needs 6 city-level settlements
+const GAME_END_CITIES = 5; // player needs 5 city-level settlements
 const BANK_TRADE_RATE = 6; // 6 basic resources = 1 gold
 const BANK_SELL_RATE  = 2; // 1 gold → 2 basic resources
 const KERVANSARAY_LV2_RATE = 3; // with kervansaray lv2: 1 gold → 3 basic resources

@@ -354,25 +354,28 @@ class Renderer {
                 ctx.fillText(`${siege.points}/${req} KUŞATMA`, hex.x, by + 18);
             }
 
-            // Yerleşim ikonu
+            // Yerleşim ikonu ve Arka plan halkası
             const baseSize = st.type === 'metropol' ? 28 : (st.type === 'sehir' ? 22 : 16);
             const icon     = st.type === 'metropol' ? '🏯' : (st.type === 'sehir' ? '🏰' : '🏘️');
 
-            ctx.save();
-            ctx.font         = `${baseSize * 1.5}px serif`;
-            ctx.textAlign    = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.shadowColor  = color;
-            ctx.shadowBlur   = 12;
-            ctx.fillText(icon, hex.x, hex.y - 12); // Yukarı kaydırıldı (numarayı kapatmaması için)
-            ctx.restore();
-
-            // Renk halkası
+            // 1. Arka plan halkası (Badge)
             ctx.beginPath();
-            ctx.arc(hex.x, hex.y, baseSize * 0.8, 0, Math.PI * 2);
+            ctx.arc(hex.x, hex.y, baseSize * 1.1, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.3)'; // Koyu arka plan
+            ctx.fill();
             ctx.strokeStyle = color;
             ctx.lineWidth   = 3;
             ctx.stroke();
+
+            // 2. İkon
+            ctx.save();
+            ctx.font         = `${baseSize * 1.4}px serif`;
+            ctx.textAlign    = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor  = color;
+            ctx.shadowBlur   = 8;
+            ctx.fillText(icon, hex.x, hex.y); 
+            ctx.restore();
 
             // Bina ikonları (Geniş halka)
             if (st.buildings && st.buildings.size > 0) {

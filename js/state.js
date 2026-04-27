@@ -232,7 +232,11 @@ class GameState {
                 // Eğer bu seviye için birden fazla seçenek varsa (Array ise), seçim gerekir
                 const bonusInfo = BUILDING_BONUSES[b][newLv];
                 if (Array.isArray(bonusInfo) && bonusInfo.length > 1) {
-                    player.pendingChoices.push({ type: b, level: newLv, options: bonusInfo.map((_, i) => String.fromCharCode(65 + i)) });
+                    // [YENİ] Sadece bir kez sorması için: Eğer bu yapı türü için daha önce hiç seçim yapılmadıysa sor
+                    const alreadyChosen = player.chosenBonuses && player.chosenBonuses[b] && Object.keys(player.chosenBonuses[b]).length > 0;
+                    if (!alreadyChosen) {
+                        player.pendingChoices.push({ type: b, level: newLv, options: bonusInfo.map((_, i) => String.fromCharCode(65 + i)) });
+                    }
                 }
             }
 
