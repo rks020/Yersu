@@ -1005,10 +1005,18 @@ class UI {
         const bName = BUILDING_NAMES[type];
         const bonuses = BUILDING_BONUSES[type][level];
         
-        const items = [
-            { id: 'A', name: `Seçenek (A)`, desc: bonuses[0] || "Bonus A", enabled: true, icon: '🌟', costStr: '' },
-            { id: 'B', name: `Seçenek (B)`, desc: bonuses[1] || "Bonus B", enabled: true, icon: '🔥', costStr: '' }
-        ];
+        const items = bonuses.map((desc, i) => {
+            const letter = String.fromCharCode(65 + i); // A, B, C...
+            const icons = ['🌟', '🔥', '🛡️', '⚡', '💎'];
+            return { 
+                id: letter, 
+                name: `Seçenek (${letter})`, 
+                desc: desc, 
+                enabled: true, 
+                icon: icons[i] || '✨', 
+                costStr: '' 
+            };
+        });
 
         this.showChoiceModalWithDesc(`${bName} - ${level}. Seviye Bonusu Seçimi`, items, (choice) => {
             this.actions.chooseBonus(this.state.currentPlayer.id, type, level, choice);
