@@ -467,4 +467,31 @@ class Actions {
         this.state.checkVictory();
         return true;
     }
+
+    changeHexResource(playerId, hexId, newRes) {
+        const p = this.state.players.find(pl => pl.id === playerId);
+        const hex = this.state.grid.hexes.get(hexId);
+        if (!p || !hex) return false;
+
+        // Bonus kontrolü: Mühendishane Seviye 2 (B)
+        if (!p.bonusState.canChangeBiomeResource) {
+            this.state.addLog("⚠️ Bu eylem için Mühendishane Seviye 2 (B) bonusu gerekli!", "warning");
+            return false;
+        }
+
+        // Sadece kendi yerleşiminin olduğu veya komşu olduğu hexleri değiştirebilir (isteğe bağlı kısıtlama)
+        // Şimdilik sadece yerleşiminin olduğu hexlerde izin verelim
+        if (!hex.settlement || hex.settlement.playerId !== playerId) {
+            this.state.addLog("⚠️ Sadece kendi yerleşiminizin olduğu bölgelerin kaynağını değiştirebilirsiniz.", "warning");
+            return false;
+        }
+
+        if (!RESOURCES.includes(newRes)) return false;
+
+        const oldRes = hex.resources[0] || "Yok";
+        hex.resources = [newRes]; // Kaynağı değiştir
+        
+        this.state.addLog(`⚙️ ${p.name}, Mühendishane sayesinde ${hex.id} bölgesinin kaynağını ${oldRes.toUpperCase()} -> ${newRes.toUpperCase()} yaptı.`, "info");
+        return true;
+    }
 }

@@ -54,6 +54,33 @@ class UI {
         this.activeBonusTab = 'ciftlik';
         this._bindEvents();
         this._initBonusPanel();
+        this.victoryModalShown = false;
+    }
+
+    _getBuildingLevel(player, type) {
+        const count = player.buildings?.[type] || 0;
+        return count >= 4 ? 3 : (count >= 2 ? 2 : (count >= 1 ? 1 : 0));
+    }
+
+    showChangeResourceModal(hexId) {
+        const hex = this.state.grid.hexes.get(hexId);
+        if (!hex) return;
+
+        const items = RESOURCES.map(res => ({
+            id: res,
+            name: RESOURCE_INFO[res].name,
+            icon: RESOURCE_INFO[res].emoji,
+            desc: `${RESOURCE_INFO[res].name} üretimi için ayarla.`,
+            enabled: true,
+            costStr: ''
+        }));
+
+        this.showChoiceModalWithDesc(`⚙️ Kaynak Değiştir (${hexId})`, items, (newRes) => {
+            if (this.actions.changeHexResource(this.state.currentPlayer.id, hexId, newRes)) {
+                this.showNotice("Bölge kaynağı değiştirildi!", "success");
+                this.update();
+            }
+        });
     }
 
     _bindEvents() {
@@ -462,13 +489,37 @@ class UI {
         this._updateActionButtons();
         this._updateCostLabels();
         this.renderer.render();
-        this.checkPendingChoices();
+        // Zafer Kontrolü
+        if (this.state.gameOver && this.state.winner && !this.victoryModalShown) {
+            this.showVictoryModal(this.state.winner);
+            this.victoryModalShown = true;
+        }
 
         // AI Zarını Görselleştir
         if (this.state.lastRoll && !this.state.lastRoll.uiShown) {
             this.showDiceModal(this.state.lastRoll.total);
             this.state.lastRoll.uiShown = true;
         }
+    }
+
+    showVictoryModal(winner) {
+        const modal = document.getElementById('victoryModal');
+        const title = document.getElementById('victoryTitle');
+        const msg = document.getElementById('victoryMessage');
+        const stats = document.getElementById('victoryStats');
+        if (!modal) return;
+
+        title.textContent = winner.id === this.state.currentPlayer.id ? "TEBRİKLER, KAZANDIN!" : "OYUN BİTTİ";
+        msg.textContent = `${winner.name} imparatorluğunu kurarak tüm dünyaya hükmetti.`;
+        
+        const vp = this.state.calculateVP(winner);
+        stats.innerHTML = `
+            <div style="font-size: 1.5rem; margin-bottom: 10px; color: var(--gold);">Toplam Puan: ${vp}</div>
+            <div style="font-size: 0.9rem; color: #ccc;">Şehir Sayısı: ${winner.settlements.length}</div>
+            <div style="font-size: 0.9rem; color: #ccc;">Tur: ${this.state.turn}</div>
+        `;
+
+        modal.classList.add('active');
     }
 
     checkPendingChoices() {
@@ -769,7 +820,7 @@ class UI {
                             ${[...h.settlement.buildings].map(btype => `
                                 <div class="hex-bld-item">
                                     <span>${BUILDING_ICONS[btype]} ${BUILDING_NAMES[btype]}</span>
-                                    <span class="hex-bld-lv">Sv. ${this.state.players.find(p => p.id === h.settlement.playerId).buildings[btype]}</span>
+                                    <span class="hex-bld-lv">Sv. ${Math.min(3, this._getBuildingLevel(owner, btype))}</span>
                                 </div>
                             `).join('')}
                             ${h.settlement.buildings.size < 6 ? `
@@ -777,6 +828,12 @@ class UI {
                             ` : ''}
                         </div>
                     </div>
+
+                    ${owner.id === this.state.currentPlayer.id && this.state.currentPlayer.bonusState.canChangeBiomeResource && this.state.subPhase === 'production' ? `
+                        <div style="margin-top:10px;">
+                            <button class="btn-action-full" style="background:#455A64; border-color:#607D8B;" onclick="window.appMain.ui.showChangeResourceModal('${h.id}')">⚙️ Kaynağı Değiştir (Bonus)</button>
+                        </div>
+                    ` : ''}
                 `;
             } else {
                 html += `
