@@ -13,12 +13,12 @@ class Player {
         
         // Kaynaklar
         this.resources = {
-            besin: 30,
-            odun:  30,
-            tas:   30,
-            kil:   30,
-            maden: 30,
-            gold:  0
+            besin: 20,
+            odun:  20,
+            tas:   20,
+            kil:   20,
+            maden: 20,
+            gold:  20
         };
         
         // Mülkiyet
@@ -147,14 +147,14 @@ class GameState {
 
     initStartingResources() {
         this.players.forEach(p => {
-            p.resources.besin = 3;
-            p.resources.odun  = 3;
-            p.resources.tas   = 3;
-            p.resources.kil   = 3;
-            p.resources.maden = 3;
-            p.resources.gold  = 3;
+            p.resources.besin = 20;
+            p.resources.odun  = 20;
+            p.resources.tas   = 20;
+            p.resources.kil   = 20;
+            p.resources.maden = 20;
+            p.resources.gold  = 20;
         });
-        this.addLog('🎁 Herkes başlangıç kaynakları aldı (her kaynaktan 3).', 'success');
+        this.addLog('🎁 Herkes başlangıç kaynakları aldı (her kaynaktan 20).', 'success');
     }
 
     get currentPlayer() { return this.players[this.currentPlayerIdx]; }
@@ -403,7 +403,10 @@ class GameState {
                 const owner = this.players.find(p => p.id === hex.settlement.playerId);
                 if (owner) {
                     for (const res of hex.resources) {
-                        let amount = 3; 
+                        let amount = 1; 
+                        if (hex.settlement.type === 'sehir') amount = 2;
+                        else if (hex.settlement.type === 'metropol') amount = 3;
+
                         if (res === 'besin' && hex.settlement.buildings.has('ciftlik')) amount += 1;
                         owner.gain(res, amount);
                         gained.push({ 
