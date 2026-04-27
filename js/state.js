@@ -458,7 +458,16 @@ class GameState {
         if (nextPlayer) {
             nextPlayer.units.forEach(u => {
                 const data = UNIT_DATA[u.type];
-                u.movesLeft = data.speed || 2;
+                let speed = data.speed || 1;
+                
+                // Kışla Sv.2 A Bonusu: Hafif Süvari ve Atlı Okçu +1 Hız
+                if (nextPlayer.chosenBonuses?.kisla?.[2] === 'A') {
+                    if (u.type === 'hafif_suvari' || u.type === 'atli_okcu') {
+                        speed += 1;
+                    }
+                }
+                
+                u.movesLeft = speed;
             });
         }
     }

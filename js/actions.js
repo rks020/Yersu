@@ -43,7 +43,7 @@ class Actions {
 
         const uid = p.nextUnitId();
         const unitData = { uid, type: 'kilicli', hp: 1, movesLeft: 0, nodeId };
-        
+
         p.units.push(unitData);
 
         if (!node.army) node.army = { playerId, units: [] };
@@ -59,7 +59,7 @@ class Actions {
         const p = this.state.players.find(pl => pl.id === playerId);
         const edge = this.state.grid.edges.get(edgeId);
         if (!p || !edge || edge.road !== null) return false;
-        let actualCost = {...BUILD_COSTS.yol};
+        let actualCost = { ...BUILD_COSTS.yol };
         if (p.bonusState.roadDiscountRes) {
             const res = p.bonusState.roadDiscountRes; // 'odun' veya 'tas'
             actualCost[res] = Math.max(0, actualCost[res] - 1);
@@ -69,9 +69,9 @@ class Actions {
 
         // Yol kuralı: Kenarın en az bir ucunda oyuncunun yolu veya yerleşimi olmalı
         const n1Ok = this.state.grid.playerConnectedToNode(playerId, edge.node1)
-                  || this.state.grid.nodeHasPlayerSettlement(playerId, edge.node1);
+            || this.state.grid.nodeHasPlayerSettlement(playerId, edge.node1);
         const n2Ok = this.state.grid.playerConnectedToNode(playerId, edge.node2)
-                  || this.state.grid.nodeHasPlayerSettlement(playerId, edge.node2);
+            || this.state.grid.nodeHasPlayerSettlement(playerId, edge.node2);
         if (!n1Ok && !n2Ok) return false;
 
         p.spend(actualCost);
@@ -136,7 +136,7 @@ class Actions {
         const cost = BUILD_COSTS[buildingType];
         if (!cost) return false;
 
-        let actualCost = {...cost};
+        let actualCost = { ...cost };
         // Tiyatro Seviye 1 Bonusu: Maliyet -1 azalır (En pahalı kaynaktan düşelim)
         if (hex.settlement.buildings.has('tiyatro')) {
             let maxRes = null;
@@ -204,9 +204,9 @@ class Actions {
 
         const udata = UNIT_DATA[unitDef.type];
         let cost = 1; // Temel maliyet 1 MP
-        
+
         // İki node arasındaki kenarı bul
-        const edge = Array.from(this.state.grid.edges.values()).find(e => 
+        const edge = Array.from(this.state.grid.edges.values()).find(e =>
             (e.n1 === startNodeId && e.n2 === targetNodeId) || (e.n1 === targetNodeId && e.n2 === startNodeId)
         );
 
@@ -257,7 +257,7 @@ class Actions {
                 const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
                 const killed = targetNode.army.units.shift();
                 if (killed) defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
-                
+
                 if (targetNode.army.units.length === 0) {
                     targetNode.army = { playerId, units: [movingUnit] };
                 } else {
@@ -324,11 +324,11 @@ class Actions {
         if (sellRes === 'gold') {
             // ALTIN SATIŞI: 1 Altın -> 2 (veya Kervansaray bonusuyla 3) Temel Kaynak
             if (p.resources.gold < 1) return false;
-            
+
             const buyAmount = (p.bonusState && p.bonusState.goldToResRate) ? p.bonusState.goldToResRate : 2;
-            
+
             p.resources.gold -= 1;
-            
+
             // Eğer buyRes2 varsa, ikisinden de al. Yoksa sadece ilkini buyAmount kadar al.
             if (buyRes2 && buyRes2 !== buyRes) {
                 p.gain(buyRes, Math.ceil(buyAmount / 2));
@@ -336,14 +336,14 @@ class Actions {
             } else {
                 p.gain(buyRes, buyAmount);
             }
-            
+
             this.state.addLog(`${p.name} 1 Altın bozdurarak kaynak aldı.`, 'info');
             return true;
         } else {
             // TEMEL KAYNAK SATIŞI: X:1 (Default 6:1)
             const rate = (p.bonusState && p.bonusState.bankRate) ? p.bonusState.bankRate : 6;
             if (p.resources[sellRes] < rate) return false;
-            
+
             p.resources[sellRes] -= rate;
             p.gain(buyRes, 1);
             this.state.addLog(`${p.name} banka ticareti: ${rate} ${sellRes} → 1 ${buyRes}`, 'info');
@@ -354,7 +354,7 @@ class Actions {
     tradeWithPlayer(fromId, toId, offer, request) {
         // offer / request: { besin:0, odun:0, tas:0, kil:0, maden:0, gold:0 }
         const from = this.state.players.find(pl => pl.id === fromId);
-        const to   = this.state.players.find(pl => pl.id === toId);
+        const to = this.state.players.find(pl => pl.id === toId);
         if (!from || !to || from === to) return false;
 
         // Kaynak kontrolü
@@ -373,8 +373,8 @@ class Actions {
             if (amt > 0) { to.resources[res] -= amt; from.resources[res] = (from.resources[res] || 0) + amt; }
         }
 
-        const offerStr   = Object.entries(offer).filter(([,v])=>v>0).map(([r,v])=>`${v} ${r}`).join(', ');
-        const requestStr = Object.entries(request).filter(([,v])=>v>0).map(([r,v])=>`${v} ${r}`).join(', ');
+        const offerStr = Object.entries(offer).filter(([, v]) => v > 0).map(([r, v]) => `${v} ${r}`).join(', ');
+        const requestStr = Object.entries(request).filter(([, v]) => v > 0).map(([r, v]) => `${v} ${r}`).join(', ');
         this.state.addLog(`🤝 ${from.name} → ${to.name}: [${offerStr}] karşılığında [${requestStr}]`, 'success');
         return true;
     }
@@ -448,7 +448,7 @@ class Actions {
         // Yerleşim sahibini değiştir
         const oldType = hex.settlement.type;
         hex.settlement.playerId = attackerId;
-        
+
         // Bazı binalar yıkılır (Opsiyonel: %50 ihtimalle her bina yıkılabilir veya sadece hepsi silinebilir)
         // Burada basitlik adına binaları koruyoruz ama "Metropol" ise "Şehir"e düşürebiliriz
         if (hex.settlement.type === 'metropol') hex.settlement.type = 'sehir';
@@ -461,7 +461,7 @@ class Actions {
         delete this.state.sieges[hexId];
 
         this.state.addLog(`🚩 ${attacker.name}, ${defender.name} yerleşimini ELE GEÇİRDİ!`, 'success');
-        
+
         this.state.recalcBuildings(attacker);
         this.state.recalcBuildings(defender);
         this.state.recalcPopulation(attacker);
@@ -492,7 +492,7 @@ class Actions {
 
         const oldRes = hex.resources[0] || "Yok";
         hex.resources = [newRes]; // Kaynağı değiştir
-        
+
         this.state.addLog(`⚙️ ${p.name}, Mühendishane sayesinde ${hex.id} bölgesinin kaynağını ${oldRes.toUpperCase()} -> ${newRes.toUpperCase()} yaptı.`, "info");
         return true;
     }
