@@ -281,7 +281,9 @@ class GameState {
                 else player.bonusState.roadCostReduction = 1;
             }
         } else if (type === 'kisla') {
-            if (level === 2) {
+            if (level === 1) {
+                player.bonusState.kislaLv1Choice = choice; // A, B, veya C
+            } else if (level === 2) {
                 if (choice === 'A') player.bonusState.spawnUnitXp += 20;
                 else player.bonusState.sovGoldReduction = 1;
             }
@@ -648,8 +650,11 @@ class GameState {
                 const hex = this.grid.hexes.get(hid);
                 if (hex && hex.settlement && hex.settlement.playerId === player.id) {
                     const b = hex.settlement.buildings;
-                    if (b.has('kisla') && ['mizrakci', 'kilicli', 'okcu'].includes(unit.type)) {
-                        strength += 1;
+                    if (b.has('kisla')) {
+                        const choice = player.bonusState.kislaLv1Choice;
+                        if (choice === 'A' && unit.type === 'mizrakci') strength += 1;
+                        else if (choice === 'B' && unit.type === 'kilicli') strength += 1;
+                        else if (choice === 'C' && unit.type === 'okcu') strength += 1;
                     }
                     if (this.sieges[hex.id] && b.has('tapinak')) {
                         strength += 1;
