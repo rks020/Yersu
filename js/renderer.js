@@ -416,4 +416,11 @@ class Renderer {
             y: (cy - this.offsetY) / this.scale,
         };
     }
+
+    gameToCanvas(gx, gy) {
+        return {
+            x: gx * this.scale + this.offsetX,
+            y: gy * this.scale + this.offsetY,
+        };
+    }
 }

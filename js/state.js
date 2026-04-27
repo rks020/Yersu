@@ -378,7 +378,7 @@ class GameState {
             this.addLog(`🎲 ${this.currentPlayer.name} ${this.lastRoll.total} attı ve hareket puanı kazandı.`, 'info');
             this.subPhase = 'move'; 
         } else {
-            this.distributeResources(this.lastRoll);
+            this.lastRoll.gained = this.distributeResources(this.lastRoll);
             // Main aşamada zar atılınca tüm birimlere hareket puanı ver
             this.currentPlayer.units.forEach(u => {
                 const data = UNIT_DATA[u.type];
@@ -404,7 +404,13 @@ class GameState {
                         let amount = 3; 
                         if (res === 'besin' && hex.settlement.buildings.has('ciftlik')) amount += 1;
                         owner.gain(res, amount);
-                        gained.push({ playerId: owner.id, res, amount });
+                        gained.push({ 
+                            playerId: owner.id, 
+                            res, 
+                            amount, 
+                            x: hex.center.x, 
+                            y: hex.center.y 
+                        });
                         this.addLog(`🌾 ${owner.name}, ${hex.number} zarından ${amount} ${RESOURCE_INFO[res].name} kazandı.`, 'success');
                     }
                 }
@@ -414,7 +420,16 @@ class GameState {
         this.players.forEach(p => {
             if (p.bonusState.ciftlikResPerTurn > 0) {
                 p.gain('besin', p.bonusState.ciftlikResPerTurn);
-                gained.push({ playerId: p.id, res: 'besin', amount: p.bonusState.ciftlikResPerTurn });
+                // Çiftlik bonusu için belirli bir konum yok, orta noktadan veya oyuncu merkezinden çıkabilir
+                // Şimdilik konumsuz ekleyelim veya ilk yerleşiminden çıkaralım
+                const firstSettlement = this.grid.hexes.get(p.settlements[0]);
+                gained.push({ 
+                    playerId: p.id, 
+                    res: 'besin', 
+                    amount: p.bonusState.ciftlikResPerTurn,
+                    x: firstSettlement ? firstSettlement.center.x : 0,
+                    y: firstSettlement ? firstSettlement.center.y : 0
+                });
                 this.addLog(`🌾 ${p.name}, Çiftlik bonusundan ${p.bonusState.ciftlikResPerTurn} besin kazandı.`, 'success');
             }
         });

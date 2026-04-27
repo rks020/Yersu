@@ -835,3 +835,25 @@ button:disabled {
     cursor: not-allowed;
     filter: grayscale(1);
 }
+
+/* ─── ANIMASYONLAR ─── */
+.resource-fly-icon {
+    position: fixed;
+    z-index: 10000;
+    font-size: 24px;
+    pointer-events: none;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes resPulse {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.2); filter: brightness(1.8); }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+.res-gain-pulse {
+    animation: resPulse 0.4s ease-out;
+}

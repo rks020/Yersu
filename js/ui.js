@@ -457,8 +457,9 @@ class UI {
     handleRollDice() {
         if (this.state.subPhase !== 'production') return;
         const roll = this.state.rollProductionDice();
-        this.state.addLog(`🎲 ${this.state.currentPlayer.name} zar attı: ${roll.d1} + ${roll.d2} = ${roll.total}`, 'info');
+        // this.state.addLog(`🎲 ${this.state.currentPlayer.name} zar attı: ${roll.d1} + ${roll.d2} = ${roll.total}`, 'info'); // state.js zaten log basıyor
         this.showDiceModal(roll.total);
+        if (roll.gained) this.showResourceAnimation(roll.gained);
         this.update();
     }
 
@@ -1397,6 +1398,56 @@ class UI {
             if (udata.range > 0 && targetNode.army && targetNode.army.playerId !== this.state.currentPlayer.id) {
                 this.state.rangeHighlightedNodes.add(nid);
             }
+        });
+    }
+
+    showResourceAnimation(gainedList) {
+        if (!gainedList || gainedList.length === 0) return;
+
+        // Her kazanım için küçük bir gecikmeyle ikonları uçur
+        gainedList.forEach((item, index) => {
+            setTimeout(() => {
+                const resInfo = RESOURCE_INFO[item.res];
+                if (!resInfo) return;
+
+                // 1. Başlangıç noktası (Canvas üzerindeki koordinatlar)
+                const startPos = this.renderer.gameToCanvas(item.x, item.y);
+                
+                // 2. Hedef nokta (Üst bardaki ilgili kaynak elementi)
+                const targetElId = `res${item.res.charAt(0).toUpperCase() + item.res.slice(1)}`;
+                const targetEl = document.getElementById(targetElId);
+                if (!targetEl) return;
+                const targetRect = targetEl.getBoundingClientRect();
+
+                // 3. Animasyon elemanını oluştur
+                const el = document.createElement('div');
+                el.className = 'resource-fly-icon';
+                el.innerHTML = resInfo.emoji;
+                el.style.left = `${startPos.x}px`;
+                el.style.top = `${startPos.y}px`;
+                el.style.color = resInfo.color;
+                document.body.appendChild(el);
+
+                // 4. Hedefe uçur
+                const flyX = targetRect.left + targetRect.width / 2 - 10;
+                const flyY = targetRect.top + targetRect.height / 2 - 10;
+
+                el.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 0 },
+                    { transform: 'translate(0, 0) scale(1.5)', opacity: 1, offset: 0.2 },
+                    { transform: `translate(${flyX - startPos.x}px, ${flyY - startPos.y}px) scale(0.5)`, opacity: 0.8 }
+                ], {
+                    duration: 800,
+                    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                    fill: 'forwards'
+                }).onfinish = () => {
+                    el.remove();
+                    // Hedef elemente küçük bir parlama efekti ver
+                    targetEl.classList.add('res-gain-pulse');
+                    setTimeout(() => targetEl.classList.remove('res-gain-pulse'), 400);
+                };
+
+            }, index * 100); // İkonlar sırayla çıksın
         });
     }
 }
