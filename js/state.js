@@ -13,11 +13,11 @@ class Player {
         
         // Kaynaklar
         this.resources = {
-            besin: 0,
-            odun:  0,
-            tas:   0,
-            kil:   0,
-            maden: 0,
+            besin: 30,
+            odun:  30,
+            tas:   30,
+            kil:   30,
+            maden: 30,
             gold:  0
         };
         
