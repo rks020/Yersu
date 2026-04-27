@@ -462,6 +462,8 @@ class Actions {
 
         this.state.addLog(`🚩 ${attacker.name}, ${defender.name} yerleşimini ELE GEÇİRDİ!`, 'success');
         
+        this.state.recalcBuildings(attacker);
+        this.state.recalcBuildings(defender);
         this.state.recalcPopulation(attacker);
         this.state.recalcPopulation(defender);
         this.state.checkVictory();

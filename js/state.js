@@ -257,6 +257,7 @@ class GameState {
         // Seviye 1 bonusları otomatik uygulanır (bazıları distributeResources içinde)
         this.recalcBuildings(player);
         this.recalcPopulation(player);
+        this.checkVictory();
     }
 
     applyBuildingChoiceBonus(player, type, level, choice) {
