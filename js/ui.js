@@ -295,6 +295,22 @@ class UI {
                 this.state.clearSelection();
             }
         }
+        // ── KUŞATMA BAŞLATMA (DÜŞMAN HEX'İNE TIKLANDIĞINDA) ──
+        else if (mode === 'moveOrAttack' && clickedHex) {
+            const p = this.state.currentPlayer;
+            if (clickedHex.settlement && clickedHex.settlement.playerId !== p.id) {
+                if (this.actions.startSiege(p.id, clickedHex.id)) {
+                    this.showNotice("Kuşatma başlatıldı!", "warning");
+                    this.state.clearSelection();
+                } else {
+                    // startSiege zaten log basıyor, burada sadece temizlik yapalım
+                    this.state.clearSelection();
+                }
+            } else {
+                this.state.selected = { type: 'hex', id: clickedHex.id };
+                this.state.clearSelection();
+            }
+        }
         // ── STANDART SEÇİM (BİLGİ GÖRÜNATÜLEME) ──
         else {
             if (clickedNode && clickedNode.army) {

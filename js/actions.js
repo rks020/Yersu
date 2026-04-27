@@ -384,4 +384,77 @@ class Actions {
         this.state.addLog(`${p.name} ${BUILDING_NAMES[buildingType]} ${level}. Seviye: ${choice}`, 'info');
         return true;
     }
+
+    // ── Kuşatma Mekanikleri ────────────────────────────────────────
+
+    startSiege(playerId, hexId) {
+        const p = this.state.players.find(pl => pl.id === playerId);
+        const hex = this.state.grid.hexes.get(hexId);
+        if (!p || !hex || !hex.settlement || hex.settlement.playerId === playerId) return false;
+
+        // Zaten kuşatılıyor mu?
+        if (this.state.sieges[hexId]) {
+            this.state.addLog("⚠️ Bu yerleşim zaten kuşatma altında!", "warning");
+            return false;
+        }
+
+        // Bitişikte ordu var mı kontrolü
+        let hasArmy = false;
+        hex.nodeIds.forEach(nid => {
+            const node = this.state.grid.nodes.get(nid);
+            if (node.army && node.army.playerId === playerId) hasArmy = true;
+        });
+
+        if (!hasArmy) {
+            this.state.addLog("⚠️ Kuşatma başlatmak için yerleşim dibinde ordunuz olmalı!", "warning");
+            return false;
+        }
+
+        const defender = this.state.players.find(pl => pl.id === hex.settlement.playerId);
+        this.state.sieges[hexId] = {
+            attackerId: playerId,
+            points: 0,
+            startTime: Date.now()
+        };
+
+        this.state.addLog(`🏰 ${p.name}, ${defender.name} oyuncusunun yerleşimini KUŞATTI!`, 'warning');
+        return true;
+    }
+
+    resolveSiege(hexId) {
+        const hex = this.state.grid.hexes.get(hexId);
+        if (!hex || !hex.settlement) return false;
+
+        const siege = this.state.sieges[hexId];
+        if (!siege) return false;
+
+        const attackerId = siege.attackerId;
+        const defenderId = hex.settlement.playerId;
+        const attacker = this.state.players.find(p => p.id === attackerId);
+        const defender = this.state.players.find(p => p.id === defenderId);
+
+        if (!attacker || !defender) return false;
+
+        // Yerleşim sahibini değiştir
+        const oldType = hex.settlement.type;
+        hex.settlement.playerId = attackerId;
+        
+        // Bazı binalar yıkılır (Opsiyonel: %50 ihtimalle her bina yıkılabilir veya sadece hepsi silinebilir)
+        // Burada basitlik adına binaları koruyoruz ama "Metropol" ise "Şehir"e düşürebiliriz
+        if (hex.settlement.type === 'metropol') hex.settlement.type = 'sehir';
+
+        // Oyuncu listelerini güncelle
+        attacker.settlements.push(hexId);
+        defender.settlements = defender.settlements.filter(id => id !== hexId);
+
+        // Kuşatmayı kaldır
+        delete this.state.sieges[hexId];
+
+        this.state.addLog(`🚩 ${attacker.name}, ${defender.name} yerleşimini ELE GEÇİRDİ!`, 'success');
+        
+        this.state.recalcPopulation(attacker);
+        this.state.recalcPopulation(defender);
+        this.state.checkVictory();
+        return true;
+    }
 }

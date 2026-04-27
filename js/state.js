@@ -426,47 +426,51 @@ class GameState {
 
         // Kuşatma ilerlemeleri
         Object.entries(this.sieges).forEach(([hexId, s]) => {
-            if (s.attackerId === p.id) {
-                s.turnsActive++;
-                const node = this.grid.nodes.get(s.attackerNodeId);
-                if (node && node.army && node.army.playerId === p.id) {
+            const hex = this.grid.hexes.get(hexId);
+            if (hex && hex.settlement) {
+                const p = this.players.find(pl => pl.id === s.attackerId);
+                if (p) {
                     let siegePower = 1;
-                    node.army.units.forEach(u => {
-                        const udata = UNIT_DATA[u.type];
-                        if (udata.siege) siegePower += udata.siege;
+                    // Ordu kontrolü (yerleşimin düğmelerinden birinde ordu var mı?)
+                    hex.nodeIds.forEach(nid => {
+                        const node = this.grid.nodes.get(nid);
+                        if (node.army && node.army.playerId === s.attackerId) {
+                            node.army.units.forEach(u => {
+                                const udata = UNIT_DATA[u.type];
+                                if (udata.siege) siegePower += udata.siege;
+                            });
+                        }
                     });
-                    
-                    if (p.settlements.some(hid => {
-                        const h = this.grid.hexes.get(hid);
-                        return h.settlement && h.settlement.buildings.has('muhendishane');
-                    })) {
-                        siegePower += 1;
-                    }
 
-                    // Yeni Kuşatma Mekaniği: Zar Atışı
-                    const aRoll = Math.ceil(Math.random() * 6) + Math.ceil(Math.random() * 6);
-                    const dRoll = Math.ceil(Math.random() * 6) + Math.ceil(Math.random() * 6);
-                    
-                    let aTotal = aRoll + (siegePower - 1); 
-                    let dTotal = dRoll;
-                    
+                    // Bonuslar
+                    if (p.bonusState.muhendishaneSiegeBonus) siegePower += 1;
+                    if (p.bonusState.ciftlikSiegeBonus) siegePower += 1;
+
+                    // Zar Atışı
+                    const aRoll = this._roll2d6();
+                    const dRoll = this._roll2d6();
+                    const aTotal = aRoll + (siegePower - 1); 
+                    const dTotal = dRoll; // Savunan şimdilik sadece zar atıyor (Tapınak bonusu hariç)
+
+                    this.addLog(`🏰 ${p.name} Kuşatma Atışı: [${aRoll}] + Güç(${siegePower-1}) = ${aTotal} vs Savunma: [${dRoll}]`, 'info');
+
                     if (aTotal > dTotal) {
                         s.points += 1;
-                        this.addLog(`🏰 Kuşatma ilerliyor (${hexId}): Başarılı Zar (${aTotal} vs ${dTotal}). Puan: ${s.points}`, 'info');
+                        this.addLog(`⚔️ Kuşatma ilerliyor! (${s.points} Puan)`, 'warning');
                     } else {
-                        this.addLog(`🏰 Kuşatma denemesi başarısız (${hexId}): Zar (${aTotal} vs ${dTotal}).`, 'warning');
+                        this.addLog(`🛡️ Savunma hattı aşılamadı.`, 'info');
                     }
-                    
+
                     const req = this.calculateSiegeRequirement(hexId, p.id);
                     if (s.points >= req) {
                         if (window.appMain && window.appMain.actions) {
                             window.appMain.actions.resolveSiege(hexId);
                         }
                     }
-                } else {
-                    delete this.sieges[hexId];
-                    this.addLog(`🏰 ${hexId} kuşatması kırıldı!`, 'info');
                 }
+            } else {
+                delete this.sieges[hexId];
+                this.addLog(`🏰 ${hexId} kuşatması kırıldı!`, 'info');
             }
         });
 
@@ -772,5 +776,9 @@ class GameState {
              }
         }
         return true;
+    }
+
+    _roll2d6() {
+        return (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1);
     }
 }

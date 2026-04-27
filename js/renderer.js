@@ -316,21 +316,42 @@ class Renderer {
             const p     = this.state.players.find(x => x.id === st.playerId);
             const color = p ? p.color : '#fff';
 
-            // Kuşatma barı
+            // Kuşatma Barı ve Göstergesi
             const siege = this.state.sieges[hex.id];
             if (siege) {
                 const req = this.state.calculateSiegeRequirement(hex.id, siege.attackerId);
+                
+                // Dış halka (Kırmızı kesikli)
                 ctx.strokeStyle = '#ff3300';
                 ctx.lineWidth   = 3;
-                ctx.setLineDash([3, 3]);
+                ctx.setLineDash([5, 3]);
                 ctx.beginPath();
-                ctx.arc(hex.x, hex.y, 30, 0, Math.PI * 2);
+                ctx.arc(hex.x, hex.y, 40, 0, Math.PI * 2);
                 ctx.stroke();
                 ctx.setLineDash([]);
+
+                // Progress Bar (Arka plan)
+                const barW = 40;
+                const barH = 6;
+                const bx = hex.x - barW/2;
+                const by = hex.y + 35;
+                
+                ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                ctx.fillRect(bx, by, barW, barH);
+                
+                // Progress Bar (Doluluk)
+                const progress = Math.min(1, siege.points / req);
                 ctx.fillStyle = '#ff3300';
-                ctx.font      = 'bold 11px Georgia, serif';
+                ctx.fillRect(bx, by, barW * progress, barH);
+                
+                // Metin (Puan)
+                ctx.fillStyle = '#fff';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.font = 'bold 11px Inter, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(`${siege.points}/${req}`, hex.x, hex.y + 30);
+                ctx.strokeText(`${siege.points}/${req} KUŞATMA`, hex.x, by + 18);
+                ctx.fillText(`${siege.points}/${req} KUŞATMA`, hex.x, by + 18);
             }
 
             // Yerleşim ikonu
