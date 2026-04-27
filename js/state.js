@@ -540,7 +540,7 @@ class GameState {
     checkVictory() {
         if (this.gameOver) return;
         for (const p of this.players) {
-            // Şehir sayısı kontrolü (Oyun 6. şehir kurulunca biter)
+            // Sadece Şehir ve Metropolleri say
             let cityCount = 0;
             p.settlements.forEach(hid => {
                 const hex = this.grid.hexes.get(hid);
@@ -549,11 +549,11 @@ class GameState {
                 }
             });
 
-            if (cityCount >= 6) {
+            if (cityCount >= GAME_END_CITIES) {
                 this.gameOver = true;
-                p.isFinisher = true; // Bitiren oyuncu bonusu için
-                this.addLog(`🏁 OYUN BİTTİ! ${p.name} 6. şehrini kurarak oyunu sona erdirdi.`, 'success');
-                this.winner = this.getWinningPlayer(); // Puanları hesapla ve kazananı bul
+                p.isFinisher = true; 
+                this.addLog(`🏁 OYUN BİTTİ! ${p.name} ${GAME_END_CITIES}. şehrini kurarak oyunu sona erdirdi.`, 'success');
+                this.winner = this.getWinningPlayer(); 
             }
         }
     }

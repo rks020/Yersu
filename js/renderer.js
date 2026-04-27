@@ -81,37 +81,37 @@ class Renderer {
         ctx.lineWidth   = 2.5;
         ctx.stroke();
 
-        // ─ Biyom adı (üstte) ─
+        // ─ Biyom adı (en üstte) ─
         if (info.name) {
             ctx.fillStyle    = 'rgba(0,0,0,0.7)';
             ctx.font         = 'bold 11px Georgia, serif';
             ctx.textAlign    = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(info.name, cx, cy - 20);
+            ctx.fillText(info.name, cx, cy - 35);
 
             ctx.fillStyle = '#fff';
-            ctx.fillText(info.name, cx - 0.5, cy - 20.5);
+            ctx.fillText(info.name, cx - 0.5, cy - 35.5);
         }
 
-        // ─ Numara dairesi (ortada) ─
+        // ─ Numara dairesi (en altta) ─
         if (hex.number) {
             const isHot = (hex.number === 6 || hex.number === 8);
 
             // Siyah daire
             ctx.beginPath();
-            ctx.arc(cx, cy + 2, 14, 0, Math.PI * 2);
+            ctx.arc(cx, cy + 30, 14, 0, Math.PI * 2);
             ctx.fillStyle = '#1a1a1a';
             ctx.fill();
-            ctx.strokeStyle = isHot ? '#d32f2f' : '#c8a84e';
+            ctx.strokeStyle = isHot ? '#ff1744' : '#c8a84e';
             ctx.lineWidth   = 2;
             ctx.stroke();
 
             // Numara yazısı
             ctx.fillStyle    = isHot ? '#ff5252' : '#f5e8c1';
-            ctx.font         = 'bold 15px Georgia, serif';
+            ctx.font         = 'bold 14px Inter, sans-serif';
             ctx.textAlign    = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(hex.number.toString(), cx, cy + 2);
+            ctx.fillText(hex.number.toString(), cx, cy + 30);
         }
     }
 
@@ -374,14 +374,14 @@ class Renderer {
             ctx.lineWidth   = 3;
             ctx.stroke();
 
-            // Bina ikonları (halka)
+            // Bina ikonları (Geniş halka)
             if (st.buildings && st.buildings.size > 0) {
                 const bArr  = [...st.buildings];
                 const icons = { ciftlik:'🌾', kisla:'⚔️', kervansaray:'🛒', tapinak:'⛪', muhendishane:'⚙️', tiyatro:'🎭' };
                 bArr.forEach((b, i) => {
                     const angle = (Math.PI * 2 / 6) * i - Math.PI / 2;
-                    const bx = hex.x + Math.cos(angle) * 32;
-                    const by = hex.y + Math.sin(angle) * 32;
+                    const bx = hex.x + Math.cos(angle) * 38;
+                    const by = hex.y + Math.sin(angle) * 38;
                     ctx.font = '14px serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
