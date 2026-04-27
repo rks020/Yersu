@@ -265,7 +265,7 @@ class GameState {
 
         if (type === 'ciftlik') {
             if (level === 2) {
-                if (choice === 'A') player.bonusState.ciftlikResPerTurn += 1;
+                if (choice === 'A') player.bonusState.ciftlikResPerTurn = 1;
                 else player.bonusState.ciftlikCostReduction = 1;
             } else if (level === 3) {
                 if (choice === 'A') player.bonusState.ciftlikPopBonus += 2;
