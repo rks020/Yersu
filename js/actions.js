@@ -204,6 +204,12 @@ class Actions {
 
         const udata = UNIT_DATA[unitDef.type];
         let cost = 1; // Temel maliyet 1 MP
+        
+        // İki node arasındaki kenarı bul
+        const edge = Array.from(this.state.grid.edges.values()).find(e => 
+            (e.n1 === startNodeId && e.n2 === targetNodeId) || (e.n1 === targetNodeId && e.n2 === startNodeId)
+        );
+
         if (edge && edge.road !== null) {
             const roadOwner = this.state.players.find(rp => rp.id === edge.road);
             // Kendi yolum değilse ve yol sahibinin Kervansaray Sv.2 Bonus B'si varsa

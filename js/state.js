@@ -523,6 +523,7 @@ class GameState {
         }
 
         const nextP = this.players[this.currentPlayerIdx];
+        this.currentPlayer = nextP; // [KRİTİK] Mevcut oyuncu referansını güncelle
         this.resetTurnActions();
         
         // Setup aşaması kontrolü: Eğer herkes köyünü ve askerini koyduysa Main'e geç
