@@ -10,40 +10,40 @@ class UI {
         this.renderer = renderer;
 
         this.els = {
-            panelInfo:       document.getElementById('panelInfo'),
-            actionMenu:      document.getElementById('actionMenu'),
-            logContainer:    document.getElementById('logContainer'),
-            turnIndicator:   document.getElementById('turnIndicator'),
-            rollDiceBtn:     document.getElementById('btnRollDice'),
-            endTurnBtn:      document.getElementById('btnEndTurn'),
-            setupInstruction:document.getElementById('setupInstruction'),
+            panelInfo: document.getElementById('panelInfo'),
+            actionMenu: document.getElementById('actionMenu'),
+            logContainer: document.getElementById('logContainer'),
+            turnIndicator: document.getElementById('turnIndicator'),
+            rollDiceBtn: document.getElementById('btnRollDice'),
+            endTurnBtn: document.getElementById('btnEndTurn'),
+            setupInstruction: document.getElementById('setupInstruction'),
             noticeContainer: document.getElementById('floatingNoticeContainer'),
 
             // Kaynaklar
-            resBesin:  document.getElementById('resBesin'),
-            resOdun:   document.getElementById('resOdun'),
-            resTas:    document.getElementById('resTas'),
-            resKil:    document.getElementById('resKil'),
-            resMaden:  document.getElementById('resMaden'),
-            resGold:   document.getElementById('resGold'),
-            popCounter:document.getElementById('popCounter'),
+            resBesin: document.getElementById('resBesin'),
+            resOdun: document.getElementById('resOdun'),
+            resTas: document.getElementById('resTas'),
+            resKil: document.getElementById('resKil'),
+            resMaden: document.getElementById('resMaden'),
+            resGold: document.getElementById('resGold'),
+            popCounter: document.getElementById('popCounter'),
             vpCounter: document.getElementById('vpCounter'),
 
             // Modallar
-            diceModal:    document.getElementById('diceModal'),
-            diceResult:   document.getElementById('diceResult'),
-            choiceModal:  document.getElementById('choiceModal'),
-            choiceGrid:   document.getElementById('choiceGrid'),
-            choiceTitle:  document.getElementById('choiceModalTitle'),
+            diceModal: document.getElementById('diceModal'),
+            diceResult: document.getElementById('diceResult'),
+            choiceModal: document.getElementById('choiceModal'),
+            choiceGrid: document.getElementById('choiceGrid'),
+            choiceTitle: document.getElementById('choiceModalTitle'),
 
             // Ticaret
-            tradeModal:     document.getElementById('tradeModal'),
-            tradeSellType:  document.getElementById('tradeSellType'),
-            tradeBuyType:   document.getElementById('tradeBuyType'),
-            tradeBuyType2:  document.getElementById('tradeBuyType2'),
+            tradeModal: document.getElementById('tradeModal'),
+            tradeSellType: document.getElementById('tradeSellType'),
+            tradeBuyType: document.getElementById('tradeBuyType'),
+            tradeBuyType2: document.getElementById('tradeBuyType2'),
             tradeBuyType2Row: document.getElementById('tradeBuyType2Row'),
-            tradeAmount:    document.getElementById('tradeAmount'),
-            btnConfirmTrade:document.getElementById('btnConfirmTrade'),
+            tradeAmount: document.getElementById('tradeAmount'),
+            btnConfirmTrade: document.getElementById('btnConfirmTrade'),
 
             // Biyom
             biomeCard: document.getElementById('biomeDetail'),
@@ -85,7 +85,7 @@ class UI {
 
     _bindEvents() {
         const canvas = this.renderer.canvas;
-        
+
         canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e.clientX, e.clientY));
         canvas.addEventListener('mouseleave', () => this.hideBiomeDetail());
 
@@ -123,8 +123,8 @@ class UI {
             this.renderer.zoom(factor, e.clientX - rect.left, e.clientY - rect.top);
         });
 
-        if (this.els.rollDiceBtn)  this.els.rollDiceBtn.addEventListener('click', () => this.handleRollDice());
-        if (this.els.endTurnBtn)   this.els.endTurnBtn.addEventListener('click', () => this.handleEndTurn());
+        if (this.els.rollDiceBtn) this.els.rollDiceBtn.addEventListener('click', () => this.handleRollDice());
+        if (this.els.endTurnBtn) this.els.endTurnBtn.addEventListener('click', () => this.handleEndTurn());
 
         if (this.els.actionMenu) {
             this.els.actionMenu.addEventListener('click', (e) => {
@@ -178,7 +178,7 @@ class UI {
 
         const clickedNode = this.state.grid.pixelToNearestNode(gx, gy, 20);
         const clickedEdge = this.state.grid.pixelToNearestEdge(gx, gy, 25);
-        const clickedHex  = this.state.grid.pixelToNearestHex(gx, gy);
+        const clickedHex = this.state.grid.pixelToNearestHex(gx, gy);
 
         const mode = this.state.actionMode || '';
 
@@ -223,7 +223,7 @@ class UI {
                     const n1 = this.state.grid.nodes.get(e.node1);
                     const n2 = this.state.grid.nodes.get(e.node2);
                     if (n1 && n2) {
-                        const d = Math.hypot((n1.x+n2.x)/2 - gx, (n1.y+n2.y)/2 - gy);
+                        const d = Math.hypot((n1.x + n2.x) / 2 - gx, (n1.y + n2.y) / 2 - gy);
                         if (d < minDist) { minDist = d; best = e; }
                     }
                 });
@@ -264,8 +264,8 @@ class UI {
             if (clickedNode.army && clickedNode.army.playerId === current.id) {
                 const unit = clickedNode.army.units[0];
                 if (unit.movesLeft <= 0) {
-                   this.showNotice("Bu birimin hareket puanı bitti!", "warning");
-                   return;
+                    this.showNotice("Bu birimin hareket puanı bitti!", "warning");
+                    return;
                 }
                 this.state.selectedUnit = unit;
                 this.state.selectedUnitNode = clickedNode.id;
@@ -281,7 +281,7 @@ class UI {
             const unit = this.state.selectedUnit;
             const sourceNodeId = this.state.selectedUnitNode;
             const udata = UNIT_DATA[unit.type];
-            
+
             if (clickedNode.id === sourceNodeId) {
                 this.state.clearSelection();
                 this.update();
@@ -308,7 +308,7 @@ class UI {
                     this.showCombatAnimation(clickedNode, res.animation || '⚔️');
                     this.showCombatReport(res);
                 }
-                
+
                 // Hala hareket puanı var mı?
                 const unitDef = current.units.find(u => u.uid === unit.uid);
                 if (unitDef && unitDef.movesLeft > 0) {
@@ -342,7 +342,7 @@ class UI {
         else {
             if (clickedNode && clickedNode.army) {
                 this.state.selected = { type: 'node', id: clickedNode.id };
-                
+
                 // OTOMATİK HAREKET MODU: Hareket aşamasındaysak ve kendi birimimizse doğrudan hareket moduna geç
                 if (this.state.subPhase === 'move' && clickedNode.army.playerId === current.id) {
                     const unit = clickedNode.army.units[0];
@@ -380,9 +380,9 @@ class UI {
 
         const { x: gx, y: gy } = this.renderer.canvasToGame(px, py);
         const hex = this.state.grid.pixelToNearestHex(gx, gy);
-        
+
         if (hex) {
-            const dist = Math.sqrt((gx - hex.center.x)**2 + (gy - hex.center.y)**2);
+            const dist = Math.sqrt((gx - hex.center.x) ** 2 + (gy - hex.center.y) ** 2);
             // Hex yarıçapı yaklaşık 50-60 birimdir
             if (dist < 60) {
                 this.showBiomeDetail(hex, clientX, clientY);
@@ -401,7 +401,7 @@ class UI {
             this.state.clearSelection();
             const p = this.state.currentPlayer;
 
-            switch(actionType) {
+            switch (actionType) {
                 case 'build_village':
                     if (!p.canAfford(BUILD_COSTS.koy)) {
                         this.showNotice("Köy kurmak için yeterli kaynağınız yok!", "danger");
@@ -519,7 +519,7 @@ class UI {
 
         title.textContent = winner.id === this.state.currentPlayer.id ? "TEBRİKLER, KAZANDIN!" : "OYUN BİTTİ";
         msg.textContent = `${winner.name} imparatorluğunu kurarak tüm dünyaya hükmetti.`;
-        
+
         const vp = this.state.calculateVP(winner);
         stats.innerHTML = `
             <div style="font-size: 1.5rem; margin-bottom: 10px; color: var(--gold);">Toplam Puan: ${vp}</div>
@@ -533,7 +533,7 @@ class UI {
     checkPendingChoices() {
         const p = this.state.currentPlayer;
         if (p.isAI || this.state.gameOver) return;
-        
+
         if (p.pendingChoices.length > 0 && !this.choiceModalOpen) {
             const choice = p.pendingChoices[0];
             this.showChoiceModal(choice.type, choice.level);
@@ -543,14 +543,14 @@ class UI {
     _updateResources() {
         const p = this.state.currentPlayer;
         if (this.els.resBesin) this.els.resBesin.textContent = p.resources.besin;
-        if (this.els.resOdun)  this.els.resOdun.textContent  = p.resources.odun;
-        if (this.els.resTas)   this.els.resTas.textContent   = p.resources.tas;
-        if (this.els.resKil)   this.els.resKil.textContent   = p.resources.kil;
+        if (this.els.resOdun) this.els.resOdun.textContent = p.resources.odun;
+        if (this.els.resTas) this.els.resTas.textContent = p.resources.tas;
+        if (this.els.resKil) this.els.resKil.textContent = p.resources.kil;
         if (this.els.resMaden) this.els.resMaden.textContent = p.resources.maden;
-        if (this.els.resGold)  this.els.resGold.textContent  = p.resources.gold;
+        if (this.els.resGold) this.els.resGold.textContent = p.resources.gold;
         const pop = `${p.getPopulationUsed()}/${p.maxPopulation}`;
         if (this.els.popCounter) this.els.popCounter.textContent = pop;
-        const vp  = this.state.calculateVP(p);
+        const vp = this.state.calculateVP(p);
         if (this.els.vpCounter) this.els.vpCounter.textContent = `⭐${vp}`;
 
         // Başlık yapımcı
@@ -560,8 +560,8 @@ class UI {
         if (crestEl) { crestEl.style.background = p.color + '33'; crestEl.style.borderColor = p.color; }
 
         // Üretim oranları (tahmini - o an seçiliyse)
-        const prodSuffix = ['Besin','Odun','Tas','Kil','Maden','Gold'];
-        const prodKeys   = ['besin','odun','tas','kil','maden','gold'];
+        const prodSuffix = ['Besin', 'Odun', 'Tas', 'Kil', 'Maden', 'Gold'];
+        const prodKeys = ['besin', 'odun', 'tas', 'kil', 'maden', 'gold'];
         prodKeys.forEach((key, i) => {
             const el = document.getElementById(`res${prodSuffix[i]}Prod`);
             if (el) {
@@ -585,9 +585,9 @@ class UI {
 
     _updateTurnUI() {
         const p = this.state.currentPlayer;
-        const sub = (this.state.subPhase === 'production') ? 'Üretim' : 
-                    (this.state.subPhase === 'build') ? 'İnşa & Ticaret' :
-                    (this.state.subPhase === 'move') ? 'Hareket' : 'Eylem';
+        const sub = (this.state.subPhase === 'production') ? 'Üretim' :
+            (this.state.subPhase === 'build') ? 'İnşa & Ticaret' :
+                (this.state.subPhase === 'move') ? 'Hareket' : 'Eylem';
 
         if (this.els.turnIndicator) {
             this.els.turnIndicator.innerHTML = `Tur ${this.state.turn} — <span style="color:${p.color}">${p.name}</span> (${sub})`;
@@ -604,14 +604,14 @@ class UI {
 
     _updateCostLabels() {
         const p = this.state.currentPlayer;
-        
+
         // Yol Maliyeti Güncelle
         const roadEl = document.getElementById('cost-road');
         if (roadEl) {
             let odun = BUILD_COSTS.yol.odun;
             let tas = BUILD_COSTS.yol.tas;
             if (p.bonusState.roadDiscountRes === 'odun') odun = Math.max(0, odun - 1);
-            if (p.bonusState.roadDiscountRes === 'tas')  tas = Math.max(0, tas - 1);
+            if (p.bonusState.roadDiscountRes === 'tas') tas = Math.max(0, tas - 1);
             roadEl.innerHTML = `<span>🪵${odun}</span><span>🪨${tas}</span>`;
         }
 
@@ -622,11 +622,11 @@ class UI {
                 const cost = BUILD_COSTS[b];
                 let text = "";
                 if (cost.besin) text += `🌾${cost.besin} `;
-                if (cost.odun)  text += `🪵${cost.odun} `;
-                if (cost.tas)   text += `🪨${cost.tas} `;
-                if (cost.kil)   text += `🧱${cost.kil} `;
+                if (cost.odun) text += `🪵${cost.odun} `;
+                if (cost.tas) text += `🪨${cost.tas} `;
+                if (cost.kil) text += `🧱${cost.kil} `;
                 if (cost.maden) text += `⚙️${cost.maden} `;
-                if (cost.gold)  text += `💰${cost.gold} `;
+                if (cost.gold) text += `💰${cost.gold} `;
                 el.textContent = text.trim();
             }
         });
@@ -635,7 +635,7 @@ class UI {
         const roadCostEl = document.getElementById('cost-road');
         if (roadCostEl) {
             const p = this.state.currentPlayer;
-            let roadCost = {...BUILD_COSTS.yol};
+            let roadCost = { ...BUILD_COSTS.yol };
             if (p.bonusState.roadDiscountRes) {
                 roadCost[p.bonusState.roadDiscountRes] = Math.max(0, roadCost[p.bonusState.roadDiscountRes] - 1);
             }
@@ -645,7 +645,7 @@ class UI {
     }
 
     _updateActionButtons() {
-        const p   = this.state.currentPlayer;
+        const p = this.state.currentPlayer;
         const sub = this.state.subPhase;
         const isTurn = !p.isAI && !this.state.gameOver;
         const isMain = this.state.phase === 'Main';
@@ -657,13 +657,13 @@ class UI {
 
             if (action === 'build_village') cost = BUILD_COSTS.koy;
             else if (action === 'build_road') {
-                cost = {...BUILD_COSTS.yol};
+                cost = { ...BUILD_COSTS.yol };
                 if (p.bonusState.roadDiscountRes) {
                     cost[p.bonusState.roadDiscountRes] = Math.max(0, cost[p.bonusState.roadDiscountRes] - 1);
                 }
             } else if (action === 'build_building' && btype) {
                 cost = BUILD_COSTS[btype];
-                if (BUILD_COSTS[btype].gold) cost = {...cost, gold: BUILD_COSTS[btype].gold};
+                if (BUILD_COSTS[btype].gold) cost = { ...cost, gold: BUILD_COSTS[btype].gold };
             }
 
             let canAfford = true;
@@ -711,7 +711,7 @@ class UI {
             if (!btype) return;
             const count = p.buildings?.[btype] || 0;
             const level = count >= 4 ? 3 : count >= 2 ? 2 : count >= 1 ? 1 : 0;
-            const dots  = row.querySelectorAll('.bld-dot');
+            const dots = row.querySelectorAll('.bld-dot');
             dots.forEach((dot, i) => dot.classList.toggle('active', i < level));
         });
     }
@@ -739,8 +739,8 @@ class UI {
 
             // Temel bonuslar
             const baseParts = [];
-            if (data.duel > 0)  baseParts.push(`Düello +${data.duel}`);
-            if (data.duel < 0)  baseParts.push(`Düello ${data.duel}`);
+            if (data.duel > 0) baseParts.push(`Düello +${data.duel}`);
+            if (data.duel < 0) baseParts.push(`Düello ${data.duel}`);
             if (data.range > 0) baseParts.push(`Menzil +${data.range}`);
             if (data.siege > 0) baseParts.push(`Kuşatma +${data.siege}`);
             if (data.special === 'anti_cavalry') baseParts.push('+1 vs Süvari');
@@ -749,9 +749,24 @@ class UI {
             // Yapı bonusları
             const bldParts = [];
             let duelBonus = 0;
-            const kislaLv = p.buildings?.['kisla'] >= 4 ? 3 : p.buildings?.['kisla'] >= 2 ? 2 : p.buildings?.['kisla'] >= 1 ? 1 : 0;
-            if (kislaLv >= 1 && ['mizrakci','kilicli','okcu'].includes(type)) { duelBonus += 1; bldParts.push('Kışla: +1'); }
-            if (kislaLv >= 2 && type === 'sovalye') { duelBonus += 1; bldParts.push('Kışla: +1'); }
+            const kislaCount = p.buildings?.['kisla'] || 0;
+            const kislaLv = kislaCount >= 4 ? 3 : kislaCount >= 2 ? 2 : kislaCount >= 1 ? 1 : 0;
+            
+            if (kislaLv >= 1) {
+                const c1 = p.bonusState.kislaLv1Choice;
+                if (c1 === 'A' && type === 'mizrakci') { duelBonus += 1; bldParts.push('Kışla (Sv1): +1'); }
+                else if (c1 === 'B' && type === 'kilicli') { duelBonus += 1; bldParts.push('Kışla (Sv1): +1'); }
+                else if (c1 === 'C' && type === 'okcu') { duelBonus += 1; bldParts.push('Kışla (Sv1): +1'); }
+            }
+            if (kislaLv >= 2) {
+                const c2 = p.bonusState.kislaLv2Choice;
+                if (c2 === 'B' && type === 'sovalye') { duelBonus += 1; bldParts.push('Kışla (Sv2): +1'); }
+            }
+            if (kislaLv >= 3) {
+                const c3 = p.bonusState.kislaLv3Choice;
+                if (c3 === 'A') { duelBonus += 1; bldParts.push('Kışla (Sv3): +1'); }
+                else if (c3 === 'B' && ['kocbasi','mancinik','topcu'].includes(type)) { duelBonus += 1; bldParts.push('Kışla (Sv3): +1'); }
+            }
 
             const tapinak = p.buildings?.['tapinak'] >= 1;
             if (tapinak) bldParts.push('Tapınak: +1 (Kuşatmada)');
@@ -763,8 +778,8 @@ class UI {
             const totalDuel = data.duel + duelBonus;
             const totalParts = [];
             if (totalDuel !== 0) totalParts.push(`Düello ${totalDuel > 0 ? '+' : ''}${totalDuel}`);
-            if (data.range > 0)  totalParts.push(`Menzil ${data.range + (muhLv >= 2 ? 1 : 0)}`);
-            if (data.siege > 0)  totalParts.push(`Kuşatma +${data.siege}`);
+            if (data.range > 0) totalParts.push(`Menzil ${data.range + (muhLv >= 2 ? 1 : 0)}`);
+            if (data.siege > 0) totalParts.push(`Kuşatma +${data.siege}`);
 
             html += `
             <tr>
@@ -793,7 +808,7 @@ class UI {
             const h = this.state.grid.hexes.get(sel.id);
             if (!h) return;
             const b = BIOME_INFO[h.biome];
-            
+
             let html = `
                 <div class="hex-biome-header">
                     <span class="hex-biome-emoji">${b.emoji}</span>
@@ -814,7 +829,7 @@ class UI {
                     `).join('')}
                 </div>
             `;
-            
+
             if (h.settlement) {
                 const owner = this.state.players.find(p => p.id === h.settlement.playerId);
                 html += `
@@ -869,7 +884,7 @@ class UI {
             }
 
             this.els.panelInfo.innerHTML = html;
-        } 
+        }
         else if (sel.type === 'node') {
             const node = this.state.grid.nodes.get(sel.id);
             if (!node || !node.army) {
@@ -878,7 +893,7 @@ class UI {
                 return;
             }
             const owner = this.state.players.find(p => p.id === node.army.playerId);
-            
+
             let html = `
                 <div class="hex-biome-header">
                     <span class="hex-biome-emoji">🚩</span>
@@ -893,9 +908,9 @@ class UI {
                 
                 <div class="unit-info-list" style="margin-top:10px;">
                     ${node.army.units.map(u => {
-                        const data = UNIT_DATA[u.type];
-                        if (!data) return '';
-                        return `
+                const data = UNIT_DATA[u.type];
+                if (!data) return '';
+                return `
                             <div class="hex-settlement-card" style="margin-bottom:8px; border-left: 3px solid ${owner.color};">
                                 <div style="display:flex; align-items:center; gap:10px;">
                                     <span style="font-size:1.8rem;">${data.emoji}</span>
@@ -914,7 +929,7 @@ class UI {
                                 </div>
                             </div>
                         `;
-                    }).join('')}
+            }).join('')}
                 </div>
             `;
             this.els.panelInfo.innerHTML = html;
@@ -939,8 +954,8 @@ class UI {
         [1, 2, 3].forEach(lv => {
             const lvBonuses = bonuses[lv];
             const isActive = lv <= currentLevel;
-            const isNext   = lv === currentLevel + 1;
-            
+            const isNext = lv === currentLevel + 1;
+
             html += `
                 <div class="bonus-card ${isActive ? 'active-level' : ''}" style="opacity: ${isActive || isNext ? 1 : 0.4}">
                     <div class="bonus-card-header">${BUILDING_NAMES[btype].toUpperCase()} - SEVİYE ${lv}</div>
@@ -1004,23 +1019,23 @@ class UI {
         this.choiceModalOpen = true;
         const bName = BUILDING_NAMES[type];
         const bonuses = BUILDING_BONUSES[type][level];
-        
+
         const items = bonuses.map((desc, i) => {
             const letter = String.fromCharCode(65 + i); // A, B, C...
             const icons = ['🌟', '🔥', '🛡️', '⚡', '💎'];
-            return { 
-                id: letter, 
-                name: `Seçenek (${letter})`, 
-                desc: desc, 
-                enabled: true, 
-                icon: icons[i] || '✨', 
-                costStr: '' 
+            return {
+                id: letter,
+                name: `Seçenek (${letter})`,
+                desc: desc,
+                enabled: true,
+                icon: icons[i] || '✨',
+                costStr: ''
             };
         });
 
         this.showChoiceModalWithDesc(`${bName} - ${level}. Seviye Bonusu Seçimi`, items, (choice) => {
             this.actions.chooseBonus(this.state.currentPlayer.id, type, level, choice);
-            this.state.currentPlayer.pendingChoices.shift(); 
+            this.state.currentPlayer.pendingChoices.shift();
             this.choiceModalOpen = false;
             this.update();
         });
@@ -1029,7 +1044,7 @@ class UI {
     showChoiceModalWithDesc(title, items, onSelect) {
         this.els.choiceTitle.textContent = title;
         this.els.choiceGrid.innerHTML = '';
-        
+
         items.forEach(item => {
             const div = document.createElement('div');
             div.className = `choice-item ${item.enabled ? 'enabled' : 'disabled'}`;
@@ -1064,17 +1079,17 @@ class UI {
                     missing.push(`${RESOURCE_INFO[res].name}`);
                 }
             }
-            
+
             const playerBuilt = p.buildings?.[bType] || 0;
             const level = playerBuilt >= 4 ? 3 : playerBuilt >= 2 ? 2 : playerBuilt >= 1 ? 1 : 0;
             const nextLevel = level + 1;
             const nextBonuses = BUILDING_BONUSES[bType]?.[nextLevel] || BUILDING_BONUSES[bType]?.[1] || [];
-            
-            return { 
-                id: bType, 
-                name: BUILDING_NAMES[bType] + (level > 0 ? ` (Sv.${level}→${nextLevel})` : ' (Yeni)'), 
-                icon: BUILDING_ICONS[bType] || '🏗️', 
-                costStr: Object.entries(cost).map(([r, a]) => `${RESOURCE_INFO[r]?.emoji || ''}${a}`).join(' '), 
+
+            return {
+                id: bType,
+                name: BUILDING_NAMES[bType] + (level > 0 ? ` (Sv.${level}→${nextLevel})` : ' (Yeni)'),
+                icon: BUILDING_ICONS[bType] || '🏗️',
+                costStr: Object.entries(cost).map(([r, a]) => `${RESOURCE_INFO[r]?.emoji || ''}${a}`).join(' '),
                 enabled: canAfford,
                 desc: nextBonuses.join(' | '),
                 error: canAfford ? "" : `Eksik: ${missing.join(", ")}`
@@ -1101,10 +1116,10 @@ class UI {
             const hasPop = p.units.length < p.maxPopulation;
             let canBuild = hasGold && hasPop;
             let error = "";
-            
+
             // Fix check for siege
             const siegeAllowed = p.bonusState?.canBuildSiege || p.buildingCounts?.muhendishane >= 1;
-            
+
             if (data.cls === 'kusatma' && !siegeAllowed) {
                 canBuild = false;
                 error = "Kuşatma birimi için Mühendishane gerekir!";
@@ -1114,12 +1129,12 @@ class UI {
                 error = "Nüfus kapasitesi dolu!";
             }
 
-            return { 
-                id, 
-                name: data.name, 
-                icon: data.emoji, 
+            return {
+                id,
+                name: data.name,
+                icon: data.emoji,
                 desc: `${data.duel}⚔️ | ${data.speed}🏃 | ${data.range}🎯`,
-                costStr: `💰 ${data.gold} Altın`, 
+                costStr: `💰 ${data.gold} Altın`,
                 enabled: canBuild,
                 error
             };
@@ -1205,11 +1220,11 @@ class UI {
         });
 
         const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden', 'gold'];
-        const resIcons = { besin:'🌾', odun:'🪵', tas:'🪨', kil:'🧱', maden:'⚙️', gold:'💰' };
-        
+        const resIcons = { besin: '🌾', odun: '🪵', tas: '🪨', kil: '🧱', maden: '⚙️', gold: '💰' };
+
         offerGrid.innerHTML = '';
         requestGrid.innerHTML = '';
-        
+
         resKeys.forEach(r => {
             offerGrid.innerHTML += `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -1232,7 +1247,7 @@ class UI {
         const offer = {};
         const request = {};
         const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden', 'gold'];
-        
+
         let offerTotal = 0;
         let reqTotal = 0;
         resKeys.forEach(r => {
@@ -1280,11 +1295,11 @@ class UI {
     handleConfirmTrade() {
         const p = this.state.currentPlayer;
         const sellType = this.els.tradeSellType?.value;
-        const buyType  = this.els.tradeBuyType?.value;
+        const buyType = this.els.tradeBuyType?.value;
         const buyType2 = this.els.tradeBuyType2?.value;
-        const amount   = parseInt(this.els.tradeAmount?.value);
+        const amount = parseInt(this.els.tradeAmount?.value);
         if (!sellType || !buyType || isNaN(amount) || amount <= 0) return;
-        
+
         const ok = this.actions.tradeWithBank(p.id, sellType, buyType, (sellType === 'gold' ? buyType2 : null));
         if (ok) {
             this.els.tradeModal.classList.remove('active');
@@ -1303,7 +1318,7 @@ class UI {
         const sx = obj.x * this.renderer.scale + this.renderer.offsetX + rect.left;
         const sy = obj.y * this.renderer.scale + this.renderer.offsetY + rect.top;
         el.style.left = `${sx}px`;
-        el.style.top  = `${sy}px`;
+        el.style.top = `${sy}px`;
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 1200);
     }
@@ -1311,12 +1326,12 @@ class UI {
     showCombatReport(res) {
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
-        
+
         const aUnit = res.attacker.unit;
         const dUnit = res.defender.unit;
         const aP = res.attacker.player;
         const dP = res.defender.player;
-        
+
         let resultText = "DÜELLO BERABERE!";
         if (res.winner === 'attacker') resultText = `${aP.name.toUpperCase()} KAZANDI!`;
         if (res.winner === 'defender') resultText = `${dP.name.toUpperCase()} KAZANDI!`;
@@ -1353,7 +1368,7 @@ class UI {
                 <button class="combat-close-btn">TAMAM</button>
             </div>
         `;
-        
+
         document.body.appendChild(overlay);
         overlay.querySelector('.combat-close-btn').onclick = () => overlay.remove();
     }
@@ -1370,11 +1385,11 @@ class UI {
             <div style="display: flex; gap: 4px; margin-top: 4px;">
                 ${hex.resources.map(r => `<span title="${RESOURCE_INFO[r]?.name}">${RESOURCE_INFO[r]?.emoji}</span>`).join(' ')}
             </div>
-            ${hex.settlement ? `<div style="margin-top:8px; color:var(--gold);">🏗️ Yerleşim: ${this.state.players.find(p=>p.id===hex.settlement.playerId)?.name}</div>` : ''}
+            ${hex.settlement ? `<div style="margin-top:8px; color:var(--gold);">🏗️ Yerleşim: ${this.state.players.find(p => p.id === hex.settlement.playerId)?.name}</div>` : ''}
         `;
 
         this.els.biomeCard.style.left = `${x + 15}px`;
-        this.els.biomeCard.style.top  = `${y + 15}px`;
+        this.els.biomeCard.style.top = `${y + 15}px`;
         this.els.biomeCard.classList.add('active');
     }
 
@@ -1387,10 +1402,10 @@ class UI {
         this.state.rangeHighlightedNodes = new Set(); // Yeni: Menzil vurgusu
         const nodeObj = this.state.grid.nodes.get(nodeId);
         const udata = UNIT_DATA[unit.type];
-        
+
         nodeObj.adjacentNodes.forEach(nid => {
             const targetNode = this.state.grid.nodes.get(nid);
-            
+
             // Hareket vurgusu
             const edgeId = this.state.grid.getEdgeBetweenNodes(nodeId, nid);
             const edge = this.state.grid.edges.get(edgeId);
@@ -1420,7 +1435,7 @@ class UI {
 
                 // 1. Başlangıç noktası (Canvas üzerindeki koordinatlar)
                 const startPos = this.renderer.gameToCanvas(item.x, item.y);
-                
+
                 // 2. Hedef nokta (Üst bardaki ilgili kaynak elementi)
                 const targetElId = `res${item.res.charAt(0).toUpperCase() + item.res.slice(1)}`;
                 const targetEl = document.getElementById(targetElId);
