@@ -939,8 +939,8 @@ class UI {
         const bonuses = BUILDING_BONUSES[type][level];
         
         const items = [
-            { id: 'A', name: `Seçenek (A)`, desc: bonuses[0] || "Bonus A", enabled: true, icon: '🌟' },
-            { id: 'B', name: `Seçenek (B)`, desc: bonuses[1] || "Bonus B", enabled: true, icon: '🔥' }
+            { id: 'A', name: `Seçenek (A)`, desc: bonuses[0] || "Bonus A", enabled: true, icon: '🌟', costStr: '' },
+            { id: 'B', name: `Seçenek (B)`, desc: bonuses[1] || "Bonus B", enabled: true, icon: '🔥', costStr: '' }
         ];
 
         this.showChoiceModalWithDesc(`${bName} - ${level}. Seviye Bonusu Seçimi`, items, (choice) => {

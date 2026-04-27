@@ -204,15 +204,19 @@ class Actions {
 
         const udata = UNIT_DATA[unitDef.type];
         let cost = 1; // Temel maliyet 1 MP
-        const edgeId = this.state.grid.getEdgeBetweenNodes(startNodeId, targetNodeId);
-        const edge = this.state.grid.edges.get(edgeId);
-        
-        if (edge && edge.road === playerId && udata.cls !== 'kusatma') {
-            // Yol bonusu: Kullanıcının isteği üzerine hızı +1 adım artıracak maliyet hesaplanır.
-            // Formül: cost = speed / (speed + 1)
-            // Speed 1 -> 0.5 (2 steps)
-            // Speed 2 -> 0.66 (3 steps)
-            cost = udata.speed / (udata.speed + 1);
+        if (edge && edge.road !== null) {
+            const roadOwner = this.state.players.find(rp => rp.id === edge.road);
+            // Kendi yolum değilse ve yol sahibinin Kervansaray Sv.2 Bonus B'si varsa
+            if (roadOwner && roadOwner.id !== playerId) {
+                if (roadOwner.chosenBonuses?.kervansaray?.[2] === 'B') {
+                    roadOwner.resources.gold += 1;
+                    this.state.addLog(`💰 ${roadOwner.name}, ${p.name} kullanıcısının yolundan 1 Altın geçiş vergisi aldı.`, 'info');
+                }
+            }
+
+            if (edge.road === playerId && udata.cls !== 'kusatma') {
+                cost = udata.speed / (udata.speed + 1);
+            }
         }
 
         if (unitDef.movesLeft < cost - 0.001) return false;

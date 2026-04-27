@@ -284,6 +284,32 @@ class GameState {
                 if (choice === 'A') player.bonusState.spawnUnitXp += 20;
                 else player.bonusState.sovGoldReduction = 1;
             }
+        } else if (type === 'muhendishane') {
+            if (level === 2) {
+                if (choice === 'A') player.bonusState.topcuRangeBonus = 1;
+                else player.bonusState.canChangeBiomeResource = true;
+            } else if (level === 3) {
+                if (choice === 'A') player.bonusState.muhendishaneSiegeBonus = true;
+                else player.bonusState.siegeInvulnerable = true;
+            }
+        } else if (type === 'tapinak') {
+            if (level === 2) {
+                if (choice === 'A') player.bonusState.enemySiegePenalty = 1;
+                else player.bonusState.winOnDraw = true;
+            } else if (level === 3) {
+                if (choice === 'A') player.bonusState.sovGoldReduction += 1;
+                else player.bonusState.freeRevive = true;
+            }
+        } else if (type === 'tiyatro') {
+            if (level === 1) {
+                player.bonusState.buildingCostReduction = 1;
+            } else if (level === 2) {
+                if (choice === 'A') player.bonusState.siegeDefection = true;
+                else player.bonusState.tradeBonusRes = true;
+            } else if (level === 3) {
+                if (choice === 'A') player.bonusState.siegeReqReduction = 1;
+                else player.bonusState.combatDefection = true;
+            }
         }
         
         this.recalcPopulation(player);
