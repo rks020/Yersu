@@ -118,6 +118,7 @@ class GameState {
 
         this.turn              = 1;
         this.currentPlayerIdx  = 0;
+        this.currentPlayer     = this.players[0]; // [YENİ] Başlangıç oyuncusunu ata
         this.phase             = 'setup';
         this.subPhase          = 'production';  
 

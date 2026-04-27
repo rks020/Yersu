@@ -120,7 +120,10 @@ class Renderer {
     _drawHighlights() {
         const ctx   = this.ctx;
         const pulse = (Math.sin(Date.now() / 200) + 1) / 2;
-        const pColor = this.state.currentPlayer ? this.state.currentPlayer.color : '#ffd700';
+        
+        // Aktif oyuncunun rengini al (Yoksayılmaması için garantiye alıyoruz)
+        const activePlayer = this.state.currentPlayer;
+        const pColor = activePlayer ? activePlayer.color : '#ffd700';
 
         // Hex highlights
         this.state.highlightedHexes.forEach(hid => {
