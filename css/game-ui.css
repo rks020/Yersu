@@ -984,15 +984,15 @@ button:disabled {
     67%  { transform: translate(8px,-40px)   rotate(480deg) scale(1.05); }
     78%  { transform: translate(-5px,-15px)  rotate(520deg) scale(1.02); }
     88%  { transform: translate(3px,-8px)    rotate(535deg) scale(1.01); }
-    100% { transform: translate(0, 0)        rotate(540deg) scale(1);    }
+    100% { transform: translate(0, 0)        rotate(720deg) scale(1);    }
 }
 
 @keyframes settleWobble {
-    0%   { transform: rotate(540deg) scale(1.08); }
-    25%  { transform: rotate(536deg) scale(0.96); }
-    50%  { transform: rotate(541deg) scale(1.03); }
-    75%  { transform: rotate(539deg) scale(0.99); }
-    100% { transform: rotate(540deg) scale(1);    }
+    0%   { transform: rotate(720deg) scale(1.08); }
+    25%  { transform: rotate(716deg) scale(0.96); }
+    50%  { transform: rotate(721deg) scale(1.03); }
+    75%  { transform: rotate(719deg) scale(0.99); }
+    100% { transform: rotate(720deg) scale(1);    }
 }
 
 /* Parçacık efekti */
@@ -1017,6 +1017,12 @@ button:disabled {
     color: var(--gold);
     text-shadow: 0 0 20px rgba(0,0,0,1), 0 0 5px #000;
     font-weight: bold;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 12px 40px;
+    border-radius: 50px;
+    border: 1px solid var(--gold);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     opacity: 0;
     transform: translateY(20px);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
