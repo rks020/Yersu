@@ -739,10 +739,10 @@ class GameState {
         };
     }
 
-    resolveRangeAttack(attackerUnit, attackerPlayer, targetNode) {
+    resolveRangeAttack(attackerUnit, attackerPlayer, targetNode, targetUnitOverride = null) {
         const defenderPlayerId = targetNode.army.playerId;
         const defenderPlayer   = this.players.find(p => p.id === defenderPlayerId);
-        const defenderUnit     = targetNode.army.units[0];
+        const defenderUnit     = targetUnitOverride || targetNode.army.units[0];
         
         if (!defenderUnit) return null;
 

@@ -189,7 +189,7 @@ class Actions {
         return true;
     }
 
-    moveUnit(playerId, unitUid, targetNodeId) {
+    moveUnit(playerId, unitUid, targetNodeId, targetUnitUid = null) {
         const p = this.state.players.find(pl => pl.id === playerId);
         const unitDef = p?.units.find(u => u.uid === unitUid);
         if (!unitDef || unitDef.movesLeft <= 0) return false;
@@ -248,14 +248,16 @@ class Actions {
             }
 
             // Savaş
-            const combat = this.state.resolveCombat(movingUnit, p, targetNode);
+            const targetUnit = targetUnitUid ? targetNode.army.units.find(u => u.uid === targetUnitUid) : null;
+            const combat = this.state.resolveCombat(movingUnit, p, targetNode, targetUnit);
             combat.animation = '⚔️';
 
             if (combat.casualty === 'attacker') {
                 p.units = p.units.filter(u => u.uid !== unitUid);
             } else if (combat.casualty === 'defender') {
                 const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
-                const killed = targetNode.army.units.shift();
+                const killed = combat.defender.unit;
+                targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
                 if (killed) defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
 
                 if (targetNode.army.units.length === 0) {
@@ -281,7 +283,7 @@ class Actions {
         return { type: 'move' };
     }
 
-    rangeAttack(playerId, unitUid, targetNodeId) {
+    rangeAttack(playerId, unitUid, targetNodeId, targetUnitUid = null) {
         const p = this.state.players.find(pl => pl.id === playerId);
         const unit = p?.units.find(u => u.uid === unitUid);
         if (!unit || unit.movesLeft <= 0) return false;
@@ -300,14 +302,16 @@ class Actions {
 
         unit.movesLeft -= 1;
 
-        const combat = this.state.resolveRangeAttack(unit, p, targetNode);
+        const targetUnit = targetUnitUid ? targetNode.army.units.find(u => u.uid === targetUnitUid) : null;
+        const combat = this.state.resolveRangeAttack(unit, p, targetNode, targetUnit);
         if (!combat) return false;
         combat.animation = '🏹';
 
         if (combat.casualty === 'defender') {
             const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
-            if (defPlayer && targetNode.army.units.length > 0) {
-                const killed = targetNode.army.units.shift();
+            const killed = combat.defender.unit;
+            if (defPlayer && killed) {
+                targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
                 defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
                 if (targetNode.army.units.length === 0) targetNode.army = null;
             }

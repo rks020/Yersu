@@ -294,38 +294,51 @@ class UI {
                 return;
             }
 
-            // Menzilli saldırı kontrolü
-            if (clickedNode.army && clickedNode.army.playerId !== current.id && udata.range > 0) {
-                const res = this.actions.rangeAttack(current.id, unit.uid, clickedNode.id);
+            const executeAction = (targetUnitUid = null) => {
+                // Menzilli saldırı kontrolü
+                if (clickedNode.army && clickedNode.army.playerId !== current.id && udata.range > 0) {
+                    const res = this.actions.rangeAttack(current.id, unit.uid, clickedNode.id, targetUnitUid);
+                    if (res) {
+                        this.showCombatAnimation(clickedNode, '🏹');
+                        this.showCombatReport(res);
+                        this.state.clearSelection();
+                        this.update();
+                        return;
+                    }
+                }
+
+                const res = this.actions.moveUnit(current.id, unit.uid, clickedNode.id, targetUnitUid);
                 if (res) {
-                    this.showCombatAnimation(clickedNode, '🏹');
-                    this.showCombatReport(res);
-                    this.state.clearSelection();
-                    this.update();
-                    return;
-                }
-            }
+                    if (res.type === 'move') {
+                        this.showNotice("Birim hareket etti.", "info");
+                    } else {
+                        this.showCombatAnimation(clickedNode, res.animation || '⚔️');
+                        this.showCombatReport(res);
+                    }
 
-            const res = this.actions.moveUnit(current.id, unit.uid, clickedNode.id);
-            if (res) {
-                if (res.type === 'move') {
-                    this.showNotice("Birim hareket etti.", "info");
+                    // Hala hareket puanı var mı?
+                    const unitDef = current.units.find(u => u.uid === unit.uid);
+                    if (unitDef && unitDef.movesLeft > 0) {
+                        this.state.selectedUnitNode = unitDef.nodeId;
+                        this._updateMovementHighlights(unitDef.nodeId, unitDef);
+                    } else {
+                        this.state.clearSelection();
+                    }
                 } else {
-                    this.showCombatAnimation(clickedNode, res.animation || '⚔️');
-                    this.showCombatReport(res);
-                }
-
-                // Hala hareket puanı var mı?
-                const unitDef = current.units.find(u => u.uid === unit.uid);
-                if (unitDef && unitDef.movesLeft > 0) {
-                    this.state.selectedUnitNode = unitDef.nodeId;
-                    this._updateMovementHighlights(unitDef.nodeId, unitDef);
-                } else {
+                    this.showNotice("Geçersiz hareket!", "danger");
                     this.state.clearSelection();
                 }
+                this.update();
+            };
+
+            // Eğer hedefte birden fazla DÜŞMAN birimi varsa seçtir
+            if (clickedNode.army && clickedNode.army.playerId !== current.id && clickedNode.army.units.length > 1) {
+                this.showUnitSelectionModal(clickedNode, (targetUnit) => {
+                    executeAction(targetUnit.uid);
+                }, clientX, clientY, "Saldırılacak Hedefi Seçin");
+                return;
             } else {
-                this.showNotice("Geçersiz hareket!", "danger");
-                this.state.clearSelection();
+                executeAction();
             }
         }
         // ── KUŞATMA BAŞLATMA (DÜŞMAN HEX'İNE TIKLANDIĞINDA) ──
@@ -1106,11 +1119,11 @@ class UI {
         }
     }
 
-    showUnitSelectionModal(node, onSelect, clientX, clientY) {
+    showUnitSelectionModal(node, onSelect, clientX, clientY, title = "Birimi Seçin") {
         const picker = this.els.unitPicker;
         if (!picker) return;
         
-        picker.innerHTML = '';
+        picker.innerHTML = `<div style="font-size:0.7rem; color:var(--gold); font-weight:bold; padding:4px 8px; border-bottom:1px solid rgba(255,215,0,0.2); margin-bottom:4px;">${title}</div>`;
         
         node.army.units.forEach(u => {
             const data = UNIT_DATA[u.type];
