@@ -757,7 +757,7 @@ class UI {
         if (popEl) popEl.textContent = `${p.getPopulationUsed()}/${p.maxPopulation}`;
 
         if (!p.units || p.units.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#666;font-size:0.78rem;">Henüz birim yok</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#666;font-size:0.78rem;">Henüz birim yok</td></tr>';
             return;
         }
 
@@ -774,7 +774,6 @@ class UI {
             const baseParts = [];
             if (data.duel > 0) baseParts.push(`Düello +${data.duel}`);
             if (data.duel < 0) baseParts.push(`Düello ${data.duel}`);
-            if (data.range > 0) baseParts.push(`Menzil +${data.range}`);
             if (data.siege > 0) baseParts.push(`Kuşatma +${data.siege}`);
             if (data.special === 'anti_cavalry') baseParts.push('+1 vs Süvari');
             if (data.special === 'anti_infantry') baseParts.push('+1 vs Piyade');
@@ -822,6 +821,14 @@ class UI {
                 if (type === 'hafif_suvari' || type === 'atli_okcu') speedBonus = 1;
             }
             const totalSpeed = data.speed + speedBonus;
+            
+            // Yol MP Hesaplama: Hız / (Hız / (Hız+1)) = Hız + 1 (Kuşatma hariç)
+            // Bonus hız varsa: ToplamHız / (BaseHız / (BaseHız+1))
+            let yolSpeed = totalSpeed;
+            if (data.cls !== 'kusatma') {
+                const roadCost = data.speed / (data.speed + 1);
+                yolSpeed = Math.floor(totalSpeed / roadCost);
+            }
 
             html += `
             <tr>
@@ -832,6 +839,7 @@ class UI {
                 <td class="mil-count">${units.length}</td>
                 <td class="mil-range">${totalRange || '-'}</td>
                 <td class="mil-speed">${totalSpeed}</td>
+                <td class="mil-speed-road">${yolSpeed}</td>
                 <td class="mil-bonus-base">${baseParts.join(', ') || '-'}</td>
                 <td class="mil-bonus-bld">${bldParts.join('<br>') || '-'}</td>
                 <td class="mil-bonus-total total-col">${totalParts.join(', ') || '-'}</td>
