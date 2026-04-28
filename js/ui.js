@@ -53,6 +53,8 @@ class UI {
             biomeCard: document.getElementById('biomeDetail'),
             biomeName: document.getElementById('biome-name'),
             biomeBody: document.getElementById('biome-body'),
+
+            unitPicker: document.getElementById('unit-picker'),
         };
 
         this.activeBonusTab = 'ciftlik';
@@ -364,7 +366,7 @@ class UI {
                     };
 
                     if (clickedNode.army.units.length > 1) {
-                        this.showUnitSelectionModal(clickedNode, selectUnit);
+                        this.showUnitSelectionModal(clickedNode, selectUnit, clientX, clientY);
                         return; // Modal açıldıysa burayı bitir, callback devam ettirecek
                     } else {
                         selectUnit(clickedNode.army.units[0]);
@@ -1104,24 +1106,61 @@ class UI {
         }
     }
 
-    showUnitSelectionModal(node, onSelect) {
-        const units = node.army.units;
-        const items = units.map(u => {
+    showUnitSelectionModal(node, onSelect, clientX, clientY) {
+        const picker = this.els.unitPicker;
+        if (!picker) return;
+        
+        picker.innerHTML = '';
+        
+        node.army.units.forEach(u => {
             const data = UNIT_DATA[u.type];
-            return {
-                id: u.uid,
-                name: data.name,
-                icon: data.img ? `<img src="${data.img}" style="width:40px;height:40px;object-fit:contain;">` : (data.emoji || '👤'),
-                desc: `MP: ${u.movesLeft} | Güç: ${data.duel}⚔️`,
-                enabled: u.movesLeft > 0,
-                error: u.movesLeft <= 0 ? "Hareket puanı bitti!" : ""
-            };
+            const item = document.createElement('div');
+            item.className = `unit-picker-item ${u.movesLeft > 0 ? '' : 'disabled'}`;
+            
+            const iconHtml = data.img ? `<img src="${data.img}">` : `<span class="emoji">${data.emoji || '👤'}</span>`;
+            
+            item.innerHTML = `
+                ${iconHtml}
+                <div class="unit-picker-info">
+                    <div class="unit-picker-name">${data.name}</div>
+                    <div class="unit-picker-stats">MP: ${u.movesLeft} | Güç: ${data.duel}⚔️</div>
+                </div>
+            `;
+            
+            if (u.movesLeft > 0) {
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    picker.classList.remove('active');
+                    onSelect(u);
+                };
+            } else {
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    this.showNotice("Hareket puanı bitti!", "warning");
+                };
+            }
+            picker.appendChild(item);
         });
 
-        this.showChoiceModalWithDesc("Birimi Seçin", items, (uid) => {
-            const selectedUnit = units.find(u => u.uid === uid);
-            onSelect(selectedUnit);
-        });
+        // Pozisyon ayarla (Ekran sınırlarına çarpmaması için basit kontrol)
+        let left = clientX + 20;
+        let top = clientY - 30;
+        
+        if (left + 180 > window.innerWidth) left = clientX - 190;
+        if (top + 200 > window.innerHeight) top = clientY - 150;
+
+        picker.style.left = `${left}px`;
+        picker.style.top = `${top}px`;
+        picker.classList.add('active');
+        
+        // Dışarı tıklayınca kapansın
+        const closePicker = (e) => {
+            if (!picker.contains(e.target)) {
+                picker.classList.remove('active');
+                window.removeEventListener('mousedown', closePicker);
+            }
+        };
+        setTimeout(() => window.addEventListener('mousedown', closePicker), 10);
     }
 
     showChoiceModal(type, level) {
