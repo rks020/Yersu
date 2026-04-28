@@ -805,13 +805,6 @@ class UI {
             const muhLv = p.buildings?.['muhendishane'] >= 2 ? 2 : 0;
             if (muhLv >= 2 && data.range > 0) bldParts.push('Mühendishane: Menzil +1');
 
-            // Toplam
-            const totalDuel = data.duel + duelBonus;
-            const totalParts = [];
-            if (totalDuel !== 0) totalParts.push(`Düello ${totalDuel > 0 ? '+' : ''}${totalDuel}`);
-            if (data.range > 0) totalParts.push(`Menzil ${data.range + (muhLv >= 2 ? 1 : 0)}`);
-            if (data.siege > 0) totalParts.push(`Kuşatma +${data.siege}`);
-
             // Toplam değerler
             const totalRange = data.range > 0 ? (data.range + (muhLv >= 2 ? 1 : 0)) : 0;
             
@@ -829,6 +822,11 @@ class UI {
 
             const totalDuel = data.duel + duelBonus;
             const totalSiege = data.siege; // Kuşatma zarı bonusu şu an sadece tapınak (o da savunmada)
+
+            const totalParts = [];
+            if (totalDuel !== 0) totalParts.push(`Düello ${totalDuel > 0 ? '+' : ''}${totalDuel}`);
+            if (totalRange > 0) totalParts.push(`Menzil ${totalRange}`);
+            if (totalSiege > 0) totalParts.push(`Kuşatma +${totalSiege}`);
 
             html += `
             <tr>
