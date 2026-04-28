@@ -123,7 +123,7 @@ const VP = {
 const BUILDING_BONUSES = {
     ciftlik: {
         1: ['Üretim zarı sonucu bu yerleşim yerine denk geldiyse +1 besin kazanılır (Biyomda besin olmasına gerek yoktur)'],
-        2: ['(A) Oyuncu her turunda 1 besin kazanır', '(B) Çiftlik inşası için gerekli temel kaynak türlerinin her biri için maliyet -1 azalır'],
+        2: ['(A) Oyuncu her turunda 1 besin kazanır', '(B) Gelecek çiftlik inşaları için maliyet artık sadece 6 besindir'],
         3: ['(A) Asker popülasyonu +2 artar (Maks 16)', '(B) Çiftlik bulunan her yerleşim için kuşatma puanı +1 artar'],
     },
     kervansaray: {

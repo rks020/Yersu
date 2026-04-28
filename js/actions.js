@@ -137,6 +137,12 @@ class Actions {
         if (!cost) return false;
 
         let actualCost = { ...cost };
+
+        // Çiftlik Seviye 2 (B) Bonusu: Maliyet sabit 6 besin
+        if (buildingType === 'ciftlik' && p.bonusState.ciftlikFixedCost) {
+            actualCost = { besin: 6 };
+        }
+
         // Tiyatro Seviye 1 Bonusu: Maliyet -1 azalır (En pahalı kaynaktan düşelim)
         if (hex.settlement.buildings.has('tiyatro')) {
             let maxRes = null;

@@ -34,7 +34,7 @@ class Player {
         this.bonusState = {
             ciftlikPopBonus: 0,
             ciftlikResPerTurn: 0,
-            ciftlikCostReduction: 0,
+            ciftlikFixedCost: false,
             ciftlikSiegeBonus: false,
             roadCostReduction: 0,
             roadDiscountRes: null, // 'odun' veya 'tas'
@@ -266,7 +266,7 @@ class GameState {
         if (type === 'ciftlik') {
             if (level === 2) {
                 if (choice === 'A') player.bonusState.ciftlikResPerTurn = 1;
-                else player.bonusState.ciftlikCostReduction = 1;
+                else player.bonusState.ciftlikFixedCost = true;
             } else if (level === 3) {
                 if (choice === 'A') player.bonusState.ciftlikPopBonus += 2;
                 else player.bonusState.ciftlikSiegeBonus = true;

@@ -648,7 +648,11 @@ class UI {
         ALL_BUILDINGS.forEach(b => {
             const el = document.getElementById(`cost-${b}`);
             if (el) {
-                const cost = BUILD_COSTS[b];
+                let cost = { ...BUILD_COSTS[b] };
+                if (b === 'ciftlik' && p.bonusState.ciftlikFixedCost) {
+                    cost = { besin: 6 };
+                }
+
                 let text = "";
                 if (cost.besin) text += `🌾${cost.besin} `;
                 if (cost.odun) text += `🪵${cost.odun} `;
