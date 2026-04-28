@@ -226,8 +226,8 @@ class Actions {
                 }
             }
 
-            // Yol hız bonusu: Kuşatma birimleri hariç tüm birimler yolda daha hızlı hareket eder
-            if (udata.cls !== 'kusatma') {
+            // Yol hız bonusu: Sadece kendi yolumuzsa ve kuşatma birimi değilse bonus al
+            if (udata.cls !== 'kusatma' && edge.road === playerId) {
                 cost = udata.speed / (udata.speed + 1);
             }
         }
