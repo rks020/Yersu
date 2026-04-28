@@ -29,9 +29,13 @@ class UI {
             popCounter: document.getElementById('popCounter'),
             vpCounter: document.getElementById('vpCounter'),
 
+            // Zar Animasyonu
+            diceAnimContainer: document.getElementById('diceAnimationContainer'),
+            die1: document.getElementById('die1'),
+            die2: document.getElementById('die2'),
+            diceTotalResult: document.getElementById('diceTotalResult'),
+
             // Modallar
-            diceModal: document.getElementById('diceModal'),
-            diceResult: document.getElementById('diceResult'),
             choiceModal: document.getElementById('choiceModal'),
             choiceGrid: document.getElementById('choiceGrid'),
             choiceTitle: document.getElementById('choiceModalTitle'),
@@ -458,7 +462,7 @@ class UI {
         if (this.state.subPhase !== 'production') return;
         const roll = this.state.rollProductionDice();
         // this.state.addLog(`🎲 ${this.state.currentPlayer.name} zar attı: ${roll.d1} + ${roll.d2} = ${roll.total}`, 'info'); // state.js zaten log basıyor
-        this.showDiceModal(roll.total);
+        this.showDiceModal(roll);
         if (roll.gained) this.showResourceAnimation(roll.gained);
         this.update();
     }
@@ -498,7 +502,7 @@ class UI {
 
         // AI Zarını Görselleştir
         if (this.state.lastRoll && !this.state.lastRoll.uiShown) {
-            this.showDiceModal(this.state.lastRoll.total);
+            this.showDiceModal(this.state.lastRoll);
             this.state.lastRoll.uiShown = true;
         }
 
@@ -1008,11 +1012,37 @@ class UI {
         setTimeout(() => el.remove(), 4000);
     }
 
-    showDiceModal(total) {
-        if (!this.els.diceModal) return;
-        this.els.diceResult.textContent = total;
-        this.els.diceModal.classList.add('active');
-        setTimeout(() => this.els.diceModal.classList.remove('active'), 2000);
+    showDiceModal(roll) {
+        if (!roll || !this.els.diceAnimContainer) return;
+        const { d1, d2, total } = roll;
+        const { diceAnimContainer, die1, die2, diceTotalResult } = this.els;
+
+        // Başlat
+        diceAnimContainer.classList.add('active');
+        diceTotalResult.classList.remove('show');
+        die1.textContent = '?';
+        die2.textContent = '?';
+        die1.classList.add('shaking');
+        die2.classList.add('shaking');
+
+        // 1 saniye salla sonra göster
+        setTimeout(() => {
+            die1.classList.remove('shaking');
+            die2.classList.remove('shaking');
+            die1.textContent = d1;
+            die2.textContent = d2;
+            
+            // Kısa bir beklemeden sonra toplamı göster
+            setTimeout(() => {
+                diceTotalResult.textContent = `Toplam: ${total}`;
+                diceTotalResult.classList.add('show');
+                
+                // 1.5 saniye sonra kapat
+                setTimeout(() => {
+                    diceAnimContainer.classList.remove('active');
+                }, 1500);
+            }, 400);
+        }, 1000);
     }
 
     showChoiceModal(type, level) {

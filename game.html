@@ -169,10 +169,18 @@
             </div>
         </aside>
 
-        <!-- MERKEZ CANVAS -->
         <main id="canvasWrapper">
             <canvas id="gameCanvas"></canvas>
             <div id="floatingNoticeContainer"></div>
+            
+            <!-- ZAR ANİMASYONU ALANI -->
+            <div id="diceAnimationContainer" class="dice-anim-wrap">
+                <div class="dice-pair">
+                    <div id="die1" class="die">?</div>
+                    <div id="die2" class="die">?</div>
+                </div>
+                <div id="diceTotalResult" class="dice-total-text"></div>
+            </div>
         </main>
 
         <!-- SAĞ PANEL: SEÇİLİ HEX + LOG -->
@@ -243,13 +251,7 @@
 
 <!-- BİLDİRİMLER KONTEYNERI CANVAS İÇİNE TAŞINDI -->
 
-<!-- ZAR MODALI -->
-<div id="diceModal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Üretim Zarı Sonucu</h3>
-        <div id="diceResult" class="dice-result">7</div>
-    </div>
-</div>
+<!-- ZAR MODALI KALDIRILDI, ANİMASYON CANVASWRAPPER İÇİNE EKLENDİ -->
 
 <!-- SEÇİM MODALI -->
 <div id="choiceModal" class="modal-overlay">
