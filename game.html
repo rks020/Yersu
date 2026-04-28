@@ -328,7 +328,26 @@
     </div>
 </div>
 
-<!-- KERVANSARAY KAYNAK SEÇİM MODALI -->
+    <!-- KAYNAK DEĞİŞTİRME MODALI (Mühendishane 2B) -->
+    <div id="changeBiomeModal" class="modal-overlay" style="z-index: 10000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h2 style="margin-bottom: 5px;">⚙️ Biyom Kaynağını Değiştir</h2>
+            <p style="font-size: 0.9rem; margin-bottom: 20px;">Mühendishane (Sv 2-B) bonusunuzla yerleşiminizdeki biyomun üreteceği kaynağı değiştirebilirsiniz.</p>
+            <input type="hidden" id="changeBiomeHexId" value="">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+                <button class="btn-secondary" onclick="window.appMain.ui.confirmChangeResource('besin')">🌾 Besin</button>
+                <button class="btn-secondary" onclick="window.appMain.ui.confirmChangeResource('odun')">🪵 Odun</button>
+                <button class="btn-secondary" onclick="window.appMain.ui.confirmChangeResource('tas')">🪨 Taş</button>
+                <button class="btn-secondary" onclick="window.appMain.ui.confirmChangeResource('kil')">🧱 Kil</button>
+                <button class="btn-secondary" onclick="window.appMain.ui.confirmChangeResource('maden')">⚙️ Maden</button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary btn-premium-close" onclick="document.getElementById('changeBiomeModal').classList.remove('active')">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KERVANSARAY KAYNAK SEÇİM MODALI -->
 <div id="kervansarayModal" class="modal-overlay" style="z-index: 10000;">
     <div class="modal-content" style="max-width: 400px; text-align: center;">
         <h2 style="margin-bottom: 5px;">🐪 Kervansaray Bonusu</h2>

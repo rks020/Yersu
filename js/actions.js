@@ -317,8 +317,13 @@ class Actions {
         const targetNode = this.state.grid.nodes.get(targetNodeId);
         if (!targetNode || !targetNode.army || targetNode.army.playerId === playerId) return false;
 
+        let actualRange = udata.range;
+        if (unit.type === 'topcu' && p.bonusState && p.bonusState.topcuRangeBonus) {
+            actualRange += p.bonusState.topcuRangeBonus;
+        }
+
         const dist = this.state.grid.getDistance(unit.nodeId, targetNodeId);
-        if (dist > udata.range) {
+        if (dist > actualRange) {
             this.state.addLog("❌ Hedef çok uzakta!", "warning");
             return false;
         }
