@@ -308,38 +308,48 @@ class Renderer {
 
     _drawUnitIcon(x, y, unit, player, isSelected) {
         const ctx = this.ctx;
-        const r = 16; // İkon yarıçapı
+        const r = 19; // İkonu biraz daha büyüttük
         const data = UNIT_DATA[unit.type];
         const img = this.unitImages[unit.type];
 
-        // 1. Gölge/Highlight halkası
+        // 1. Seçim Highlight / Dış Gölge
         ctx.beginPath();
-        ctx.arc(x, y, r + 3, 0, Math.PI * 2);
-        ctx.fillStyle = isSelected ? '#ffd700' : 'rgba(0,0,0,0.5)';
+        ctx.arc(x, y, r + 5, 0, Math.PI * 2);
+        ctx.fillStyle = isSelected ? '#ffd700' : 'rgba(0,0,0,0.3)';
         ctx.fill();
 
-        // 2. Oyuncu rengi halkası
+        // 2. Kalın Oyuncu Rengi Çerçevesi
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = player.color;
+        ctx.fillStyle = player.color; // Takım rengi (Kırmızı/Mavi vb.)
         ctx.fill();
-        ctx.strokeStyle = '#fff';
+        
+        // İç Beyaz Kontur (Daha şık durması için)
+        ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Dış Siyah Kontur (Rengin patlaması için)
+        ctx.beginPath();
+        ctx.arc(x, y, r + 1, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(0,0,0,0.8)';
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // 3. İkon Görseli (Daire içine kırpılmış)
+        // 3. İç Görsel (Daire içine kırpılmış)
+        // Kırpma alanını çerçevenin biraz içinde tutuyoruz (r-4)
         if (img && img.complete) {
             ctx.save();
             ctx.beginPath();
-            ctx.arc(x, y, r - 1, 0, Math.PI * 2);
-            ctx.clip(); // Görseli daireye hapset
+            ctx.arc(x, y, r - 4, 0, Math.PI * 2);
+            ctx.clip(); 
             
-            const size = r * 2;
+            const size = (r - 4) * 2;
             ctx.drawImage(img, x - size/2, y - size/2, size, size);
             ctx.restore();
         } else {
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 16px serif';
+            ctx.font = 'bold 18px serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(data.emoji || '👤', x, y);
