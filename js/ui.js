@@ -610,6 +610,28 @@ class UI {
         }
     }
 
+    showChangeResourceModal(hexId) {
+        const modal = document.getElementById('changeBiomeModal');
+        if (!modal) return;
+        document.getElementById('changeBiomeHexId').value = hexId;
+        modal.classList.add('active');
+    }
+
+    confirmChangeResource(res) {
+        const hexId = document.getElementById('changeBiomeHexId').value;
+        const modal = document.getElementById('changeBiomeModal');
+        if (hexId && res) {
+            const success = this.actions.changeHexResource(this.state.currentPlayer.id, hexId, res);
+            if (success) {
+                this.showNotice("Biyom kaynağı başarıyla değiştirildi!", "success");
+                modal.classList.remove('active');
+                this.update();
+            } else {
+                this.showNotice("Kaynak değiştirilemedi!", "danger");
+            }
+        }
+    }
+
     _updateResources() {
         const p = this.state.currentPlayer;
         if (this.els.resBesin) this.els.resBesin.textContent = p.resources.besin;
@@ -843,11 +865,11 @@ class UI {
             const tapinak = p.buildings?.['tapinak'] >= 1;
             if (tapinak) bldParts.push('Tapınak: +1 (Kuşatmada)');
 
-            const muhLv = p.buildings?.['muhendishane'] >= 2 ? 2 : 0;
-            if (muhLv >= 2 && data.range > 0) bldParts.push('Mühendishane: Menzil +1');
+            const hasRangeBonus = p.bonusState && p.bonusState.topcuRangeBonus;
+            if (hasRangeBonus && data.range > 0) bldParts.push('Mühendishane: Menzil +1');
 
             // Toplam değerler
-            const totalRange = data.range > 0 ? (data.range + (muhLv >= 2 ? 1 : 0)) : 0;
+            const totalRange = data.range > 0 ? (data.range + (hasRangeBonus ? 1 : 0)) : 0;
             
             let speedBonus = 0;
             if (kislaLv >= 2 && p.chosenBonuses?.kisla?.[2] === 'A') {
@@ -1664,12 +1686,22 @@ class UI {
             if (unit.movesLeft >= cost) {
                 this.state.highlightedNodes.add(nid);
             }
-
-            // Menzil vurgusu (Eğer düşman varsa)
-            if (udata.range > 0 && targetNode.army && targetNode.army.playerId !== this.state.currentPlayer.id) {
-                this.state.rangeHighlightedNodes.add(nid);
-            }
         });
+
+        // Menzil vurgusu için actualRange içindeki tüm nodeları bulalım
+        let actualRange = udata.range || 0;
+        if (unit.type === 'topcu' && this.state.currentPlayer.bonusState && this.state.currentPlayer.bonusState.topcuRangeBonus) {
+            actualRange += this.state.currentPlayer.bonusState.topcuRangeBonus;
+        }
+
+        if (actualRange > 0) {
+            this.state.grid.nodes.forEach(n => {
+                const dist = this.state.grid.getDistance(nodeId, n.id);
+                if (dist > 0 && dist <= actualRange && n.army && n.army.playerId !== this.state.currentPlayer.id) {
+                    this.state.rangeHighlightedNodes.add(n.id);
+                }
+            });
+        }
     }
 
     showResourceAnimation(gainedList) {

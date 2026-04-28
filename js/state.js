@@ -47,6 +47,9 @@ class Player {
             tiyatroLv3SiegeReduction: false,
             theatreCostReduction: 0,
             muhendishaneSiegeBonus: false,
+            topcuRangeBonus: 0,
+            siegeInvulnerable: false,
+            canChangeBiomeResource: false,
             kislaLv3BUsedThisTurn: false,
             kervansarayLv3Choice: null,
             pendingKervansarayRes: 0,
@@ -807,6 +810,14 @@ class GameState {
             }
         }
 
+        // --- MÜHENDİSHANE SV 3 B: KUŞATMA BİRİMİ KORUMASI ---
+        if (casualty === 'defender' && defenderPlayer.bonusState.siegeInvulnerable && dData.cls === 'kusatma') {
+            if (targetNode.settlement && targetNode.settlement.playerId === defenderPlayer.id) {
+                casualty = 'none';
+                this.addLog(`🛡️ ${defenderPlayer.name}, Mühendishane (Sv3-B) sayesinde kuşatma birimini ölümden kurtardı!`, 'success');
+            }
+        }
+
         return { 
             type: 'melee',
             attacker: { player: attackerPlayer, unit: attackerUnit, str: aStr },
@@ -847,6 +858,14 @@ class GameState {
             this.addLog(`🎯 ${attackerPlayer.name} menzilli atışla düşmanı vurdu!`, 'success');
         } else {
             this.addLog(`🏹 Atış ıska geçti veya zırhı geçemedi.`, 'info');
+        }
+
+        // --- MÜHENDİSHANE SV 3 B: KUŞATMA BİRİMİ KORUMASI ---
+        if (casualty === 'defender' && defenderPlayer.bonusState.siegeInvulnerable && dData.cls === 'kusatma') {
+            if (targetNode.settlement && targetNode.settlement.playerId === defenderPlayer.id) {
+                casualty = 'none';
+                this.addLog(`🛡️ ${defenderPlayer.name}, Mühendishane (Sv3-B) sayesinde kuşatma birimini ölümden kurtardı!`, 'success');
+            }
         }
 
         return { 
