@@ -284,7 +284,7 @@ class GameState {
             if (level === 1) {
                 player.bonusState.kislaLv1Choice = choice; // A, B, veya C
             } else if (level === 2) {
-                if (choice === 'A') player.bonusState.spawnUnitXp += 20;
+                if (choice === 'A') player.bonusState.suvariSpeedBonus = 1;
                 else player.bonusState.sovGoldReduction = 1;
             }
         } else if (type === 'muhendishane') {
@@ -384,7 +384,11 @@ class GameState {
             // Main aşamada zar atılınca tüm birimlere hareket puanı ver
             this.currentPlayer.units.forEach(u => {
                 const data = UNIT_DATA[u.type];
-                u.movesLeft = data ? (data.speed || 2) : 2;
+                let speed = data ? (data.speed || 1) : 1;
+                if (this.currentPlayer.bonusState.suvariSpeedBonus && (u.type === 'hafif_suvari' || u.type === 'atli_okcu')) {
+                    speed += this.currentPlayer.bonusState.suvariSpeedBonus;
+                }
+                u.movesLeft = speed;
             });
             this.subPhase = 'build'; // Üretimden sonra İnşa/Ticaret başlar
         }
