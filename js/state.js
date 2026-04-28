@@ -39,6 +39,8 @@ class Player {
             roadCostReduction: 0,
             roadDiscountRes: null, // 'odun' veya 'tas'
             bankRate: 6,
+            bankSellRate: 2,
+            roadTax: false,
             spawnUnitXp: 0,
             sovGoldReduction: 0,
             canBuildSiege: false,
@@ -278,8 +280,8 @@ class GameState {
                 else player.bonusState.roadDiscountRes = 'tas';
                 player.bonusState.roadCostReduction = 1;
             } else if (level === 2) {
-                if (choice === 'A') player.bonusState.bankRate = Math.max(2, player.bonusState.bankRate - 2);
-                else player.bonusState.roadCostReduction = 1;
+                if (choice === 'A') player.bonusState.bankSellRate = 3;
+                else player.bonusState.roadTax = true;
             }
         } else if (type === 'kisla') {
             if (level === 1) {

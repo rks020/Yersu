@@ -218,11 +218,16 @@ class Actions {
 
         if (edge && edge.road !== null) {
             const roadOwner = this.state.players.find(rp => rp.id === edge.road);
-            // Kendi yolum değilse ve yol sahibinin Kervansaray Sv.2 Bonus B'si varsa
-            if (roadOwner && roadOwner.id !== playerId) {
-                if (roadOwner.chosenBonuses?.kervansaray?.[2] === 'B') {
-                    roadOwner.resources.gold += 1;
-                    this.state.addLog(`💰 ${roadOwner.name}, ${p.name} kullanıcısının yolundan 1 Altın geçiş vergisi aldı.`, 'info');
+            // Kendi yolum değilse ve yol sahibinin Kervansaray Sv.2 Bonus B'si varsa (Yol Vergisi)
+            if (roadOwner && roadOwner.id !== playerId && roadOwner.bonusState.roadTax) {
+                const basicRes = ['besin', 'odun', 'tas', 'kil', 'maden'];
+                const availableRes = basicRes.filter(r => p.resources[r] > 0);
+                
+                if (availableRes.length > 0) {
+                    const stolen = availableRes[Math.floor(Math.random() * availableRes.length)];
+                    p.resources[stolen] -= 1;
+                    roadOwner.gain(stolen, 1);
+                    this.state.addLog(`💰 ${roadOwner.name}, ${p.name} oyuncusunun yolundan geçtiği için 1 ${RESOURCE_INFO[stolen].name} vergi aldı.`, 'info');
                 }
             }
 
@@ -337,7 +342,7 @@ class Actions {
             // ALTIN SATIŞI: 1 Altın -> 2 (veya Kervansaray bonusuyla 3) Temel Kaynak
             if (p.resources.gold < 1) return false;
 
-            const buyAmount = (p.bonusState && p.bonusState.goldToResRate) ? p.bonusState.goldToResRate : 2;
+            const buyAmount = p.bonusState.bankSellRate || 2;
 
             p.resources.gold -= 1;
 
