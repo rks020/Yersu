@@ -62,7 +62,7 @@ const UNIT_DATA = {
     mizrakci:     { name: 'Mızrakçı',    cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 1, siege: 0, special: 'anti_cavalry',  duelBonusVs: 'suvari', img: 'mızrakçı.png' },
     kilicli:      { name: 'Kılıçlı',     cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 1, siege: 0, special: 'anti_infantry', duelBonusVs: 'piyade', img: 'kılıçlı.png' },
     okcu:         { name: 'Okçu',         cls: 'piyade',  gold: 2, duel: -1, range: 1, speed: 1, siege: 0, special: null,                                   img: 'okçu.png'    },
-    sovalye:      { name: 'Şövalye',      cls: 'suvari',  gold: 4, duel: 2,  range: 0, speed: 2, siege: 0, special: null,                                   img: 'şovalye.png' },
+    sovalye:      { name: 'Şövalye',      cls: 'suvari',  gold: 4, duel: 2,  range: 0, speed: 1, siege: 0, special: null,                                   img: 'şovalye.png' },
     hafif_suvari: { name: 'Hafif Süvari', cls: 'suvari',  gold: 3, duel: 0,  range: 0, speed: 2, siege: 0, special: null,                                   img: 'hafifsüvari.png' },
     atli_okcu:    { name: 'Atlı Okçu',    cls: 'suvari',  gold: 3, duel: -1, range: 1, speed: 2, siege: 0, special: null,                                   img: 'atlıokçu.png' },
     kocbasi:      { name: 'Koçbaşı',      cls: 'kusatma', gold: 3, duel: -3, range: 0, speed: 1, siege: 1, special: 'no_attack',                            img: 'kocbasi.png' },
