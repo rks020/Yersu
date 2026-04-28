@@ -585,6 +585,8 @@ class UI {
             const nextChoice = curP.pendingChoices[0];
             this.showChoiceModal(nextChoice.type, nextChoice.level);
         }
+
+        this.checkKervansarayBonus();
     }
 
     showVictoryModal(winner) {
@@ -614,6 +616,45 @@ class UI {
         if (p.pendingChoices.length > 0 && !this.choiceModalOpen) {
             const choice = p.pendingChoices[0];
             this.showChoiceModal(choice.type, choice.level);
+        }
+    }
+
+    checkKervansarayBonus() {
+        const modal = document.getElementById('kervansarayModal');
+        if (!modal) return;
+
+        // Bulunan ilk pendingKervansarayRes > 0 olan gerçek oyuncuyu bul
+        const p = this.state.players.find(pl => pl.bonusState && pl.bonusState.pendingKervansarayRes > 0);
+        if (p && !p.isAI) {
+            document.getElementById('kervansarayPlayerName').textContent = p.name;
+            document.getElementById('kervansarayResCount').textContent = p.bonusState.pendingKervansarayRes;
+            modal.classList.add('active');
+            this.kervansarayActivePlayer = p.id;
+        } else if (p && p.isAI) {
+            // AI ise tüm bekleyenleri rastgele seçsin
+            while (p.bonusState.pendingKervansarayRes > 0) {
+                const basicRes = ['besin', 'odun', 'tas', 'kil', 'maden'];
+                const randomRes = basicRes[Math.floor(Math.random() * basicRes.length)];
+                p.gain(randomRes, 1);
+                p.bonusState.pendingKervansarayRes--;
+                this.state.addLog(`🐪 AI ${p.name}, Kervansaray bonusu olarak 1 ${RESOURCE_INFO[randomRes].name} aldı.`, 'success');
+            }
+            this.update(); // Değişiklikleri yansıt
+        } else {
+            modal.classList.remove('active');
+            this.kervansarayActivePlayer = null;
+        }
+    }
+
+    selectKervansarayRes(res) {
+        if (this.kervansarayActivePlayer !== null) {
+            const p = this.state.players.find(pl => pl.id === this.kervansarayActivePlayer);
+            if (p && p.bonusState.pendingKervansarayRes > 0) {
+                p.gain(res, 1);
+                p.bonusState.pendingKervansarayRes--;
+                this.state.addLog(`🐪 ${p.name}, Kervansaray bonusu olarak 1 ${RESOURCE_INFO[res].name} aldı.`, 'success');
+                this.update();
+            }
         }
     }
 
@@ -1546,10 +1587,11 @@ class UI {
         const amount = parseInt(this.els.tradeAmount?.value);
         if (!sellType || !buyType || isNaN(amount) || amount <= 0) return;
 
-        const ok = this.actions.tradeWithBank(p.id, sellType, buyType, (sellType === 'gold' ? buyType2 : null));
+        const ok = this.actions.tradeWithBank(p.id, sellType, buyType, (sellType === 'gold' ? buyType2 : null), amount);
+
         if (ok) {
             this.els.tradeModal.classList.remove('active');
-            this.showNotice("Takas başarılı!", "success");
+            this.showNotice(`${amount} adet takas başarılı!`, "success");
             this.update();
         } else {
             this.showNotice("Takas gerçekleştirilemedi! (Yetersiz kaynak)", "danger");

@@ -45,6 +45,9 @@ class Player {
             tiyatroLv3SiegeReduction: false,
             theatreCostReduction: 0,
             muhendishaneSiegeBonus: false,
+            kislaLv3BUsedThisTurn: false,
+            kervansarayLv3Choice: null,
+            pendingKervansarayRes: 0,
         };
 
         // İstatistikler / Başarımlar
@@ -277,8 +280,10 @@ class GameState {
                 else player.bonusState.roadDiscountRes = 'tas';
                 player.bonusState.roadCostReduction = 1;
             } else if (level === 2) {
-                if (choice === 'A') player.bonusState.bankRate = Math.max(2, player.bonusState.bankRate - 2);
-                else player.bonusState.roadCostReduction = 1;
+                if (choice === 'A') player.bonusState.bankSellRate = 3;
+                else player.bonusState.roadTax = true;
+            } else if (level === 3) {
+                player.bonusState.kervansarayLv3Choice = choice;
             }
         } else if (type === 'kisla') {
             if (level === 1) {
@@ -436,6 +441,12 @@ class GameState {
                     y: firstSettlement ? firstSettlement.center.y : 0
                 });
                 this.addLog(`🌾 ${p.name}, Çiftlik bonusundan ${p.bonusState.ciftlikResPerTurn} besin kazandı.`, 'success');
+            }
+
+            // Kervansaray Sv 3-A: Her tur kasadan kaynak alma (Seçmeli)
+            if (p.bonusState.kervansarayLv3Choice === 'A') {
+                p.bonusState.pendingKervansarayRes = (p.bonusState.pendingKervansarayRes || 0) + 1;
+                this.addLog(`🐪 ${p.name}, Kervansaray (Sv3-A) bonusundan 1 kaynak seçme hakkı kazandı.`, 'info');
             }
         });
 

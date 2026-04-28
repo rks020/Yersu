@@ -328,6 +328,23 @@
     </div>
 </div>
 
+<!-- KERVANSARAY KAYNAK SEÇİM MODALI -->
+<div id="kervansarayModal" class="modal-overlay" style="z-index: 10000;">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <h2 style="margin-bottom: 5px;">🐪 Kervansaray Bonusu</h2>
+        <h3 style="color: var(--gold); margin-bottom: 15px;">Sıra: <span id="kervansarayPlayerName">Oyuncu</span></h3>
+        <p style="font-size: 0.9rem; margin-bottom: 20px;">Kervansaray bonusunuzdan <span id="kervansarayResCount" style="font-weight: bold; color: white;">1</span> adet temel kaynak seçme hakkınız var. Lütfen seçin:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+            <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('besin')">🌾 Besin</button>
+            <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('odun')">🪵 Odun</button>
+            <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('tas')">🪨 Taş</button>
+            <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('kil')">🧱 Kil</button>
+            <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('maden')">⚙️ Maden</button>
+        </div>
+    </div>
+</div>
+
 <!-- SAVAŞ RAPORU -->
 <div id="combatModal" class="modal-overlay">
     <div class="modal-content" style="max-width:500px;text-align:center;">
