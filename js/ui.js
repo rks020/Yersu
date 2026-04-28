@@ -1017,32 +1017,78 @@ class UI {
         const { d1, d2, total } = roll;
         const { diceAnimContainer, die1, die2, diceTotalResult } = this.els;
 
-        // Başlat
+        // Reset
         diceAnimContainer.classList.add('active');
         diceTotalResult.classList.remove('show');
         die1.textContent = '?';
         die2.textContent = '?';
-        die1.classList.add('shaking');
-        die2.classList.add('shaking');
+        die1.classList.remove('rolling', 'settle');
+        die2.classList.remove('rolling', 'settle');
 
-        // 1 saniye salla sonra göster
+        // Force reflow
+        void die1.offsetWidth;
+
+        // Roll phase
+        die1.classList.add('rolling');
+        die2.classList.add('rolling');
+
+        // Settle phase
         setTimeout(() => {
-            die1.classList.remove('shaking');
-            die2.classList.remove('shaking');
+            die1.classList.remove('rolling');
+            die2.classList.remove('rolling');
+            die1.classList.add('settle');
+            die2.classList.add('settle');
+            
             die1.textContent = d1;
             die2.textContent = d2;
+
+            // Efektler
+            this._createParticles(die1);
+            this._createParticles(die2);
             
-            // Kısa bir beklemeden sonra toplamı göster
             setTimeout(() => {
                 diceTotalResult.textContent = `Toplam: ${total}`;
                 diceTotalResult.classList.add('show');
                 
-                // 1.5 saniye sonra kapat
                 setTimeout(() => {
                     diceAnimContainer.classList.remove('active');
-                }, 1500);
-            }, 400);
-        }, 1000);
+                }, 2000);
+            }, 600);
+        }, 900);
+    }
+
+    _createParticles(el) {
+        const rect = el.getBoundingClientRect();
+        const container = this.els.diceAnimContainer;
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        // Konteyner relative olduğu için canvasWrapper koordinatlarına göre hesaplamalıyız
+        // Ancak fixed particle daha kolay olabilir. Ama CSS'de position: absolute;
+        // Konteyner içinde oluşturmak en iyisi.
+        
+        const contRect = container.getBoundingClientRect();
+        const relX = centerX - contRect.left;
+        const relY = centerY - contRect.top;
+
+        for (let i = 0; i < 12; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.backgroundColor = i % 2 === 0 ? 'var(--gold)' : '#fff';
+            p.style.left = relX + 'px';
+            p.style.top = relY + 'px';
+            
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 50 + Math.random() * 80;
+            const px = Math.cos(angle) * dist;
+            const py = Math.sin(angle) * dist;
+            
+            p.style.setProperty('--px', `${px}px`);
+            p.style.setProperty('--py', `${py}px`);
+            
+            container.appendChild(p);
+            setTimeout(() => p.remove(), 700);
+        }
     }
 
     showChoiceModal(type, level) {
