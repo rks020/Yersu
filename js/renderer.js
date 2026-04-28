@@ -12,7 +12,19 @@ class Renderer {
         this.offsetX = 0;
         this.offsetY = 0;
         this.scale = 1;
+        this.unitImages = {};
+        this._loadUnitImages();
         this._initCamera();
+    }
+
+    _loadUnitImages() {
+        Object.entries(UNIT_DATA).forEach(([id, data]) => {
+            if (data.img) {
+                const img = new Image();
+                img.src = data.img;
+                this.unitImages[id] = img;
+            }
+        });
     }
 
     _initCamera() {
@@ -259,54 +271,73 @@ class Renderer {
 
     _drawArmies() {
         const ctx = this.ctx;
-        const s   = this.state.grid.hexSize;
-
         this.state.grid.nodes.forEach(node => {
             if (!node.army || node.army.units.length === 0) return;
             const player = this.state.players.find(p => p.id === node.army.playerId);
             if (!player) return;
 
             const isSelected = this.state.selectedUnitNode === node.id;
-            const r = 12; // Düğme üzerinde daha küçük bir daire
+            
+            // Orduyu çiz (Tersten çizerek üst üste binme sırasını ayarla)
+            const units = node.army.units;
+            units.forEach((unit, idx) => {
+                const offset = idx * 3; // Hafif kaydırma
+                this._drawUnitIcon(node.x + offset, node.y - offset, unit, player, isSelected);
+            });
 
-            // Gölge / Highlight
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, r + 2, 0, Math.PI * 2);
-            ctx.fillStyle = isSelected ? '#ffd700' : 'rgba(0,0,0,0.5)';
-            ctx.fill();
-
-            // Ana daire
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
-            ctx.fillStyle   = player.color;
-            ctx.fill();
-            ctx.strokeStyle = isSelected ? '#fff' : 'rgba(255,255,255,0.5)';
-            ctx.lineWidth   = 1.5;
-            ctx.stroke();
-
-            // Birim sayısı
-            const count = node.army.units.length;
-            ctx.fillStyle    = '#fff';
-            ctx.font         = `bold 11px Georgia, serif`;
-            ctx.textAlign    = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(count > 9 ? '9+' : count, node.x, node.y);
-
-            // Hareket puanı göstergesi
-            const unit = node.army.units[0];
-            if (unit && unit.movesLeft !== undefined && player.id === this.state.currentPlayer.id) {
-                ctx.font = 'bold 9px sans-serif';
-                ctx.fillStyle = '#ffeb3b'; // Sarımsı bir renk
-                ctx.fillText(`MP:${unit.movesLeft}`, node.x, node.y + r + 8);
+            // Hareket puanı (İlk birim üzerinden göster)
+            const firstUnit = units[0];
+            if (firstUnit && firstUnit.movesLeft !== undefined && player.id === this.state.currentPlayer.id) {
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillStyle = '#ffeb3b';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = 'black';
+                ctx.shadowBlur = 4;
+                ctx.fillText(`MP:${firstUnit.movesLeft}`, node.x, node.y + 25);
+                ctx.shadowBlur = 0;
             }
 
             // Kuşatma göstergesi
-            const hasSiege = node.army.units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma');
+            const hasSiege = units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma');
             if (hasSiege) {
-                ctx.font = `12px serif`;
-                ctx.fillText('💥', node.x + r * 0.7, node.y - r * 0.7);
+                ctx.font = `14px serif`;
+                ctx.fillText('💥', node.x + 18, node.y - 18);
             }
         });
+    }
+
+    _drawUnitIcon(x, y, unit, player, isSelected) {
+        const ctx = this.ctx;
+        const r = 16; // İkon yarıçapı
+        const data = UNIT_DATA[unit.type];
+        const img = this.unitImages[unit.type];
+
+        // 1. Gölge/Highlight halkası
+        ctx.beginPath();
+        ctx.arc(x, y, r + 3, 0, Math.PI * 2);
+        ctx.fillStyle = isSelected ? '#ffd700' : 'rgba(0,0,0,0.5)';
+        ctx.fill();
+
+        // 2. Oyuncu rengi halkası
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = player.color;
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // 3. İkon Görseli
+        if (img && img.complete) {
+            const size = r * 1.6;
+            ctx.drawImage(img, x - size/2, y - size/2, size, size);
+        } else {
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(data.emoji || '👤', x, y);
+        }
     }
 
     // ── Yerleşim çizimi ───────────────────────────────────────────
