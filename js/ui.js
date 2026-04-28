@@ -348,16 +348,25 @@ class UI {
                 this.state.selected = { type: 'node', id: clickedNode.id };
 
                 // OTOMATİK HAREKET MODU: Hareket aşamasındaysak ve kendi birimimizse doğrudan hareket moduna geç
+                // OTOMATİK HAREKET MODU: Hareket aşamasındaysak ve kendi birimimizse
                 if (this.state.subPhase === 'move' && clickedNode.army.playerId === current.id) {
-                    const unit = clickedNode.army.units[0];
-                    if (unit.movesLeft > 0) {
-                        this.state.selectedUnit = unit;
-                        this.state.selectedUnitNode = clickedNode.id;
-                        this.state.actionMode = 'moveOrAttack';
-                        this._updateMovementHighlights(clickedNode.id, unit);
-                        this.showNotice("Birim seçildi. Hedef noktaya tıklayarak hareket edin veya saldırın.", "info");
+                    const selectUnit = (unit) => {
+                        if (unit.movesLeft > 0) {
+                            this.state.selectedUnit = unit;
+                            this.state.selectedUnitNode = clickedNode.id;
+                            this.state.actionMode = 'moveOrAttack';
+                            this._updateMovementHighlights(clickedNode.id, unit);
+                            this.showNotice(`${UNIT_DATA[unit.type].name} seçildi. Hedef noktaya tıklayarak hareket edin.`, "info");
+                        } else {
+                            this.showNotice("Bu birimin hareket puanı bitti!", "warning");
+                        }
+                        this.update();
+                    };
+
+                    if (clickedNode.army.units.length > 1) {
+                        this.showUnitSelectionModal(clickedNode, selectUnit);
                     } else {
-                        this.showNotice("Bu birimin hareket puanı bitti!", "warning");
+                        selectUnit(clickedNode.army.units[0]);
                     }
                 }
             } else if (clickedHex) {
@@ -1092,6 +1101,26 @@ class UI {
             container.appendChild(p);
             setTimeout(() => p.remove(), 700);
         }
+    }
+
+    showUnitSelectionModal(node, onSelect) {
+        const units = node.army.units;
+        const items = units.map(u => {
+            const data = UNIT_DATA[u.type];
+            return {
+                id: u.uid,
+                name: data.name,
+                icon: data.img ? `<img src="${data.img}" style="width:40px;height:40px;object-fit:contain;">` : (data.emoji || '👤'),
+                desc: `MP: ${u.movesLeft} | Güç: ${data.duel}⚔️`,
+                enabled: u.movesLeft > 0,
+                error: u.movesLeft <= 0 ? "Hareket puanı bitti!" : ""
+            };
+        });
+
+        this.showChoiceModalWithDesc("Birimi Seçin", items, (uid) => {
+            const selectedUnit = units.find(u => u.uid === uid);
+            onSelect(selectedUnit);
+        });
     }
 
     showChoiceModal(type, level) {
