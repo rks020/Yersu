@@ -788,7 +788,7 @@ class UI {
             html += `
             <tr>
                 <td><div class="mil-unit-cell">
-                    <span class="mil-unit-emoji">${data.emoji}</span>
+                    <span class="mil-unit-emoji">${data.img ? `<img src="${data.img}" style="width:24px;height:24px;vertical-align:middle;object-fit:contain;">` : (data.emoji || '👤')}</span>
                     <span class="mil-unit-name">${data.name}</span>
                 </div></td>
                 <td class="mil-count">${units.length}</td>
@@ -881,7 +881,10 @@ class UI {
                     <div class="hex-settlement-card">
                         <div style="font-size:0.75rem; color:#ddd; font-weight:600; margin-bottom:4px;">${owner.name} Birliği</div>
                         <div style="display:flex; flex-wrap:wrap; gap:3px;">
-                            ${h.army.units.map(u => `<span title="${u.type}">${UNIT_DATA[u.type].emoji}</span>`).join('')}
+                            ${h.army.units.map(u => {
+                                const ud = UNIT_DATA[u.type];
+                                return ud.img ? `<img src="${ud.img}" style="width:18px;height:18px;object-fit:contain;" title="${ud.name}">` : `<span title="${ud.name}">${ud.emoji || '👤'}</span>`;
+                            }).join('')}
                         </div>
                     </div>
                 `;
@@ -917,7 +920,7 @@ class UI {
                 return `
                             <div class="hex-settlement-card" style="margin-bottom:8px; border-left: 3px solid ${owner.color};">
                                 <div style="display:flex; align-items:center; gap:10px;">
-                                    <span style="font-size:1.8rem;">${data.emoji}</span>
+                                    <span style="font-size:1.8rem;">${data.img ? `<img src="${data.img}" style="width:32px;height:32px;object-fit:contain;">` : (data.emoji || '👤')}</span>
                                     <div style="flex:1;">
                                         <div style="font-weight:700; color:#eee;">${data.name}</div>
                                         <div style="display:flex; gap:8px; font-size:0.65rem; color:#aaa; margin-top:2px;">
@@ -1208,7 +1211,7 @@ class UI {
             return {
                 id,
                 name: data.name,
-                icon: data.emoji,
+                icon: data.img ? `<img src="${data.img}" style="width:50px;height:50px;object-fit:contain;">` : (data.emoji || '👤'),
                 desc: `${data.duel}⚔️ | ${data.speed}🏃 | ${data.range}🎯`,
                 costStr: `💰 ${data.gold} Altın`,
                 enabled: canBuild,
@@ -1233,10 +1236,24 @@ class UI {
         if (!modal) return;
         document.getElementById('combatAttackerName').textContent = data.attacker.player.name;
         document.getElementById('combatAttackerName').style.color = data.attacker.player.color;
-        document.getElementById('combatAttackerEmoji').textContent = UNIT_DATA[data.attacker.unit.type]?.emoji || '⚔️';
+        
+        const attackerUnitData = UNIT_DATA[data.attacker.unit.type];
+        const defenderUnitData = UNIT_DATA[data.defender.unit.type];
+
+        if (attackerUnitData?.img) {
+            document.getElementById('combatAttackerEmoji').innerHTML = `<img src="${attackerUnitData.img}" style="width:60px;height:60px;object-fit:contain;">`;
+        } else {
+            document.getElementById('combatAttackerEmoji').textContent = attackerUnitData?.emoji || '⚔️';
+        }
+
         document.getElementById('combatDefenderName').textContent = data.defender.player.name;
         document.getElementById('combatDefenderName').style.color = data.defender.player.color;
-        document.getElementById('combatDefenderEmoji').textContent = UNIT_DATA[data.defender.unit.type]?.emoji || '🛡️';
+
+        if (defenderUnitData?.img) {
+            document.getElementById('combatDefenderEmoji').innerHTML = `<img src="${defenderUnitData.img}" style="width:60px;height:60px;object-fit:contain;">`;
+        } else {
+            document.getElementById('combatDefenderEmoji').textContent = defenderUnitData?.emoji || '🛡️';
+        }
 
         const resultEl = document.getElementById('combatResultText');
         const atkStrEl = document.getElementById('combatAttackerStr');
@@ -1417,13 +1434,16 @@ class UI {
                 <h2 style="text-align:center; margin-bottom:10px;">${res.type === 'range' ? '🏹 MENZİLLİ SALDIRI' : '⚔️ MEYDAN SAVAŞI'}</h2>
                 <div class="combat-vs">
                     <div class="combat-unit-card" style="border-color:${aP.color}">
-                        <h3>${aP.name}</h3>
-                        <div style="font-size:3rem; margin:10px 0;">${UNIT_DATA[aUnit.type].emoji}</div>
-                        <div style="font-weight:bold;">${UNIT_DATA[aUnit.type].name}</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:bold; color:#FFCDD2;">${aP.name}</div>
+                            <div style="margin:10px 0;">
+                                ${UNIT_DATA[aUnit.type].img ? `<img src="${UNIT_DATA[aUnit.type].img}" style="width:60px;height:60px;object-fit:contain;">` : `<span style="font-size:3rem;">${UNIT_DATA[aUnit.type].emoji}</span>`}
+                            </div>
+                            <div style="font-size:1.2rem; font-weight:bold;">Güç: ${res.attacker.str}</div>
+                        </div>
                         <div class="combat-dice-box">
                              ${res.attacker.rolls ? res.attacker.rolls.map(v => `<div class="combat-die">${v}</div>`).join('') : ''}
                         </div>
-                        <div style="margin-top:15px; font-size:1.2rem; font-weight:bold; color:var(--gold)">Toplam: ${res.attacker.str}</div>
                     </div>
                     
                     <div style="font-size:2.5rem; font-family:var(--font-heading); color:var(--text-muted)">VS</div>
