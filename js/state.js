@@ -397,26 +397,39 @@ class GameState {
 
         this.grid.hexes.forEach(hex => {
             if (hex.number !== total) return;
-            if (!hex.resources || hex.resources.length === 0) return;
 
             if (hex.settlement) {
                 const owner = this.players.find(p => p.id === hex.settlement.playerId);
                 if (owner) {
-                    for (const res of hex.resources) {
-                        let amount = 1; 
-                        if (hex.settlement.type === 'sehir') amount = 2;
-                        else if (hex.settlement.type === 'metropol') amount = 3;
-
-                        if (res === 'besin' && hex.settlement.buildings.has('ciftlik')) amount += 1;
-                        owner.gain(res, amount);
+                    // Seviye 1 Çiftlik Bonusu: +1 Besin (Biyomda besin olmasına gerek yoktur)
+                    if (hex.settlement.buildings.has('ciftlik')) {
+                        owner.gain('besin', 1);
                         gained.push({ 
                             playerId: owner.id, 
-                            res, 
-                            amount, 
+                            res: 'besin', 
+                            amount: 1, 
                             x: hex.center.x, 
                             y: hex.center.y 
                         });
-                        this.addLog(`🌾 ${owner.name}, ${hex.number} zarından ${amount} ${RESOURCE_INFO[res].name} kazandı.`, 'success');
+                        this.addLog(`🚜 ${owner.name}, Çiftlik bonusundan +1 Besin kazandı.`, 'success');
+                    }
+
+                    if (hex.resources && hex.resources.length > 0) {
+                        for (const res of hex.resources) {
+                            let amount = 1; 
+                            if (hex.settlement.type === 'sehir') amount = 2;
+                            else if (hex.settlement.type === 'metropol') amount = 3;
+
+                            owner.gain(res, amount);
+                            gained.push({ 
+                                playerId: owner.id, 
+                                res, 
+                                amount, 
+                                x: hex.center.x, 
+                                y: hex.center.y 
+                            });
+                            this.addLog(`🌾 ${owner.name}, ${hex.number} zarından ${amount} ${RESOURCE_INFO[res].name} kazandı.`, 'success');
+                        }
                     }
                 }
             }
