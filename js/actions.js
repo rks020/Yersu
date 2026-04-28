@@ -334,38 +334,48 @@ class Actions {
         return combat;
     }
 
-    tradeWithBank(playerId, sellRes, buyRes, buyRes2 = null) {
+    tradeWithBank(playerId, sellRes, buyRes, buyRes2 = null, tradeCount = 1) {
         const p = this.state.players.find(pl => pl.id === playerId);
         if (!p) return false;
 
         if (sellRes === 'gold') {
-            // ALTIN SATIŞI: 1 Altın -> 2 (veya Kervansaray bonusuyla 3) Temel Kaynak
-            if (p.resources.gold < 1) return false;
+            if (p.resources.gold < tradeCount) return false;
 
             const buyAmount = p.bonusState.bankSellRate || 2;
+            const totalBuy = buyAmount * tradeCount;
 
-            p.resources.gold -= 1;
+            p.resources.gold -= tradeCount;
 
-            // Eğer buyRes2 varsa, ikisinden de al. Yoksa sadece ilkini buyAmount kadar al.
             if (buyRes2 && buyRes2 !== buyRes) {
-                p.gain(buyRes, Math.ceil(buyAmount / 2));
-                p.gain(buyRes2, Math.floor(buyAmount / 2));
+                p.gain(buyRes, Math.ceil(totalBuy / 2));
+                p.gain(buyRes2, Math.floor(totalBuy / 2));
             } else {
-                p.gain(buyRes, buyAmount);
+                p.gain(buyRes, totalBuy);
             }
 
-            this.state.addLog(`${p.name} 1 Altın bozdurarak ${buyAmount} kaynak aldı.`, 'info');
+            this.state.addLog(`${p.name} ${tradeCount} Altın bozdurarak ${totalBuy} kaynak aldı.`, 'info');
+            this._triggerKervansarayTradeBonus([playerId]);
             return true;
         } else {
-            // TEMEL KAYNAK SATIŞI: X:1 (Default 6:1)
             const rate = (p.bonusState && p.bonusState.bankRate) ? p.bonusState.bankRate : 6;
-            if (p.resources[sellRes] < rate) return false;
+            const totalSell = rate * tradeCount;
+            if ((p.resources[sellRes] || 0) < totalSell) return false;
 
-            p.resources[sellRes] -= rate;
-            p.gain(buyRes, 1);
-            this.state.addLog(`${p.name} banka ticareti: ${rate} ${sellRes} → 1 ${buyRes}`, 'info');
+            p.resources[sellRes] -= totalSell;
+            p.gain(buyRes, tradeCount);
+            this.state.addLog(`${p.name} banka ticareti: ${totalSell} ${sellRes} → ${tradeCount} ${buyRes}`, 'info');
+            this._triggerKervansarayTradeBonus([playerId]);
             return true;
         }
+    }
+
+    _triggerKervansarayTradeBonus(actingPlayerIds) {
+        this.state.players.forEach(p => {
+            if (!actingPlayerIds.includes(p.id) && p.bonusState && p.bonusState.kervansarayLv3Choice === 'B') {
+                p.bonusState.pendingKervansarayRes = (p.bonusState.pendingKervansarayRes || 0) + 1;
+                this.state.addLog(`🐪 ${p.name}, ticaret vergisinden Kervansaray (Sv3-B) ile 1 kaynak seçme hakkı kazandı.`, 'info');
+            }
+        });
     }
 
     tradeWithPlayer(fromId, toId, offer, request) {
@@ -393,6 +403,7 @@ class Actions {
         const offerStr = Object.entries(offer).filter(([, v]) => v > 0).map(([r, v]) => `${v} ${r}`).join(', ');
         const requestStr = Object.entries(request).filter(([, v]) => v > 0).map(([r, v]) => `${v} ${r}`).join(', ');
         this.state.addLog(`🤝 ${from.name} → ${to.name}: [${offerStr}] karşılığında [${requestStr}]`, 'success');
+        this._triggerKervansarayTradeBonus([fromId, toId]);
         return true;
     }
 
