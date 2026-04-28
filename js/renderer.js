@@ -327,10 +327,16 @@ class Renderer {
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // 3. İkon Görseli
+        // 3. İkon Görseli (Daire içine kırpılmış)
         if (img && img.complete) {
-            const size = r * 1.6;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, r - 1, 0, Math.PI * 2);
+            ctx.clip(); // Görseli daireye hapset
+            
+            const size = r * 2;
             ctx.drawImage(img, x - size/2, y - size/2, size, size);
+            ctx.restore();
         } else {
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 16px serif';
