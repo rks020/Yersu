@@ -741,7 +741,7 @@ class GameState {
         if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) aStr += 1;
         if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) dStr += 1;
 
-        this.addLog(`⚔️ ${attackerUnit.type} [${aRes.rolls}] (${aStr}) vs ${defenderUnit.type} [${dRes.rolls}] (${dStr})`, 'info');
+        this.addLog(`⚔️ SAVAŞ: ${aData.name} (Güç: ${aStr}) vs ${dData.name} (Güç: ${dStr}) [Zarlar: ${aRes.rolls} vs ${dRes.rolls}]`, 'info');
 
         let winner = 'none';
         let casualty = 'none';
@@ -823,7 +823,7 @@ class GameState {
         if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) aStr += 1;
         if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) dStr += 1;
 
-        this.addLog(`🏹 Menzilli: ${attackerUnit.type} (${aStr}) vs ${defenderUnit.type} (${dStr})`, 'info');
+        this.addLog(`🏹 MENZİLLİ: ${aData.name} (Güç: ${aStr}) vs ${dData.name} (Güç: ${dStr}) [Zarlar: ${aRes.rolls} vs ${dRes.rolls}]`, 'info');
 
         let winner = 'none';
         let casualty = 'none';
