@@ -47,7 +47,7 @@ body {
 
 .game-bottom {
     display: grid;
-    grid-template-columns: 1fr 350px;
+    grid-template-columns: 380px 1fr;
     border-top: 1px solid var(--panel-border);
     background: var(--panel-bg);
     overflow: hidden;
