@@ -45,6 +45,7 @@ class Player {
             tiyatroLv3SiegeReduction: false,
             theatreCostReduction: 0,
             muhendishaneSiegeBonus: false,
+            kislaLv3BUsedThisTurn: false,
         };
 
         // İstatistikler / Başarımlar
@@ -600,6 +601,12 @@ class GameState {
         }
     }
 
+    resetTurnActions() {
+        this.players.forEach(p => {
+            p.bonusState.kislaLv3BUsedThisTurn = false;
+        });
+    }
+
     clearSelection() {
         this.selected         = null;
         this.highlightedHexes = new Set();
@@ -749,6 +756,43 @@ class GameState {
             this.addLog(`💀 ${attackerPlayer.name} saldırıda birimini kaybetti.`, 'danger');
         } else {
             this.addLog(`⚔️ Zarlar eşit! İki taraf da sağ kaldı.`, 'warning');
+        }
+
+        // --- KIŞLA SV 3 B: RE-ROLL (LAST STAND) ---
+        if (casualty === 'attacker') {
+            const kislaCount = attackerPlayer.buildings?.['kisla'] || 0;
+            if (kislaCount >= 4 && attackerPlayer.bonusState.kislaLv3Choice === 'B' && !attackerPlayer.bonusState.kislaLv3BUsedThisTurn) {
+                attackerPlayer.bonusState.kislaLv3BUsedThisTurn = true;
+                this.addLog(`🛡️ ${attackerPlayer.name}, Kışla (Sv3-B) ile son bir gayretle tekrar saldırıyor!`, 'warning');
+                const reRes = this.calculateDuelStrength(attackerUnit, attackerPlayer, this.grid.nodes.get(attackerUnit.nodeId));
+                let newAStr = reRes.total;
+                if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) newAStr += 1;
+                this.addLog(`🎲 Yeniden Atış: [${reRes.rolls}] (Güç: ${newAStr}) vs Eski Savunma (${dStr})`, 'info');
+                if (newAStr > dStr) {
+                    winner = 'attacker';
+                    casualty = 'defender';
+                    this.addLog(`✨ MUCİZE! ${attackerPlayer.name} birimi dirildi ve rakibi bozguna uğrattı!`, 'success');
+                } else {
+                    this.addLog(`💀 İkinci deneme de başarısız oldu.`, 'danger');
+                }
+            }
+        } else if (casualty === 'defender') {
+            const kislaCount = defenderPlayer.buildings?.['kisla'] || 0;
+            if (kislaCount >= 4 && defenderPlayer.bonusState.kislaLv3Choice === 'B' && !defenderPlayer.bonusState.kislaLv3BUsedThisTurn) {
+                defenderPlayer.bonusState.kislaLv3BUsedThisTurn = true;
+                this.addLog(`🛡️ ${defenderPlayer.name}, Kışla (Sv3-B) ile son bir gayretle tekrar savunuyor!`, 'warning');
+                const reRes = this.calculateDuelStrength(defenderUnit, defenderPlayer, targetNode);
+                let newDStr = reRes.total;
+                if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) newDStr += 1;
+                this.addLog(`🎲 Yeniden Atış: [${reRes.rolls}] (Güç: ${newDStr}) vs Eski Saldırı (${aStr})`, 'info');
+                if (newDStr > aStr) {
+                    winner = 'defender';
+                    casualty = 'attacker';
+                    this.addLog(`✨ MUCİZE! ${defenderPlayer.name} birimi dirildi ve saldırganı yok etti!`, 'success');
+                } else {
+                    this.addLog(`💀 İkinci deneme de başarısız oldu.`, 'danger');
+                }
+            }
         }
 
         return { 
