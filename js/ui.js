@@ -365,6 +365,7 @@ class UI {
 
                     if (clickedNode.army.units.length > 1) {
                         this.showUnitSelectionModal(clickedNode, selectUnit);
+                        return; // Modal açıldıysa burayı bitir, callback devam ettirecek
                     } else {
                         selectUnit(clickedNode.army.units[0]);
                     }
@@ -1163,12 +1164,16 @@ class UI {
                 <div class="cost">${item.costStr}</div>
             `;
             if (item.enabled) {
-                div.onclick = () => {
+                div.onclick = (e) => {
+                    e.stopPropagation(); // Window'daki handleClick'i tetiklemesin
                     this.els.choiceModal.classList.remove('active');
                     onSelect(item.id);
                 };
             } else {
-                div.onclick = () => this.showNotice(item.error || "Yeterli kaynak yok!", "danger");
+                div.onclick = (e) => {
+                    e.stopPropagation();
+                    this.showNotice(item.error || "Yeterli kaynak yok!", "danger");
+                };
             }
             this.els.choiceGrid.appendChild(div);
         });
