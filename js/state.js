@@ -284,8 +284,11 @@ class GameState {
             if (level === 1) {
                 player.bonusState.kislaLv1Choice = choice; // A, B, veya C
             } else if (level === 2) {
+                player.bonusState.kislaLv2Choice = choice;
                 if (choice === 'A') player.bonusState.suvariSpeedBonus = 1;
-                else player.bonusState.sovGoldReduction = 1;
+                else player.bonusState.knightDuelBonus = 1;
+            } else if (level === 3) {
+                player.bonusState.kislaLv3Choice = choice;
             }
         } else if (type === 'muhendishane') {
             if (level === 2) {
