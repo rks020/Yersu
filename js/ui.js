@@ -757,7 +757,7 @@ class UI {
         if (popEl) popEl.textContent = `${p.getPopulationUsed()}/${p.maxPopulation}`;
 
         if (!p.units || p.units.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#666;font-size:0.78rem;">Henüz birim yok</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#666;font-size:0.78rem;">Henüz birim yok</td></tr>';
             return;
         }
 
@@ -814,6 +814,15 @@ class UI {
             if (data.range > 0) totalParts.push(`Menzil ${data.range + (muhLv >= 2 ? 1 : 0)}`);
             if (data.siege > 0) totalParts.push(`Kuşatma +${data.siege}`);
 
+            // Toplam değerler
+            const totalRange = data.range > 0 ? (data.range + (muhLv >= 2 ? 1 : 0)) : 0;
+            
+            let speedBonus = 0;
+            if (kislaLv >= 2 && p.chosenBonuses?.kisla?.[2] === 'A') {
+                if (type === 'hafif_suvari' || type === 'atli_okcu') speedBonus = 1;
+            }
+            const totalSpeed = data.speed + speedBonus;
+
             html += `
             <tr>
                 <td><div class="mil-unit-cell">
@@ -821,6 +830,8 @@ class UI {
                     <span class="mil-unit-name">${data.name}</span>
                 </div></td>
                 <td class="mil-count">${units.length}</td>
+                <td class="mil-range">${totalRange || '-'}</td>
+                <td class="mil-speed">${totalSpeed}</td>
                 <td class="mil-bonus-base">${baseParts.join(', ') || '-'}</td>
                 <td class="mil-bonus-bld">${bldParts.join('<br>') || '-'}</td>
                 <td class="mil-bonus-total total-col">${totalParts.join(', ') || '-'}</td>
