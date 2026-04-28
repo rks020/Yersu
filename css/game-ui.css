@@ -627,6 +627,7 @@ body {
 
 .military-table {
     width: 100%;
+    min-width: 650px;
     border-collapse: collapse;
     font-size: 0.72rem;
 }
