@@ -1503,10 +1503,18 @@ class UI {
         const amount = parseInt(this.els.tradeAmount?.value);
         if (!sellType || !buyType || isNaN(amount) || amount <= 0) return;
 
-        const ok = this.actions.tradeWithBank(p.id, sellType, buyType, (sellType === 'gold' ? buyType2 : null));
-        if (ok) {
+        let successCount = 0;
+        for (let i = 0; i < amount; i++) {
+            if (this.actions.tradeWithBank(p.id, sellType, buyType, (sellType === 'gold' ? buyType2 : null))) {
+                successCount++;
+            } else {
+                break;
+            }
+        }
+
+        if (successCount > 0) {
             this.els.tradeModal.classList.remove('active');
-            this.showNotice("Takas başarılı!", "success");
+            this.showNotice(`${successCount} adet takas başarılı!`, "success");
             this.update();
         } else {
             this.showNotice("Takas gerçekleştirilemedi! (Yetersiz kaynak)", "danger");

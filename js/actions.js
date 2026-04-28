@@ -354,7 +354,7 @@ class Actions {
                 p.gain(buyRes, buyAmount);
             }
 
-            this.state.addLog(`${p.name} 1 Altın bozdurarak kaynak aldı.`, 'info');
+            this.state.addLog(`${p.name} 1 Altın bozdurarak ${buyAmount} kaynak aldı.`, 'info');
             return true;
         } else {
             // TEMEL KAYNAK SATIŞI: X:1 (Default 6:1)
