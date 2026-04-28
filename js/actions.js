@@ -213,7 +213,7 @@ class Actions {
 
         // İki node arasındaki kenarı bul
         const edge = Array.from(this.state.grid.edges.values()).find(e =>
-            (e.n1 === startNodeId && e.n2 === targetNodeId) || (e.n1 === targetNodeId && e.n2 === startNodeId)
+            (e.node1 === startNodeId && e.node2 === targetNodeId) || (e.node1 === targetNodeId && e.node2 === startNodeId)
         );
 
         if (edge && edge.road !== null) {
