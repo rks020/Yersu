@@ -857,3 +857,61 @@ button:disabled {
 .res-gain-pulse {
     animation: resPulse 0.4s ease-out;
 }
+
+/* ─── BİLDİRİMLER (NOTICES) ─── */
+#floatingNoticeContainer {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    width: 80%;
+}
+
+.floating-notice {
+    background: rgba(15, 15, 25, 0.95);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    animation: noticeFade 4s forwards;
+    text-align: center;
+    backdrop-filter: blur(4px);
+    max-width: 100%;
+}
+
+.notice-danger {
+    background: rgba(192, 57, 43, 0.95);
+    border-color: #ff4d4d;
+    box-shadow: 0 0 20px rgba(192, 57, 43, 0.4);
+}
+
+.notice-success {
+    background: rgba(39, 174, 96, 0.95);
+    border-color: #2ecc71;
+}
+
+.notice-warning {
+    background: rgba(243, 156, 18, 0.95);
+    border-color: #f1c40f;
+}
+
+.notice-info {
+    background: rgba(41, 128, 185, 0.95);
+    border-color: #3498db;
+}
+
+@keyframes noticeFade {
+    0% { opacity: 0; transform: translateY(-20px) scale(0.9); }
+    8% { opacity: 1; transform: translateY(0) scale(1); }
+    92% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-20px) scale(0.9); }
+}
