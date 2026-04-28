@@ -677,33 +677,34 @@ class GameState {
         
         let strength = rollTotal + (data.duel || 0);
 
+        // --- GLOBAL KIŞLA BONUSLARI ---
+        const kislaCount = player.buildings?.['kisla'] || 0;
+        const kislaLv = kislaCount >= 4 ? 3 : kislaCount >= 2 ? 2 : kislaCount >= 1 ? 1 : 0;
+
+        if (kislaLv >= 1) {
+            const c1 = player.bonusState.kislaLv1Choice;
+            if (c1 === 'A' && unit.type === 'mizrakci') strength += 1;
+            else if (c1 === 'B' && unit.type === 'kilicli') strength += 1;
+            else if (c1 === 'C' && unit.type === 'okcu') strength += 1;
+        }
+
+        if (kislaLv >= 2) {
+            const c2 = player.bonusState.kislaLv2Choice;
+            if (c2 === 'B' && unit.type === 'sovalye') strength += 1;
+        }
+
+        if (kislaLv >= 3) {
+            const c3 = player.bonusState.kislaLv3Choice;
+            if (c3 === 'A') strength += 1;
+            else if (c3 === 'B' && ['kocbasi','mancinik','topcu'].includes(unit.type)) strength += 1;
+        }
+
+        // --- YEREL BONUSLAR (Tapınak vb.) ---
         if (node) {
             node.hexes.forEach(hid => {
                 const hex = this.grid.hexes.get(hid);
                 if (hex && hex.settlement && hex.settlement.playerId === player.id) {
-                    const b = hex.settlement.buildings;
-                    if (b.has('kisla')) {
-                        const count = player.buildings?.['kisla'] || 0;
-                        const lv = count >= 4 ? 3 : count >= 2 ? 2 : count >= 1 ? 1 : 0;
-                        
-                        // Sv. 1
-                        const c1 = player.bonusState.kislaLv1Choice;
-                        if (c1 === 'A' && unit.type === 'mizrakci') strength += 1;
-                        else if (c1 === 'B' && unit.type === 'kilicli') strength += 1;
-                        else if (c1 === 'C' && unit.type === 'okcu') strength += 1;
-
-                        // Sv. 2
-                        const c2 = player.bonusState.kislaLv2Choice;
-                        if (lv >= 2 && c2 === 'B' && unit.type === 'sovalye') strength += 1;
-
-                        // Sv. 3
-                        const c3 = player.bonusState.kislaLv3Choice;
-                        if (lv >= 3) {
-                            if (c3 === 'A') strength += 1;
-                            else if (c3 === 'B' && ['kocbasi','mancinik','topcu'].includes(unit.type)) strength += 1;
-                        }
-                    }
-                    if (this.sieges[hex.id] && b.has('tapinak')) {
+                    if (this.sieges[hex.id] && hex.settlement.buildings.has('tapinak')) {
                         strength += 1;
                     }
                 }
