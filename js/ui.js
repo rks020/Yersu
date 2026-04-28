@@ -335,7 +335,7 @@ class UI {
             if (clickedNode.army && clickedNode.army.playerId !== current.id && clickedNode.army.units.length > 1) {
                 this.showUnitSelectionModal(clickedNode, (targetUnit) => {
                     executeAction(targetUnit.uid);
-                }, clientX, clientY, "Saldırılacak Hedefi Seçin");
+                }, clientX, clientY, "Saldırılacak Hedefi Seçin", true);
                 return;
             } else {
                 executeAction();
@@ -1119,7 +1119,7 @@ class UI {
         }
     }
 
-    showUnitSelectionModal(node, onSelect, clientX, clientY, title = "Birimi Seçin") {
+    showUnitSelectionModal(node, onSelect, clientX, clientY, title = "Birimi Seçin", isEnemy = false) {
         const picker = this.els.unitPicker;
         if (!picker) return;
         
@@ -1128,7 +1128,8 @@ class UI {
         node.army.units.forEach(u => {
             const data = UNIT_DATA[u.type];
             const item = document.createElement('div');
-            item.className = `unit-picker-item ${u.movesLeft > 0 ? '' : 'disabled'}`;
+            const canSelect = isEnemy || u.movesLeft > 0;
+            item.className = `unit-picker-item ${canSelect ? '' : 'disabled'}`;
             
             const iconHtml = data.img ? `<img src="${data.img}">` : `<span class="emoji">${data.emoji || '👤'}</span>`;
             
@@ -1136,11 +1137,11 @@ class UI {
                 ${iconHtml}
                 <div class="unit-picker-info">
                     <div class="unit-picker-name">${data.name}</div>
-                    <div class="unit-picker-stats">MP: ${u.movesLeft} | Güç: ${data.duel}⚔️</div>
+                    <div class="unit-picker-stats">${isEnemy ? '' : `MP: ${u.movesLeft} | `}Güç: ${data.duel}⚔️</div>
                 </div>
             `;
             
-            if (u.movesLeft > 0) {
+            if (canSelect) {
                 item.onclick = (e) => {
                     e.stopPropagation();
                     picker.classList.remove('active');

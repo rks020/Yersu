@@ -225,14 +225,15 @@ class Actions {
             }
         }
 
-        if (unitDef.movesLeft < cost - 0.001) return false;
+        const isCombat = targetNode.army && targetNode.army.playerId !== playerId;
+        if (!isCombat && unitDef.movesLeft < cost - 0.001) return false;
 
         // Mevcut node'dan çıkar
         const movingUnit = startNode.army.units.find(u => u.uid === unitUid);
         startNode.army.units = startNode.army.units.filter(u => u.uid !== unitUid);
         if (startNode.army.units.length === 0) startNode.army = null;
 
-        unitDef.movesLeft -= cost;
+        unitDef.movesLeft = Math.max(0, unitDef.movesLeft - cost);
         unitDef.nodeId = targetNodeId;
 
         // Düşman node'u mu?
@@ -286,7 +287,7 @@ class Actions {
     rangeAttack(playerId, unitUid, targetNodeId, targetUnitUid = null) {
         const p = this.state.players.find(pl => pl.id === playerId);
         const unit = p?.units.find(u => u.uid === unitUid);
-        if (!unit || unit.movesLeft <= 0) return false;
+        if (!unit) return false;
 
         const udata = UNIT_DATA[unit.type];
         if (!udata || !udata.range) return false;
@@ -300,7 +301,7 @@ class Actions {
             return false;
         }
 
-        unit.movesLeft -= 1;
+        unit.movesLeft = 0;
 
         const targetUnit = targetUnitUid ? targetNode.army.units.find(u => u.uid === targetUnitUid) : null;
         const combat = this.state.resolveRangeAttack(unit, p, targetNode, targetUnit);
