@@ -127,6 +127,28 @@ class Actions {
         return true;
     }
 
+    canBuildBuilding(playerId, hexId, buildingType) {
+        const p = this.state.players.find(pl => pl.id === playerId);
+        const hex = this.state.grid.hexes.get(hexId);
+        if (!p || !hex || !hex.settlement || hex.settlement.playerId !== playerId) return false;
+        if (hex.settlement.buildings.has(buildingType)) return false;
+
+        const cost = BUILD_COSTS[buildingType];
+        if (!cost) return false;
+
+        let actualCost = { ...cost };
+        if (hex.settlement.buildings.has('tiyatro')) {
+            let maxRes = null;
+            let maxVal = -1;
+            for (const [r, v] of Object.entries(actualCost)) {
+                if (v > maxVal) { maxVal = v; maxRes = r; }
+            }
+            if (maxRes) actualCost[maxRes] = Math.max(0, actualCost[maxRes] - 1);
+        }
+
+        return p.canAfford(actualCost);
+    }
+
     buildBuilding(playerId, hexId, buildingType) {
         const p = this.state.players.find(pl => pl.id === playerId);
         const hex = this.state.grid.hexes.get(hexId);

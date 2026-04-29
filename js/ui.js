@@ -55,6 +55,7 @@ class UI {
             biomeBody: document.getElementById('biome-body'),
 
             unitPicker: document.getElementById('unit-picker'),
+            choiceModalCloseBtn: document.getElementById('btnChoiceModalClose'),
         };
 
         this.activeBonusTab = 'ciftlik';
@@ -248,12 +249,57 @@ class UI {
         // ── YAPI İNŞA ──
         else if ((mode === 'buildBuilding' || mode.startsWith('build_')) && clickedHex) {
             const bType = this.state.selectedBuildingType || mode.split('_')[1];
-            if (this.actions.buildBuilding(current.id, clickedHex.id, bType)) {
+            const p = this.state.currentPlayer;
+
+            // Yapı inşa edilebilir mi kontrol et (Kaynaklar ve yerleşim sahipliği)
+            if (!this.actions.canBuildBuilding(p.id, clickedHex.id, bType)) {
+                this.showNotice("Bu yapıyı buraya inşa edemezsiniz veya kaynak yetersiz!", "danger");
+                this.state.clearSelection();
+                this.update();
+                return;
+            }
+
+            // Bu inşa bir seçim/bonus tetikleyecek mi?
+            const currentCount = p.buildings[bType] || 0;
+            const getLv = (c) => (c >= 4 ? 3 : (c >= 2 ? 2 : (c >= 1 ? 1 : 0)));
+            const oldLv = getLv(currentCount);
+            const newLv = getLv(currentCount + 1);
+
+            if (newLv > oldLv) {
+                const bonusInfo = BUILDING_BONUSES[bType][newLv];
+                if (Array.isArray(bonusInfo) && bonusInfo.length > 1) {
+                    const alreadyChosen = p.chosenBonuses && p.chosenBonuses[bType] && p.chosenBonuses[bType][newLv];
+                    if (!alreadyChosen) {
+                        // Seçim yapılması gerekiyor - İnşa etmeden önce sor
+                        this.showChoiceModal(bType, newLv, (choice) => {
+                            // Bonus seçildi -> İnşayı tamamla
+                            if (this.actions.buildBuilding(p.id, clickedHex.id, bType)) {
+                                this.actions.chooseBonus(p.id, bType, newLv, choice);
+                                // recalcBuildings tarafından eklenen pendingChoice varsa temizle
+                                p.pendingChoices = p.pendingChoices.filter(c => !(c.type === bType && c.level === newLv));
+                                this.showNotice(`${BUILDING_NAMES[bType]} inşa edildi!`, "success");
+                            }
+                            this.state.clearSelection();
+                            this.update();
+                        }, () => {
+                            // Kapat'a basıldı -> İptal et
+                            this.showNotice("Yapı kurulumu iptal edildi", "warning");
+                            this.state.clearSelection();
+                            this.update();
+                        });
+                        return;
+                    }
+                }
+            }
+
+            // Normal inşa
+            if (this.actions.buildBuilding(p.id, clickedHex.id, bType)) {
                 this.showNotice(`${BUILDING_NAMES[bType]} inşa edildi!`, "success");
             } else {
                 this.showNotice("Bu yapıyı buraya inşa edemezsiniz!", "danger");
             }
             this.state.clearSelection();
+            this.update();
         }
         // ── ASKER EĞİTİMİ ──
         else if (mode === 'trainUnit' && clickedNode) {
@@ -1177,7 +1223,7 @@ class UI {
         setTimeout(() => window.addEventListener('mousedown', closePicker), 10);
     }
 
-    showChoiceModal(type, level) {
+    showChoiceModal(type, level, onSelectOverride = null, onCancel = null) {
         this.choiceModalOpen = true;
         const bName = BUILDING_NAMES[type];
         const bonuses = BUILDING_BONUSES[type][level];
@@ -1196,16 +1242,31 @@ class UI {
         });
 
         this.showChoiceModalWithDesc(`${bName} - ${level}. Seviye Bonusu Seçimi`, items, (choice) => {
-            this.actions.chooseBonus(this.state.currentPlayer.id, type, level, choice);
-            this.state.currentPlayer.pendingChoices.shift();
+            if (onSelectOverride) {
+                onSelectOverride(choice);
+            } else {
+                this.actions.chooseBonus(this.state.currentPlayer.id, type, level, choice);
+                this.state.currentPlayer.pendingChoices.shift();
+            }
+            this.choiceModalOpen = false;
+            this.update();
+        }, () => {
+            if (onCancel) onCancel();
             this.choiceModalOpen = false;
             this.update();
         });
     }
 
-    showChoiceModalWithDesc(title, items, onSelect) {
+    showChoiceModalWithDesc(title, items, onSelect, onCancel = null) {
         this.els.choiceTitle.textContent = title;
         this.els.choiceGrid.innerHTML = '';
+
+        if (this.els.choiceModalCloseBtn) {
+            this.els.choiceModalCloseBtn.onclick = () => {
+                this.els.choiceModal.classList.remove('active');
+                if (onCancel) onCancel();
+            };
+        }
 
         items.forEach(item => {
             const div = document.createElement('div');
