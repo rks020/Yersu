@@ -283,6 +283,7 @@ body {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+    border-radius: 50%; /* Kare köşeleri kaldır ve yuvarla */
 }
 .build-info { flex: 1; min-width: 0; }
 .build-name { font-weight: 600; font-size: 0.8rem; color: #ddd; }
@@ -330,6 +331,7 @@ body {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+    border-radius: 50%; /* Kare köşeleri kaldır ve yuvarla */
 }
 .bld-info { flex: 1; min-width: 0; }
 .bld-name { font-weight: 600; color: #ddd; font-size: 0.78rem; }
@@ -571,6 +573,7 @@ body {
     vertical-align: middle;
     margin-right: 4px;
     object-fit: contain;
+    border-radius: 50%; /* Yuvarlama */
 }
 
 /* ─── BONUS KARTLARI ─── */

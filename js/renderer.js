@@ -678,9 +678,15 @@ class Renderer {
             const img = this.settlementImages[st.type];
             if (img && img.complete) {
                 const size = baseSize * 2.5;
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(hex.x, hex.y, size / 2, 0, Math.PI * 2);
+                ctx.clip(); // Kare kısımları kaldırıp yuvarlak kırp
+                
                 ctx.shadowColor = color;
                 ctx.shadowBlur = 10;
                 ctx.drawImage(img, hex.x - size / 2, hex.y - size / 2, size, size);
+                ctx.restore();
             } else {
                 ctx.fillStyle = '#000000';
                 ctx.font = `${baseSize * 1.4}px serif`;
@@ -705,7 +711,12 @@ class Renderer {
                     
                     const bImg = this.buildingImages[b];
                     if (bImg && bImg.complete) {
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(bx, by, 10, 0, Math.PI * 2);
+                        ctx.clip(); // Yuvarlak kırpma
                         ctx.drawImage(bImg, bx - 10, by - 10, 20, 20);
+                        ctx.restore();
                     } else {
                         const icons = { ciftlik:'🌾', kisla:'⚔️', kervansaray:'🛒', tapinak:'⛪', muhendishane:'⚙️', tiyatro:'🎭' };
                         ctx.font = '14px serif';
