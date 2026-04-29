@@ -293,7 +293,7 @@ class Renderer {
                 x: to.x, y: to.y,
                 aRolls, dRolls, aBonus, dBonus, aTotal, dTotal,
                 start: Date.now(),
-                duration: 2000
+                duration: 2500
             });
         }, 300);
     }

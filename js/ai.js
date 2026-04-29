@@ -164,6 +164,7 @@ class AIEngine {
 
                 const res = this.actions.moveUnit(player.id, unit.uid, targetId);
                 
+                let delay = 500;
                 if (!res) {
                     // Eğer hareket geçerli değilse, takılmasını önlemek için MP'sini sıfırla
                     unit.movesLeft = 0;
@@ -174,10 +175,11 @@ class AIEngine {
                         window.appMain.ui.showCombatReport(res);
                         window.appMain.ui.update();
                     }
+                    delay = 2800; // Savaş zarları (2.5s) kaybolana kadar bekle
                 }
 
                 // Hareket sonrası tekrar kontrol için
-                setTimeout(() => this.doMainTurn(player), 1200); // Animasyonun görünmesi için bekleme süresini biraz artırdık
+                setTimeout(() => this.doMainTurn(player), delay);
                 return;
             }
         }
