@@ -126,23 +126,22 @@ class Renderer {
 
     _drawCombatDice(anim, progress) {
         const ctx = this.ctx;
-        const { x, y, d1, d2 } = anim;
+        const { x, y, aRolls, dRolls } = anim;
         const opacity = progress < 0.8 ? 1 : 1 - (progress - 0.8) / 0.2;
         
         ctx.save();
         ctx.globalAlpha = opacity;
         
-        const drawDie = (dx, dy, val, isRolling) => {
-            const size = 24;
-            ctx.fillStyle = 'white';
+        const drawDie = (dx, dy, val, isRolling, color = 'white') => {
+            const size = 20;
+            ctx.fillStyle = color;
             ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 1.5;
             
             ctx.save();
             ctx.translate(dx, dy);
             if (isRolling) {
-                ctx.rotate(Math.sin(progress * 20) * 0.3);
-                ctx.scale(1 + Math.sin(progress * 15) * 0.1, 1 + Math.cos(progress * 15) * 0.1);
+                ctx.rotate(Math.sin(progress * 25) * 0.4);
             }
             
             ctx.beginPath();
@@ -150,8 +149,8 @@ class Renderer {
             ctx.fill();
             ctx.stroke();
             
-            ctx.fillStyle = 'black';
-            ctx.font = 'bold 16px sans-serif';
+            ctx.fillStyle = color === 'white' ? 'black' : 'white';
+            ctx.font = 'bold 13px Inter, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(isRolling ? '?' : val, 0, 0);
@@ -159,13 +158,26 @@ class Renderer {
         };
 
         const isRolling = progress < 0.5;
-        drawDie(x - 15, y - 40, d1, isRolling);
-        drawDie(x + 15, y - 40, d2, isRolling);
+        const offsetY = -45;
+        
+        // Saldıran Zarları (Kırmızımsı)
+        drawDie(x - 45, y + offsetY, aRolls[0], isRolling, '#ff4444');
+        drawDie(x - 22, y + offsetY, aRolls[1], isRolling, '#ff4444');
+        
+        // VS yazısı
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 12px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('VS', x, y + offsetY + 5);
+        
+        // Savunan Zarları (Mavimsi)
+        drawDie(x + 22, y + offsetY, dRolls[0], isRolling, '#4444ff');
+        drawDie(x + 45, y + offsetY, dRolls[1], isRolling, '#4444ff');
         
         ctx.restore();
     }
 
-    triggerCombatAnimation(attackerNode, defenderNode, type, d1, d2) {
+    triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls) {
         const from = { x: attackerNode.x, y: attackerNode.y };
         const to = { x: defenderNode.x, y: defenderNode.y };
         
@@ -190,9 +202,9 @@ class Renderer {
             this.animations.push({
                 type: 'combat_dice',
                 x: to.x, y: to.y,
-                d1, d2,
+                aRolls, dRolls,
                 start: Date.now(),
-                duration: 1500
+                duration: 1800
             });
         }, 300);
     }

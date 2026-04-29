@@ -1556,10 +1556,10 @@ class UI {
     showCombatAnimation(attackerNode, defenderNode, res) {
         // Renderer bazlı animasyonu tetikle
         const type = res.type === 'range' ? 'range' : 'melee';
-        const d1 = res.attacker.rolls[0];
-        const d2 = res.defender.rolls[0]; // Şimdilik ilk zarı gösterelim veya toplamı
+        const aRolls = res.attacker.rolls;
+        const dRolls = res.defender.rolls;
         
-        this.renderer.triggerCombatAnimation(attackerNode, defenderNode, type, d1, d2);
+        this.renderer.triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls);
 
         // Eski emoji animasyonunu da (efekt olarak) hedefin üstünde gösterelim
         const el = document.createElement('div');
