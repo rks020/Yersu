@@ -126,7 +126,7 @@ class Renderer {
 
     _drawCombatDice(anim, progress) {
         const ctx = this.ctx;
-        const { x, y, aRolls, dRolls } = anim;
+        const { x, y, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal } = anim;
         const opacity = progress < 0.8 ? 1 : 1 - (progress - 0.8) / 0.2;
         
         ctx.save();
@@ -140,9 +140,7 @@ class Renderer {
             
             ctx.save();
             ctx.translate(dx, dy);
-            if (isRolling) {
-                ctx.rotate(Math.sin(progress * 25) * 0.4);
-            }
+            if (isRolling) ctx.rotate(Math.sin(progress * 25) * 0.4);
             
             ctx.beginPath();
             ctx.roundRect(-size/2, -size/2, size, size, 4);
@@ -160,9 +158,38 @@ class Renderer {
         const isRolling = progress < 0.5;
         const offsetY = -45;
         
-        // Saldıran Zarları (Kırmızımsı)
+        // Saldıran Zarları
         drawDie(x - 45, y + offsetY, aRolls[0], isRolling, '#ff4444');
         drawDie(x - 22, y + offsetY, aRolls[1], isRolling, '#ff4444');
+        
+        // Savunan Zarları
+        drawDie(x + 22, y + offsetY, dRolls[0], isRolling, '#4444ff');
+        drawDie(x + 45, y + offsetY, dRolls[1], isRolling, '#4444ff');
+
+        // Bonuslar (Yeşil küçük yazı)
+        if (!isRolling) {
+            ctx.font = 'bold 10px Inter, sans-serif';
+            ctx.fillStyle = '#4caf50';
+            ctx.textAlign = 'center';
+            if (aBonus > 0) ctx.fillText(`+${aBonus}`, x - 33, y + offsetY - 15);
+            if (dBonus > 0) ctx.fillText(`+${dBonus}`, x + 33, y + offsetY - 15);
+
+            // Toplam Skorlar (Zarların altında)
+            ctx.font = 'bold 16px Inter, sans-serif';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.lineJoin = 'round';
+            
+            // Attacker Total
+            ctx.strokeText(aTotal, x - 33, y + offsetY + 25);
+            ctx.fillStyle = '#ff4444';
+            ctx.fillText(aTotal, x - 33, y + offsetY + 25);
+            
+            // Defender Total
+            ctx.strokeText(dTotal, x + 33, y + offsetY + 25);
+            ctx.fillStyle = '#4444ff';
+            ctx.fillText(dTotal, x + 33, y + offsetY + 25);
+        }
         
         // VS yazısı
         ctx.fillStyle = 'white';
@@ -170,41 +197,26 @@ class Renderer {
         ctx.textAlign = 'center';
         ctx.fillText('VS', x, y + offsetY + 5);
         
-        // Savunan Zarları (Mavimsi)
-        drawDie(x + 22, y + offsetY, dRolls[0], isRolling, '#4444ff');
-        drawDie(x + 45, y + offsetY, dRolls[1], isRolling, '#4444ff');
-        
         ctx.restore();
     }
 
-    triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls) {
+    triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal) {
         const from = { x: attackerNode.x, y: attackerNode.y };
         const to = { x: defenderNode.x, y: defenderNode.y };
         
         if (type === 'melee') {
-            this.animations.push({
-                type: 'melee_swing',
-                from, to,
-                start: Date.now(),
-                duration: 600
-            });
+            this.animations.push({ type: 'melee_swing', from, to, start: Date.now(), duration: 600 });
         } else {
-            this.animations.push({
-                type: 'projectile',
-                from, to,
-                start: Date.now(),
-                duration: 600
-            });
+            this.animations.push({ type: 'projectile', from, to, start: Date.now(), duration: 600 });
         }
 
-        // Zarları biraz gecikmeli göster (saldırı hedefe ulaşınca)
         setTimeout(() => {
             this.animations.push({
                 type: 'combat_dice',
                 x: to.x, y: to.y,
-                aRolls, dRolls,
+                aRolls, dRolls, aBonus, dBonus, aTotal, dTotal,
                 start: Date.now(),
-                duration: 1800
+                duration: 2000
             });
         }, 300);
     }

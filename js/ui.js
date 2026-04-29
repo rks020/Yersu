@@ -1559,7 +1559,13 @@ class UI {
         const aRolls = res.attacker.rolls;
         const dRolls = res.defender.rolls;
         
-        this.renderer.triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls);
+        // Bonusları hesapla (Toplam - Zar Toplamı)
+        const aTotal = res.attacker.str;
+        const dTotal = res.defender.str;
+        const aBonus = aTotal - (aRolls[0] + aRolls[1]);
+        const dBonus = dTotal - (dRolls[0] + dRolls[1]);
+        
+        this.renderer.triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal);
 
         // Eski emoji animasyonunu da (efekt olarak) hedefin üstünde gösterelim
         const el = document.createElement('div');
