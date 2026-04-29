@@ -67,6 +67,8 @@ class Renderer {
             
             if (anim.type === 'melee_swing') {
                 this._drawMeleeSwing(anim, progress);
+            } else if (anim.type === 'melee_spear') {
+                this._drawMeleeSpear(anim, progress);
             } else if (anim.type === 'projectile') {
                 this._drawProjectile(anim, progress);
             } else if (anim.type === 'combat_dice') {
@@ -110,17 +112,86 @@ class Renderer {
         }
     }
 
+    _drawMeleeSpear(anim, progress) {
+        const ctx = this.ctx;
+        const { from, to } = anim;
+        
+        // Mızrak saldırısı: İleri doğru güçlü bir dürtme hareketi (Thrust)
+        // 0.0 -> 0.4: Geri çekilme
+        // 0.4 -> 0.6: İleri fırlama
+        // 0.6 -> 1.0: Geri dönme
+        let thrust = 0;
+        if (progress < 0.4) {
+            thrust = -(progress / 0.4) * 0.2; // Hafif geri çekil
+        } else if (progress < 0.6) {
+            const p = (progress - 0.4) / 0.2;
+            thrust = -0.2 + p * 1.2; // İleri ani hareket
+        } else {
+            const p = (progress - 0.6) / 0.4;
+            thrust = 1.0 - p * 1.0; // Eski konuma dönüş
+        }
+        
+        const dx = (to.x - from.x) * thrust;
+        const dy = (to.y - from.y) * thrust;
+        const angle = Math.atan2(to.y - from.y, to.x - from.x);
+        
+        if (progress > 0.4 && progress < 0.8) {
+            // Mızrak ucu efekti (Çizgi şeklinde parlama)
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(from.x + dx, from.y + dy);
+            ctx.lineTo(from.x + dx + Math.cos(angle) * 40, from.y + dy + Math.sin(angle) * 40);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.shadowColor = 'white';
+            ctx.shadowBlur = 10;
+            ctx.stroke();
+            
+            // Mızrak emojisi
+            ctx.font = '24px serif';
+            ctx.translate(from.x + dx + Math.cos(angle) * 35, from.y + dy + Math.sin(angle) * 35);
+            ctx.rotate(angle + Math.PI/4); // Emojiyi hedefe doğru döndür
+            ctx.fillText('🔱', 0, 0); // Mızrak olarak zıpkın veya standart silah (Pike/Trident) kullanıyoruz
+            ctx.restore();
+        }
+    }
+
     _drawProjectile(anim, progress) {
         const ctx = this.ctx;
         const { from, to } = anim;
         const x = from.x + (to.x - from.x) * progress;
         const y = from.y + (to.y - from.y) * progress;
+        const angle = Math.atan2(to.y - from.y, to.x - from.x);
         
         ctx.save();
+        
+        // Daha belirgin bir ok izi (Trail)
+        if (progress > 0.1) {
+            ctx.beginPath();
+            const trailLength = Math.min(progress, 0.3); // İzin uzunluğu
+            const startX = from.x + (to.x - from.x) * (progress - trailLength);
+            const startY = from.y + (to.y - from.y) * (progress - trailLength);
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(x, y);
+            
+            const gradient = ctx.createLinearGradient(startX, startY, x, y);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.8)');
+            
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+
+        // Okun kendisi (Daha büyük ve gölgeli)
         ctx.translate(x, y);
-        ctx.rotate(Math.atan2(to.y - from.y, to.x - from.x) + Math.PI/4);
-        ctx.font = '20px serif';
-        ctx.fillText('🏹', 0, 0);
+        ctx.rotate(angle + Math.PI/4);
+        ctx.font = '28px serif'; // Daha büyük font
+        ctx.shadowColor = 'black';
+        ctx.shadowBlur = 5;
+        ctx.fillText('🏹', -14, 14); // Ortalama ayarı
         ctx.restore();
     }
 
@@ -200,12 +271,16 @@ class Renderer {
         ctx.restore();
     }
 
-    triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal) {
+    triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal, unitType) {
         const from = { x: attackerNode.x, y: attackerNode.y };
         const to = { x: defenderNode.x, y: defenderNode.y };
         
         if (type === 'melee') {
-            this.animations.push({ type: 'melee_swing', from, to, start: Date.now(), duration: 600 });
+            if (unitType === 'mizrakci') {
+                this.animations.push({ type: 'melee_spear', from, to, start: Date.now(), duration: 600 });
+            } else {
+                this.animations.push({ type: 'melee_swing', from, to, start: Date.now(), duration: 600 });
+            }
         } else {
             this.animations.push({ type: 'projectile', from, to, start: Date.now(), duration: 600 });
         }

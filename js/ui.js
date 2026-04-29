@@ -1565,7 +1565,9 @@ class UI {
         const aBonus = aTotal - (aRolls[0] + aRolls[1]);
         const dBonus = dTotal - (dRolls[0] + dRolls[1]);
         
-        this.renderer.triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal);
+        const unitType = res.attacker.unit ? res.attacker.unit.type : 'kilicli';
+        
+        this.renderer.triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal, unitType);
 
         // Eski emoji animasyonunu da (efekt olarak) hedefin üstünde gösterelim
         const el = document.createElement('div');
