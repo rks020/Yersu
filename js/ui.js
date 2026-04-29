@@ -1367,8 +1367,13 @@ class UI {
         items.forEach(item => {
             const div = document.createElement('div');
             div.className = `choice-item ${item.enabled ? 'enabled' : 'disabled'}`;
+            
+            const iconHtml = (item.icon && item.icon.endsWith('.png')) 
+                ? `<img src="${item.icon}" style="width:64px;height:64px;object-fit:contain;border-radius:50%;">`
+                : (item.icon || '❓');
+
             div.innerHTML = `
-                <div class="icon">${item.icon}</div>
+                <div class="icon">${iconHtml}</div>
                 <div class="name">${item.name}</div>
                 <div class="desc">${item.desc || ''}</div>
                 <div class="cost">${item.costStr}</div>

@@ -88,7 +88,7 @@
                 <div class="build-section-label">TEMEL İNŞAATLAR</div>
 
                 <div class="build-row">
-                    <div class="build-icon-sm">🛤️</div>
+                    <div class="build-icon-sm"><img src="yol.png" alt=""></div>
                     <div class="build-info">
                         <div class="build-name">Yol</div>
                         <div class="build-cost-row" id="cost-road"><span>🪵1</span><span>🪨2</span></div>
@@ -97,7 +97,7 @@
                 </div>
 
                 <div class="build-row">
-                    <div class="build-icon-sm">🏕️</div>
+                    <div class="build-icon-sm"><img src="koy.png" alt=""></div>
                     <div class="build-info">
                         <div class="build-name">Köy</div>
                         <div class="build-cost-row"><span>🌾1</span><span>🪵1</span><span>🧱1</span><span>🪨1</span>
@@ -110,7 +110,7 @@
 
                 <div class="buildings-list" id="buildingsList">
                     <div class="bld-row" data-btype="ciftlik">
-                        <div class="bld-icon">🚜</div>
+                        <div class="bld-icon"><img src="ciftlik.png" alt=""></div>
                         <div class="bld-info">
                             <div class="bld-name">Çiftlik</div>
                             <div class="bld-cost" id="cost-ciftlik">🌾7 🪵1 🧱1</div>
@@ -121,7 +121,7 @@
                             disabled>İnşa Et</button>
                     </div>
                     <div class="bld-row" data-btype="kisla">
-                        <div class="bld-icon">⚔️</div>
+                        <div class="bld-icon"><img src="kisla.png" alt=""></div>
                         <div class="bld-info">
                             <div class="bld-name">Kışla</div>
                             <div class="bld-cost" id="cost-kisla">⚙️5 🪨2 🪵2</div>
@@ -132,7 +132,7 @@
                             disabled>İnşa Et</button>
                     </div>
                     <div class="bld-row" data-btype="kervansaray">
-                        <div class="bld-icon">🐪</div>
+                        <div class="bld-icon"><img src="kervansaray.png" alt=""></div>
                         <div class="bld-info">
                             <div class="bld-name">Kervansaray</div>
                             <div class="bld-cost" id="cost-kervansaray">🪵4 🧱3 🪨2</div>
@@ -143,7 +143,7 @@
                             disabled>İnşa Et</button>
                     </div>
                     <div class="bld-row" data-btype="tapinak">
-                        <div class="bld-icon">🏛️</div>
+                        <div class="bld-icon"><img src="tapinak.png" alt=""></div>
                         <div class="bld-info">
                             <div class="bld-name">Tapınak</div>
                             <div class="bld-cost" id="cost-tapinak">🪨5 🪵2 🧱2</div>
@@ -154,7 +154,7 @@
                             disabled>İnşa Et</button>
                     </div>
                     <div class="bld-row" data-btype="muhendishane">
-                        <div class="bld-icon">⚙️</div>
+                        <div class="bld-icon"><img src="muhendishane.png" alt=""></div>
                         <div class="bld-info">
                             <div class="bld-name">Mühendishane</div>
                             <div class="bld-cost" id="cost-muhendishane">⚙️5 🪨2 🧱2</div>
@@ -165,7 +165,7 @@
                             disabled>İnşa Et</button>
                     </div>
                     <div class="bld-row" data-btype="tiyatro">
-                        <div class="bld-icon">🎭</div>
+                        <div class="bld-icon"><img src="tiyatro.png" alt=""></div>
                         <div class="bld-info">
                             <div class="bld-name">Tiyatro</div>
                             <div class="bld-cost" id="cost-tiyatro">🌾3 🧱3 🪵3</div>
@@ -220,12 +220,12 @@
                     <span class="help-icon" title="Her yapının 3 seviyesi vardır.">❓</span>
                 </div>
                 <div class="bonus-tabs" id="bonusTabs">
-                    <button class="bonus-tab active" data-btab="ciftlik">🚜 Çiftlik</button>
-                    <button class="bonus-tab" data-btab="kisla">⚔️ Kışla</button>
-                    <button class="bonus-tab" data-btab="kervansaray">🐪 Kervansaray</button>
-                    <button class="bonus-tab" data-btab="tapinak">🏛️ Tapınak</button>
-                    <button class="bonus-tab" data-btab="muhendishane">⚙️ Mühendishane</button>
-                    <button class="bonus-tab" data-btab="tiyatro">🎭 Tiyatro</button>
+                    <button class="bonus-tab active" data-btab="ciftlik"><img src="ciftlik.png" class="tab-img"> Çiftlik</button>
+                    <button class="bonus-tab" data-btab="kisla"><img src="kisla.png" class="tab-img"> Kışla</button>
+                    <button class="bonus-tab" data-btab="kervansaray"><img src="kervansaray.png" class="tab-img"> Kervansaray</button>
+                    <button class="bonus-tab" data-btab="tapinak"><img src="tapinak.png" class="tab-img"> Tapınak</button>
+                    <button class="bonus-tab" data-btab="muhendishane"><img src="muhendishane.png" class="tab-img"> Mühendishane</button>
+                    <button class="bonus-tab" data-btab="tiyatro"><img src="tiyatro.png" class="tab-img"> Tiyatro</button>
                 </div>
                 <div class="bonus-cards-row" id="bonusCardsWrap">
                     <!-- JS ile doldurulacak -->
@@ -284,8 +284,7 @@
             <h2 id="choiceModalTitle">Başlık</h2>
             <div id="choiceGrid" class="choice-modal"></div>
             <div class="modal-footer">
-                <button class="btn-secondary btn-premium-close"
-                    onclick="document.getElementById('choiceModal').classList.remove('active')">Kapat</button>
+                <button id="choiceModalCloseBtn" class="btn-secondary btn-premium-close">Kapat</button>
             </div>
         </div>
     </div>
