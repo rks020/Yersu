@@ -272,8 +272,17 @@ body {
 .build-icon-sm {
     font-size: 1.4rem;
     width: 28px;
+    height: 28px;
     text-align: center;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.build-icon-sm img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 .build-info { flex: 1; min-width: 0; }
 .build-name { font-weight: 600; font-size: 0.8rem; color: #ddd; }
@@ -310,8 +319,17 @@ body {
 .bld-icon {
     font-size: 1.5rem;
     width: 30px;
+    height: 30px;
     text-align: center;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bld-icon img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 .bld-info { flex: 1; min-width: 0; }
 .bld-name { font-weight: 600; color: #ddd; font-size: 0.78rem; }
@@ -546,6 +564,13 @@ body {
     border-color: var(--gold);
     background: rgba(201,162,39,0.2);
     color: var(--gold2);
+}
+.tab-img {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 4px;
+    object-fit: contain;
 }
 
 /* ─── BONUS KARTLARI ─── */
