@@ -1357,10 +1357,14 @@ class UI {
         this.els.choiceTitle.textContent = title;
         this.els.choiceGrid.innerHTML = '';
 
-        if (this.els.choiceModalCloseBtn) {
-            this.els.choiceModalCloseBtn.onclick = () => {
+        // Kapat butonu kontrolü (Daha güvenli hale getirildi)
+        const closeBtn = this.els.choiceModalCloseBtn || document.getElementById('btnChoiceModalClose');
+        if (closeBtn) {
+            closeBtn.onclick = (e) => {
+                if (e) e.stopPropagation();
                 this.els.choiceModal.classList.remove('active');
                 if (onCancel) onCancel();
+                this.choiceModalOpen = false;
             };
         }
 
