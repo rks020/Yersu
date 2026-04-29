@@ -156,13 +156,28 @@ class AIEngine {
                 const unit = unitsWithMoves[0];
                 const node = this.state.grid.nodes.get(unit.nodeId);
                 const targetId = node.adjacentNodes[Math.floor(Math.random() * node.adjacentNodes.length)];
-                const ok = this.actions.moveUnit(player.id, unit.uid, targetId);
-                if (!ok) {
+                
+                // Kaynak Node'u kopyala (animasyon için)
+                const sourceNodeId = unit.nodeId;
+                const sourceNode = this.state.grid.nodes.get(sourceNodeId);
+                const targetNode = this.state.grid.nodes.get(targetId);
+
+                const res = this.actions.moveUnit(player.id, unit.uid, targetId);
+                
+                if (!res) {
                     // Eğer hareket geçerli değilse, takılmasını önlemek için MP'sini sıfırla
                     unit.movesLeft = 0;
+                } else if (res.type !== 'move') {
+                    // Savaş gerçekleştiyse animasyon ve rapor göster
+                    if (window.appMain && window.appMain.ui) {
+                        window.appMain.ui.showCombatAnimation(sourceNode, targetNode, res);
+                        window.appMain.ui.showCombatReport(res);
+                        window.appMain.ui.update();
+                    }
                 }
+
                 // Hareket sonrası tekrar kontrol için
-                setTimeout(() => this.doMainTurn(player), 500);
+                setTimeout(() => this.doMainTurn(player), 1200); // Animasyonun görünmesi için bekleme süresini biraz artırdık
                 return;
             }
         }
