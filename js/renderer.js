@@ -149,6 +149,7 @@ class Renderer {
             ctx.stroke();
             
             // Mızrak emojisi
+            ctx.fillStyle = '#000000'; // Emojinin sönük kalmaması için opak renk
             ctx.font = '24px serif';
             ctx.translate(from.x + dx + Math.cos(angle) * 35, from.y + dy + Math.sin(angle) * 35);
             ctx.rotate(angle + Math.PI/4); // Emojiyi hedefe doğru döndür
@@ -186,6 +187,7 @@ class Renderer {
         }
 
         // Okun kendisi (Daha büyük ve gölgeli)
+        ctx.fillStyle = '#000000'; // Emojinin sönük kalmaması için opak renk
         ctx.translate(x, y);
         ctx.rotate(angle + Math.PI/4);
         ctx.font = '28px serif'; // Daha büyük font
@@ -658,6 +660,7 @@ class Renderer {
 
             // 2. İkon
             ctx.save();
+            ctx.fillStyle    = '#000000'; // Emojinin tam opak olması için (alpha'dan etkilenmemesi için)
             ctx.font         = `${baseSize * 1.4}px serif`;
             ctx.textAlign    = 'center';
             ctx.textBaseline = 'middle';
@@ -674,6 +677,7 @@ class Renderer {
                     const angle = (Math.PI * 2 / 6) * i - Math.PI / 2;
                     const bx = hex.x + Math.cos(angle) * 38;
                     const by = hex.y + Math.sin(angle) * 38;
+                    ctx.fillStyle = '#000000'; // Bina ikonları için opaklık
                     ctx.font = '14px serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
