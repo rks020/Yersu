@@ -13,18 +13,33 @@ class Renderer {
         this.offsetY = 0;
         this.scale = 1;
         this.unitImages = {};
+        this.buildingImages = {};
+        this.settlementImages = {};
         this.animations = [];
-        this._loadUnitImages();
+        this._loadImages();
         this._initCamera();
     }
 
-    _loadUnitImages() {
+    _loadImages() {
+        // Birimler
         Object.entries(UNIT_DATA).forEach(([id, data]) => {
             if (data.img) {
                 const img = new Image();
                 img.src = data.img;
                 this.unitImages[id] = img;
             }
+        });
+        // Yapılar
+        Object.entries(BUILDING_ICONS).forEach(([id, src]) => {
+            const img = new Image();
+            img.src = src;
+            this.buildingImages[id] = img;
+        });
+        // Yerleşimler
+        Object.entries(SETTLEMENT_ICONS).forEach(([id, src]) => {
+            const img = new Image();
+            img.src = src;
+            this.settlementImages[id] = img;
         });
     }
 
@@ -660,13 +675,22 @@ class Renderer {
 
             // 2. İkon
             ctx.save();
-            ctx.fillStyle    = '#000000'; // Emojinin tam opak olması için (alpha'dan etkilenmemesi için)
-            ctx.font         = `${baseSize * 1.4}px serif`;
-            ctx.textAlign    = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.shadowColor  = color;
-            ctx.shadowBlur   = 8;
-            ctx.fillText(icon, hex.x, hex.y); 
+            const img = this.settlementImages[st.type];
+            if (img && img.complete) {
+                const size = baseSize * 2.5;
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 10;
+                ctx.drawImage(img, hex.x - size / 2, hex.y - size / 2, size, size);
+            } else {
+                ctx.fillStyle = '#000000';
+                ctx.font = `${baseSize * 1.4}px serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 8;
+                const icon = st.type === 'metropol' ? '🏯' : (st.type === 'sehir' ? '🏰' : '🏘️');
+                ctx.fillText(icon, hex.x, hex.y);
+            }
             ctx.restore();
 
             // Bina ikonları (Geniş halka)
@@ -678,10 +702,17 @@ class Renderer {
                     const bx = hex.x + Math.cos(angle) * 38;
                     const by = hex.y + Math.sin(angle) * 38;
                     ctx.fillStyle = '#000000'; // Bina ikonları için opaklık
-                    ctx.font = '14px serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(icons[b] || '?', bx, by);
+                    
+                    const bImg = this.buildingImages[b];
+                    if (bImg && bImg.complete) {
+                        ctx.drawImage(bImg, bx - 10, by - 10, 20, 20);
+                    } else {
+                        const icons = { ciftlik:'🌾', kisla:'⚔️', kervansaray:'🛒', tapinak:'⛪', muhendishane:'⚙️', tiyatro:'🎭' };
+                        ctx.font = '14px serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(icons[b] || '?', bx, by);
+                    }
                 });
             }
         });

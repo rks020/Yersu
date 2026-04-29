@@ -913,7 +913,10 @@ class UI {
                     <div class="hex-section-title">YERLEŞİM</div>
                     <div class="hex-settlement-card">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div class="hex-settlement-name">${h.settlement.type === 'koy' ? '🛖 Köy' : h.settlement.type === 'sehir' ? '🏰 Şehir' : '🏛️ Metropol'}</div>
+                            <div class="hex-settlement-name">
+                                <img src="${SETTLEMENT_ICONS[h.settlement.type]}" style="width:20px;height:20px;vertical-align:middle;margin-right:5px;">
+                                ${h.settlement.type === 'koy' ? 'Köy' : h.settlement.type === 'sehir' ? 'Şehir' : 'Metropol'}
+                            </div>
                             <div style="width:16px; height:16px; border-radius:3px; background:${owner.color}; border:1px solid rgba(255,255,255,0.3);"></div>
                         </div>
                         <div style="font-size:0.65rem; color:#aaa; margin-top:2px;">${owner.name}</div>
@@ -922,7 +925,7 @@ class UI {
                         <div class="hex-buildings-list">
                             ${[...h.settlement.buildings].map(btype => `
                                 <div class="hex-bld-item">
-                                    <span>${BUILDING_ICONS[btype]} ${BUILDING_NAMES[btype]}</span>
+                                    <span><img src="${BUILDING_ICONS[btype]}" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"> ${BUILDING_NAMES[btype]}</span>
                                     <span class="hex-bld-lv">Sv. ${Math.min(3, this._getBuildingLevel(owner, btype))}</span>
                                 </div>
                             `).join('')}

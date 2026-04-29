@@ -47,12 +47,19 @@ const BUILDING_NAMES = {
 };
 
 const BUILDING_ICONS = {
-    ciftlik:      '🚜',
-    kisla:        '⚔️',
-    kervansaray:  '🐪',
-    tapinak:      '🏛️',
-    muhendishane: '⚙️',
-    tiyatro:      '🎭',
+    ciftlik:      'çiftlik.png',
+    kisla:        'kışla.png',
+    kervansaray:  'kervansaray.png',
+    tapinak:      'tapınak.png',
+    muhendishane: 'mühendishane.png',
+    tiyatro:      'tiyatro.png',
+};
+
+const SETTLEMENT_ICONS = {
+    yol:      'yol.png',
+    koy:      'köy.png',
+    sehir:    'şehir.png',
+    metropol: 'metropol.png'
 };
 
 const ALL_BUILDINGS = ['ciftlik', 'kisla', 'kervansaray', 'tapinak', 'muhendishane', 'tiyatro'];
