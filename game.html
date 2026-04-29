@@ -1,332 +1,399 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yersu - Oyun Ekranı</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
 
     <link rel="stylesheet" href="css/game-ui.css?v=5">
 </head>
+
 <body>
-<div id="gameContainer">
+    <div id="gameContainer">
 
-    <!-- ÜST BAR -->
-    <header class="game-header">
-        <div class="header-player">
-            <div class="player-crest" id="playerCrest">♞</div>
-            <div>
-                <div class="player-name-header" id="playerNameHeader">Yükleniyor...</div>
-                <div id="setupInstruction" style="font-size:0.7rem; color:#aaa;"></div>
+        <!-- ÜST BAR -->
+        <header class="game-header">
+            <div class="header-player">
+                <div class="player-crest" id="playerCrest">♞</div>
+                <div>
+                    <div class="player-name-header" id="playerNameHeader">Yükleniyor...</div>
+                    <div id="setupInstruction" style="font-size:0.7rem; color:#aaa;"></div>
+                </div>
+            </div>
+
+            <div class="header-resources">
+                <div class="hres-item">
+                    <span class="hres-icon">🌾</span>
+                    <span class="hres-amount" id="resBesin">0</span>
+                    <span class="hres-prod" id="resBesinProd">+0</span>
+                    <span class="hres-label">Besin</span>
+                </div>
+                <div class="hres-item">
+                    <span class="hres-icon">🪵</span>
+                    <span class="hres-amount" id="resOdun">0</span>
+                    <span class="hres-prod" id="resOdunProd">+0</span>
+                    <span class="hres-label">Odun</span>
+                </div>
+                <div class="hres-item">
+                    <span class="hres-icon">🪨</span>
+                    <span class="hres-amount" id="resTas">0</span>
+                    <span class="hres-prod" id="resTasProd">+0</span>
+                    <span class="hres-label">Taş</span>
+                </div>
+                <div class="hres-item">
+                    <span class="hres-icon">🧱</span>
+                    <span class="hres-amount" id="resKil">0</span>
+                    <span class="hres-prod" id="resKilProd">+0</span>
+                    <span class="hres-label">Kil</span>
+                </div>
+                <div class="hres-item">
+                    <span class="hres-icon">⚙️</span>
+                    <span class="hres-amount" id="resMaden">0</span>
+                    <span class="hres-prod" id="resMadenProd">+0</span>
+                    <span class="hres-label">Maden</span>
+                </div>
+                <div class="hres-item hres-gold">
+                    <span class="hres-icon">💰</span>
+                    <span class="hres-amount" id="resGold">0</span>
+                    <span class="hres-prod" id="resGoldProd"></span>
+                    <span class="hres-label">Altın</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="header-pop">
+                    <span>👥</span>
+                    <span id="popCounter">0/16</span>
+                </div>
+                <div class="header-turn-box">
+                    <div id="turnIndicator" class="header-turn">Tur 1</div>
+                    <span id="vpCounter" class="header-vp">⭐0</span>
+                </div>
+                <button id="btnRollDice" class="btn-header btn-dice" disabled>🎲 Zar At</button>
+                <button id="btnEndTurn" class="btn-header btn-end" disabled>⏭ Turu Bitir</button>
+                <button id="btnRestart" class="btn-header btn-restart" title="Yeniden Başlat">🔄</button>
+            </div>
+        </header>
+
+        <!-- ANA ALAN: Sol Panel | Canvas | Sağ Panel -->
+        <div class="game-main">
+
+            <!-- SOL PANEL: İNŞA ET -->
+            <aside id="actionMenu" class="side-panel left-panel">
+                <div class="panel-title-bar">⚒️ İNŞA ET</div>
+
+                <div class="build-section-label">TEMEL İNŞAATLAR</div>
+
+                <div class="build-row">
+                    <div class="build-icon-sm">🛤️</div>
+                    <div class="build-info">
+                        <div class="build-name">Yol</div>
+                        <div class="build-cost-row" id="cost-road"><span>🪵1</span><span>🪨2</span></div>
+                    </div>
+                    <button class="btn-build action-btn" data-action="build_road" disabled>Yol İnşa Et</button>
+                </div>
+
+                <div class="build-row">
+                    <div class="build-icon-sm">🏕️</div>
+                    <div class="build-info">
+                        <div class="build-name">Köy</div>
+                        <div class="build-cost-row"><span>🌾1</span><span>🪵1</span><span>🧱1</span><span>🪨1</span>
+                        </div>
+                    </div>
+                    <button class="btn-build action-btn" data-action="build_village" disabled>Köy Kur</button>
+                </div>
+
+                <div class="build-section-label">YAPILAR</div>
+
+                <div class="buildings-list" id="buildingsList">
+                    <div class="bld-row" data-btype="ciftlik">
+                        <div class="bld-icon">🚜</div>
+                        <div class="bld-info">
+                            <div class="bld-name">Çiftlik</div>
+                            <div class="bld-cost" id="cost-ciftlik">🌾7 🪵1 🧱1</div>
+                            <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span
+                                    class="bld-dot"></span></div>
+                        </div>
+                        <button class="btn-build-sm action-btn" data-action="build_building" data-btype="ciftlik"
+                            disabled>İnşa Et</button>
+                    </div>
+                    <div class="bld-row" data-btype="kisla">
+                        <div class="bld-icon">⚔️</div>
+                        <div class="bld-info">
+                            <div class="bld-name">Kışla</div>
+                            <div class="bld-cost" id="cost-kisla">⚙️5 🪨2 🪵2</div>
+                            <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span
+                                    class="bld-dot"></span></div>
+                        </div>
+                        <button class="btn-build-sm action-btn" data-action="build_building" data-btype="kisla"
+                            disabled>İnşa Et</button>
+                    </div>
+                    <div class="bld-row" data-btype="kervansaray">
+                        <div class="bld-icon">🐪</div>
+                        <div class="bld-info">
+                            <div class="bld-name">Kervansaray</div>
+                            <div class="bld-cost" id="cost-kervansaray">🪵4 🧱3 🪨2</div>
+                            <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span
+                                    class="bld-dot"></span></div>
+                        </div>
+                        <button class="btn-build-sm action-btn" data-action="build_building" data-btype="kervansaray"
+                            disabled>İnşa Et</button>
+                    </div>
+                    <div class="bld-row" data-btype="tapinak">
+                        <div class="bld-icon">🏛️</div>
+                        <div class="bld-info">
+                            <div class="bld-name">Tapınak</div>
+                            <div class="bld-cost" id="cost-tapinak">🪨5 🪵2 🧱2</div>
+                            <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span
+                                    class="bld-dot"></span></div>
+                        </div>
+                        <button class="btn-build-sm action-btn" data-action="build_building" data-btype="tapinak"
+                            disabled>İnşa Et</button>
+                    </div>
+                    <div class="bld-row" data-btype="muhendishane">
+                        <div class="bld-icon">⚙️</div>
+                        <div class="bld-info">
+                            <div class="bld-name">Mühendishane</div>
+                            <div class="bld-cost" id="cost-muhendishane">⚙️5 🪨2 🧱2</div>
+                            <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span
+                                    class="bld-dot"></span></div>
+                        </div>
+                        <button class="btn-build-sm action-btn" data-action="build_building" data-btype="muhendishane"
+                            disabled>İnşa Et</button>
+                    </div>
+                    <div class="bld-row" data-btype="tiyatro">
+                        <div class="bld-icon">🎭</div>
+                        <div class="bld-info">
+                            <div class="bld-name">Tiyatro</div>
+                            <div class="bld-cost" id="cost-tiyatro">🌾3 🧱3 🪵3</div>
+                            <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span
+                                    class="bld-dot"></span></div>
+                        </div>
+                        <button class="btn-build-sm action-btn" data-action="build_building" data-btype="tiyatro"
+                            disabled>İnşa Et</button>
+                    </div>
+                </div>
+
+                <div class="build-section-label" style="margin-top:8px;">ASKER & TİCARET</div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                    <button class="action-btn btn-action-full" data-action="train_unit" disabled>⚔️ Asker Üret</button>
+                    <button class="action-btn btn-action-full" data-action="move_unit" disabled>🏇 Birim Taşı /
+                        Saldır</button>
+                    <button class="action-btn btn-action-full" data-action="trade" disabled>⚖️ Ticaret Yap</button>
+                </div>
+            </aside>
+
+            <main id="canvasWrapper">
+                <canvas id="gameCanvas"></canvas>
+                <div id="floatingNoticeContainer"></div>
+
+                <!-- ZAR ANİMASYONU ALANI -->
+                <div id="diceAnimationContainer" class="dice-anim-wrap">
+                    <div class="dice-pair">
+                        <div id="die1" class="die-body">?</div>
+                        <div id="die2" class="die-body">?</div>
+                    </div>
+                    <div id="diceTotalResult" class="dice-total-text"></div>
+                </div>
+            </main>
+
+            <!-- SAĞ PANEL: SEÇİLİ HEX + LOG -->
+            <aside class="side-panel right-panel">
+                <div class="panel-title-bar">🗺️ SEÇİLİ HEX</div>
+                <div id="panelInfo" class="hex-info-panel">
+                    <div class="panel-empty">Detay için bir hex seçin</div>
+                </div>
+                <div class="panel-title-bar" style="margin-top:8px;">📜 OYUN KAYDI</div>
+                <div id="logContainer" class="log-box"></div>
+            </aside>
+        </div>
+
+        <!-- ALT BAR -->
+        <div class="game-bottom">
+            <!-- ALT SOL: YAPI BONUS KARTLARI -->
+            <div class="bottom-bonus">
+                <div class="bottom-bar-title">
+                    YAPI BONUS KARTLARI
+                    <span class="help-icon" title="Her yapının 3 seviyesi vardır.">❓</span>
+                </div>
+                <div class="bonus-tabs" id="bonusTabs">
+                    <button class="bonus-tab active" data-btab="ciftlik">🚜 Çiftlik</button>
+                    <button class="bonus-tab" data-btab="kisla">⚔️ Kışla</button>
+                    <button class="bonus-tab" data-btab="kervansaray">🐪 Kervansaray</button>
+                    <button class="bonus-tab" data-btab="tapinak">🏛️ Tapınak</button>
+                    <button class="bonus-tab" data-btab="muhendishane">⚙️ Mühendishane</button>
+                    <button class="bonus-tab" data-btab="tiyatro">🎭 Tiyatro</button>
+                </div>
+                <div class="bonus-cards-row" id="bonusCardsWrap">
+                    <!-- JS ile doldurulacak -->
+                </div>
+            </div>
+
+            <!-- ALT SAĞ: ASKERLERİM -->
+            <div class="bottom-military">
+                <div class="bottom-bar-title">
+                    ASKERLERİM
+                    <span class="pop-badge">Popülasyon: <span id="popCounterMilitary">0/16</span></span>
+                </div>
+                <div class="military-wrap">
+                    <table class="military-table">
+                        <thead>
+                            <tr>
+                                <th>Birim</th>
+                                <th>Sayı</th>
+                                <th>Menzil</th>
+                                <th>Patika MP</th>
+                                <th>Yol MP</th>
+                                <th>Özel Bonuslar</th>
+                                <th>Düello</th>
+                                <th>Kuşatma</th>
+                                <th>Yapı Bonusları</th>
+                                <th class="total-col">Özet</th>
+                            </tr>
+                        </thead>
+                        <tbody id="militaryTableBody">
+                            <tr>
+                                <td colspan="10" style="text-align:center;color:#666;font-size:0.8rem;">Henüz birim yok
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="military-footnote">* Kuşatma birimleri 2 popülasyonluk yer kaplar.</div>
+                </div>
             </div>
         </div>
 
-        <div class="header-resources">
-            <div class="hres-item">
-                <span class="hres-icon">🌾</span>
-                <span class="hres-amount" id="resBesin">0</span>
-                <span class="hres-prod" id="resBesinProd">+0</span>
-                <span class="hres-label">Besin</span>
-            </div>
-            <div class="hres-item">
-                <span class="hres-icon">🪵</span>
-                <span class="hres-amount" id="resOdun">0</span>
-                <span class="hres-prod" id="resOdunProd">+0</span>
-                <span class="hres-label">Odun</span>
-            </div>
-            <div class="hres-item">
-                <span class="hres-icon">🪨</span>
-                <span class="hres-amount" id="resTas">0</span>
-                <span class="hres-prod" id="resTasProd">+0</span>
-                <span class="hres-label">Taş</span>
-            </div>
-            <div class="hres-item">
-                <span class="hres-icon">🧱</span>
-                <span class="hres-amount" id="resKil">0</span>
-                <span class="hres-prod" id="resKilProd">+0</span>
-                <span class="hres-label">Kil</span>
-            </div>
-            <div class="hres-item">
-                <span class="hres-icon">⚙️</span>
-                <span class="hres-amount" id="resMaden">0</span>
-                <span class="hres-prod" id="resMadenProd">+0</span>
-                <span class="hres-label">Maden</span>
-            </div>
-            <div class="hres-item hres-gold">
-                <span class="hres-icon">💰</span>
-                <span class="hres-amount" id="resGold">0</span>
-                <span class="hres-prod" id="resGoldProd"></span>
-                <span class="hres-label">Altın</span>
-            </div>
-        </div>
-
-        <div class="header-right">
-            <div class="header-pop">
-                <span>👥</span>
-                <span id="popCounter">0/16</span>
-            </div>
-            <div class="header-turn-box">
-                <div id="turnIndicator" class="header-turn">Tur 1</div>
-                <span id="vpCounter" class="header-vp">⭐0</span>
-            </div>
-            <button id="btnRollDice" class="btn-header btn-dice" disabled>🎲 Zar At</button>
-            <button id="btnEndTurn" class="btn-header btn-end" disabled>⏭ Turu Bitir</button>
-            <button id="btnRestart" class="btn-header btn-restart" title="Yeniden Başlat">🔄</button>
-        </div>
-    </header>
-
-    <!-- ANA ALAN: Sol Panel | Canvas | Sağ Panel -->
-    <div class="game-main">
-
-        <!-- SOL PANEL: İNŞA ET -->
-        <aside id="actionMenu" class="side-panel left-panel">
-            <div class="panel-title-bar">⚒️ İNŞA ET</div>
-
-            <div class="build-section-label">TEMEL İNŞAATLAR</div>
-
-            <div class="build-row">
-                <div class="build-icon-sm"><img src="yol.png" alt="Yol"></div>
-                <div class="build-info">
-                    <div class="build-name">Yol</div>
-                    <div class="build-cost-row" id="cost-road"><span>🪵1</span><span>🪨2</span></div>
-                </div>
-                <button class="btn-build action-btn" data-action="build_road" disabled>Yol İnşa Et</button>
-            </div>
-
-            <div class="build-row">
-                <div class="build-icon-sm"><img src="koy.png" alt=""></div>
-                <div class="build-info">
-                    <div class="build-name">Köy</div>
-                    <div class="build-cost-row"><span>🌾1</span><span>🪵1</span><span>🧱1</span><span>🪨1</span></div>
-                </div>
-                <button class="btn-build action-btn" data-action="build_village" disabled>Köy Kur</button>
-            </div>
-
-            <div class="build-section-label">YAPILAR</div>
-
-            <div class="buildings-list" id="buildingsList">
-                <div class="bld-row" data-btype="ciftlik">
-                    <div class="bld-icon"><img src="ciftlik.png" alt=""></div>
-                    <div class="bld-info">
-                        <div class="bld-name">Çiftlik</div>
-                        <div class="bld-cost" id="cost-ciftlik">🌾7 🪵1 🧱1</div>
-                        <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span class="bld-dot"></span></div>
-                    </div>
-                    <button class="btn-build-sm action-btn" data-action="build_building" data-btype="ciftlik" disabled>İnşa Et</button>
-                </div>
-                <div class="bld-row" data-btype="kisla">
-                    <div class="bld-icon"><img src="kisla.png" alt=""></div>
-                    <div class="bld-info">
-                        <div class="bld-name">Kışla</div>
-                        <div class="bld-cost" id="cost-kisla">⚙️5 🪨2 🪵2</div>
-                        <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span class="bld-dot"></span></div>
-                    </div>
-                    <button class="btn-build-sm action-btn" data-action="build_building" data-btype="kisla" disabled>İnşa Et</button>
-                </div>
-                <div class="bld-row" data-btype="kervansaray">
-                    <div class="bld-icon"><img src="kervansaray.png" alt="Kervansaray"></div>
-                    <div class="bld-info">
-                        <div class="bld-name">Kervansaray</div>
-                        <div class="bld-cost" id="cost-kervansaray">🪵4 🧱3 🪨2</div>
-                        <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span class="bld-dot"></span></div>
-                    </div>
-                    <button class="btn-build-sm action-btn" data-action="build_building" data-btype="kervansaray" disabled>İnşa Et</button>
-                </div>
-                <div class="bld-row" data-btype="tapinak">
-                    <div class="bld-icon"><img src="tapinak.png" alt=""></div>
-                    <div class="bld-info">
-                        <div class="bld-name">Tapınak</div>
-                        <div class="bld-cost" id="cost-tapinak">🪨5 🪵2 🧱2</div>
-                        <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span class="bld-dot"></span></div>
-                    </div>
-                    <button class="btn-build-sm action-btn" data-action="build_building" data-btype="tapinak" disabled>İnşa Et</button>
-                </div>
-                <div class="bld-row" data-btype="muhendishane">
-                    <div class="bld-icon"><img src="muhendishane.png" alt=""></div>
-                    <div class="bld-info">
-                        <div class="bld-name">Mühendishane</div>
-                        <div class="bld-cost" id="cost-muhendishane">⚙️5 🪨2 🧱2</div>
-                        <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span class="bld-dot"></span></div>
-                    </div>
-                    <button class="btn-build-sm action-btn" data-action="build_building" data-btype="muhendishane" disabled>İnşa Et</button>
-                </div>
-                <div class="bld-row" data-btype="tiyatro">
-                    <div class="bld-icon"><img src="tiyatro.png" alt="Tiyatro"></div>
-                    <div class="bld-info">
-                        <div class="bld-name">Tiyatro</div>
-                        <div class="bld-cost" id="cost-tiyatro">🌾3 🧱3 🪵3</div>
-                        <div class="bld-lvbar"><span class="bld-dot"></span><span class="bld-dot"></span><span class="bld-dot"></span></div>
-                    </div>
-                    <button class="btn-build-sm action-btn" data-action="build_building" data-btype="tiyatro" disabled>İnşa Et</button>
-                </div>
-            </div>
-
-            <div class="build-section-label" style="margin-top:8px;">ASKER & TİCARET</div>
-            <div style="display:flex;flex-direction:column;gap:5px;">
-                <button class="action-btn btn-action-full" data-action="train_unit" disabled>⚔️ Asker Üret</button>
-                <button class="action-btn btn-action-full" data-action="move_unit" disabled>🏇 Birim Taşı / Saldır</button>
-                <button class="action-btn btn-action-full" data-action="trade" disabled>⚖️ Ticaret Yap</button>
-            </div>
-        </aside>
-
-        <main id="canvasWrapper">
-            <canvas id="gameCanvas"></canvas>
-            <div id="floatingNoticeContainer"></div>
-            
-            <!-- ZAR ANİMASYONU ALANI -->
-            <div id="diceAnimationContainer" class="dice-anim-wrap">
-                <div class="dice-pair">
-                    <div id="die1" class="die-body">?</div>
-                    <div id="die2" class="die-body">?</div>
-                </div>
-                <div id="diceTotalResult" class="dice-total-text"></div>
-            </div>
-        </main>
-
-        <!-- SAĞ PANEL: SEÇİLİ HEX + LOG -->
-        <aside class="side-panel right-panel">
-            <div class="panel-title-bar">🗺️ SEÇİLİ HEX</div>
-            <div id="panelInfo" class="hex-info-panel">
-                <div class="panel-empty">Detay için bir hex seçin</div>
-            </div>
-            <div class="panel-title-bar" style="margin-top:8px;">📜 OYUN KAYDI</div>
-            <div id="logContainer" class="log-box"></div>
-        </aside>
     </div>
 
-    <!-- ALT BAR -->
-    <div class="game-bottom">
-        <!-- ALT SOL: YAPI BONUS KARTLARI -->
-        <div class="bottom-bonus">
-            <div class="bottom-bar-title">
-                YAPI BONUS KARTLARI
-                <span class="help-icon" title="Her yapının 3 seviyesi vardır.">❓</span>
-            </div>
-            <div class="bonus-tabs" id="bonusTabs">
-                <button class="bonus-tab active" data-btab="ciftlik"><img src="ciftlik.png" class="tab-img"> Çiftlik</button>
-                <button class="bonus-tab" data-btab="kisla"><img src="kisla.png" class="tab-img"> Kışla</button>
-                <button class="bonus-tab" data-btab="kervansaray"><img src="kervansaray.png" class="tab-img"> Kervansaray</button>
-                <button class="bonus-tab" data-btab="tapinak"><img src="tapinak.png" class="tab-img"> Tapınak</button>
-                <button class="bonus-tab" data-btab="muhendishane"><img src="muhendishane.png" class="tab-img"> Mühendishane</button>
-                <button class="bonus-tab" data-btab="tiyatro"><img src="tiyatro.png" class="tab-img"> Tiyatro</button>
-            </div>
-            <div class="bonus-cards-row" id="bonusCardsWrap">
-                <!-- JS ile doldurulacak -->
-            </div>
-        </div>
+    <!-- BİYOM KART -->
+    <div id="biomeDetail" class="biome-card">
+        <div id="biome-name" class="card-header">Bölge</div>
+        <div id="biome-body"></div>
+    </div>
 
-        <!-- ALT SAĞ: ASKERLERİM -->
-        <div class="bottom-military">
-            <div class="bottom-bar-title">
-                ASKERLERİM
-                <span class="pop-badge">Popülasyon: <span id="popCounterMilitary">0/16</span></span>
-            </div>
-            <div class="military-wrap">
-                <table class="military-table">
-                    <thead>
-                        <tr>
-                            <th>Birim</th>
-                            <th>Sayı</th>
-                            <th>Temel Bonuslar</th>
-                            <th>Yapı Bonusları</th>
-                            <th class="total-col">Toplam Bonus</th>
-                        </tr>
-                    </thead>
-                    <tbody id="militaryTableBody">
-                        <tr><td colspan="5" style="text-align:center;color:#666;font-size:0.8rem;">Henüz birim yok</td></tr>
-                    </tbody>
-                </table>
-                <div class="military-footnote">* Kuşatma birimleri 2 popülasyonluk yer kaplar.</div>
+    <!-- BİLDİRİMLER KONTEYNERI CANVAS İÇİNE TAŞINDI -->
+
+    <!-- ZAR MODALI KALDIRILDI, ANİMASYON CANVASWRAPPER İÇİNE EKLENDİ -->
+
+    <!-- SEÇİM MODALI -->
+    <div id="choiceModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:800px;width:90%;">
+            <h2 id="choiceModalTitle">Başlık</h2>
+            <div id="choiceGrid" class="choice-modal"></div>
+            <div class="modal-footer">
+                <button class="btn-secondary btn-premium-close"
+                    onclick="document.getElementById('choiceModal').classList.remove('active')">Kapat</button>
             </div>
         </div>
     </div>
 
-</div>
-
-<!-- BİYOM KART -->
-<div id="biomeDetail" class="biome-card">
-    <div id="biome-name" class="card-header">Bölge</div>
-    <div id="biome-body"></div>
-</div>
-
-<!-- BİLDİRİMLER KONTEYNERI CANVAS İÇİNE TAŞINDI -->
-
-<!-- ZAR MODALI KALDIRILDI, ANİMASYON CANVASWRAPPER İÇİNE EKLENDİ -->
-
-<!-- SEÇİM MODALI -->
-<div id="choiceModal" class="modal-overlay">
-    <div class="modal-content" style="max-width:800px;width:90%;">
-        <h2 id="choiceModalTitle">Başlık</h2>
-        <div id="choiceGrid" class="choice-modal"></div>
-        <div class="modal-footer">
-            <button id="btnChoiceModalClose" class="btn-secondary btn-premium-close">Kapat</button>
+    <!-- BANKA TİCARET MODALI -->
+    <div id="tradeModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:500px;">
+            <h2>🏦 Banka Ticareti</h2>
+            <p style="font-size:0.85rem;margin-bottom:20px;color:#ccc;">6 Aynı Kaynak = 1 Altın &nbsp;|&nbsp; 1 Altın =
+                2 Seçili Kaynak &nbsp;|&nbsp; 3 Aynı = 1 Seçili</p>
+            <div style="display:flex;flex-direction:column;gap:15px;">
+                <div><label>Satılacak:</label>
+                    <select id="tradeSellType" class="input-style" style="width:100%;">
+                        <option value="besin">🌾 Besin</option>
+                        <option value="odun">🪵 Odun</option>
+                        <option value="tas">🪨 Taş</option>
+                        <option value="kil">🧱 Kil</option>
+                        <option value="maden">⚙️ Maden</option>
+                        <option value="gold">💰 Altın</option>
+                    </select>
+                </div>
+                <div><label>Alınacak 1:</label>
+                    <select id="tradeBuyType" class="input-style" style="width:100%;">
+                        <option value="gold">💰 Altın</option>
+                        <option value="besin">🌾 Besin</option>
+                        <option value="odun">🪵 Odun</option>
+                        <option value="tas">🪨 Taş</option>
+                        <option value="kil">🧱 Kil</option>
+                        <option value="maden">⚙️ Maden</option>
+                    </select>
+                </div>
+                <div id="tradeBuyType2Row" style="display:none;"><label>Alınacak 2 (Altın için):</label>
+                    <select id="tradeBuyType2" class="input-style" style="width:100%;">
+                        <option value="besin">🌾 Besin</option>
+                        <option value="odun">🪵 Odun</option>
+                        <option value="tas">🪨 Taş</option>
+                        <option value="kil">🧱 Kil</option>
+                        <option value="maden">⚙️ Maden</option>
+                    </select>
+                </div>
+                <div><label>Miktar:</label>
+                    <input type="number" id="tradeAmount" class="input-style" value="6" min="1" style="width:100%;">
+                </div>
+            </div>
+            <div class="modal-footer" style="gap: 12px;">
+                <button id="btnConfirmTrade" class="btn-primary" style="flex:1.5;">Takas Et</button>
+                <button class="btn-secondary btn-premium-close" style="flex:1;"
+                    onclick="document.getElementById('tradeModal').classList.remove('active')">İptal</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- BANKA TİCARET MODALI -->
-<div id="tradeModal" class="modal-overlay">
-    <div class="modal-content" style="max-width:500px;">
-        <h2>🏦 Banka Ticareti</h2>
-        <p style="font-size:0.85rem;margin-bottom:20px;color:#ccc;">6 Aynı Kaynak = 1 Altın &nbsp;|&nbsp; 1 Altın = 2 Seçili Kaynak &nbsp;|&nbsp; 3 Aynı = 1 Seçili</p>
-        <div style="display:flex;flex-direction:column;gap:15px;">
-            <div><label>Satılacak:</label>
-                <select id="tradeSellType" class="input-style" style="width:100%;">
-                    <option value="besin">🌾 Besin</option><option value="odun">🪵 Odun</option>
-                    <option value="tas">🪨 Taş</option><option value="kil">🧱 Kil</option>
-                    <option value="maden">⚙️ Maden</option><option value="gold">💰 Altın</option>
-                </select>
+    <!-- OYUNCU TİCARET MODALI -->
+    <div id="playerTradeModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:560px;">
+            <h2>🤝 Oyuncu Ticareti</h2>
+            <p style="font-size:0.82rem;color:#ccc;margin-bottom:15px;">Karşı tarafa teklif sun.</p>
+            <div style="margin-bottom:14px;">
+                <label>Oyuncu:</label>
+                <select id="ptTargetPlayer" class="input-style" style="width:100%;margin-top:4px;"></select>
             </div>
-            <div><label>Alınacak 1:</label>
-                <select id="tradeBuyType" class="input-style" style="width:100%;">
-                    <option value="gold">💰 Altın</option><option value="besin">🌾 Besin</option>
-                    <option value="odun">🪵 Odun</option><option value="tas">🪨 Taş</option>
-                    <option value="kil">🧱 Kil</option><option value="maden">⚙️ Maden</option>
-                </select>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div>
+                    <div style="font-weight:bold;margin-bottom:8px;color:#aef;">Veriyorum</div>
+                    <div id="ptOfferGrid" class="pt-res-grid"></div>
+                </div>
+                <div>
+                    <div style="font-weight:bold;margin-bottom:8px;color:#fca;">İstiyorum</div>
+                    <div id="ptRequestGrid" class="pt-res-grid"></div>
+                </div>
             </div>
-            <div id="tradeBuyType2Row" style="display:none;"><label>Alınacak 2 (Altın için):</label>
-                <select id="tradeBuyType2" class="input-style" style="width:100%;">
-                    <option value="besin">🌾 Besin</option><option value="odun">🪵 Odun</option>
-                    <option value="tas">🪨 Taş</option><option value="kil">🧱 Kil</option>
-                    <option value="maden">⚙️ Maden</option>
-                </select>
+            <div class="modal-footer" style="gap: 12px;">
+                <button id="btnConfirmPlayerTrade" class="btn-primary" style="flex:1.5;">Teklif Gönder</button>
+                <button class="btn-secondary btn-premium-close" style="flex:1;"
+                    onclick="document.getElementById('playerTradeModal').classList.remove('active')">İptal</button>
             </div>
-            <div><label>Miktar:</label>
-                <input type="number" id="tradeAmount" class="input-style" value="6" min="1" style="width:100%;">
-            </div>
-        </div>
-        <div class="modal-footer" style="gap: 12px;">
-            <button id="btnConfirmTrade" class="btn-primary" style="flex:1.5;">Takas Et</button>
-            <button class="btn-secondary btn-premium-close" style="flex:1;" onclick="document.getElementById('tradeModal').classList.remove('active')">İptal</button>
         </div>
     </div>
-</div>
 
-<!-- OYUNCU TİCARET MODALI -->
-<div id="playerTradeModal" class="modal-overlay">
-    <div class="modal-content" style="max-width:560px;">
-        <h2>🤝 Oyuncu Ticareti</h2>
-        <p style="font-size:0.82rem;color:#ccc;margin-bottom:15px;">Karşı tarafa teklif sun.</p>
-        <div style="margin-bottom:14px;">
-            <label>Oyuncu:</label>
-            <select id="ptTargetPlayer" class="input-style" style="width:100%;margin-top:4px;"></select>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div>
-                <div style="font-weight:bold;margin-bottom:8px;color:#aef;">Veriyorum</div>
-                <div id="ptOfferGrid" class="pt-res-grid"></div>
+    <!-- SAVAŞ RAPORU -->
+    <div id="combatModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:500px;text-align:center;">
+            <h2 id="combatTitle" style="margin-bottom:5px;">Savaş Raporu</h2>
+            <p id="combatDesc" style="font-size:0.9rem;color:#ccc;margin-bottom:20px;"></p>
+            <div
+                style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;">
+                <div style="flex:1;">
+                    <div id="combatAttackerName" style="font-weight:bold;margin-bottom:5px;color:#FFCDD2;">Saldıran
+                    </div>
+                    <div id="combatAttackerEmoji" style="font-size:3rem;margin-bottom:5px;">⚔️</div>
+                    <div id="combatAttackerStr" style="font-size:1.2rem;font-weight:bold;">Güç: 4</div>
+                </div>
+                <div style="font-size:2rem;font-weight:bold;color:var(--gold);padding:0 15px;">VS</div>
+                <div style="flex:1;">
+                    <div id="combatDefenderName" style="font-weight:bold;margin-bottom:5px;color:#BBDEFB;">Savunan</div>
+                    <div id="combatDefenderEmoji" style="font-size:3rem;margin-bottom:5px;">🛡️</div>
+                    <div id="combatDefenderStr" style="font-size:1.2rem;font-weight:bold;">Güç: 3</div>
+                </div>
             </div>
-            <div>
-                <div style="font-weight:bold;margin-bottom:8px;color:#fca;">İstiyorum</div>
-                <div id="ptRequestGrid" class="pt-res-grid"></div>
+            <div id="combatResultText"
+                style="font-size:1.1rem;font-weight:bold;margin-bottom:20px;padding:10px;border-radius:4px;background:rgba(255,255,255,0.1);">
+                Sonuç</div>
+            <div class="modal-footer">
+                <button class="btn-secondary btn-premium-close"
+                    onclick="document.getElementById('combatModal').classList.remove('active')">Kapat</button>
             </div>
-        </div>
-        <div class="modal-footer" style="gap: 12px;">
-            <button id="btnConfirmPlayerTrade" class="btn-primary" style="flex:1.5;">Teklif Gönder</button>
-            <button class="btn-secondary btn-premium-close" style="flex:1;" onclick="document.getElementById('playerTradeModal').classList.remove('active')">İptal</button>
         </div>
     </div>
-</div>
 
     <!-- KAYNAK DEĞİŞTİRME MODALI (Mühendishane 2B) -->
     <div id="changeBiomeModal" class="modal-overlay" style="z-index: 10000;">
@@ -348,71 +415,55 @@
     </div>
 
     <!-- KERVANSARAY KAYNAK SEÇİM MODALI -->
-<div id="kervansarayModal" class="modal-overlay" style="z-index: 10000;">
-    <div class="modal-content" style="max-width: 400px; text-align: center;">
-        <h2 style="margin-bottom: 5px;">🐪 Kervansaray Bonusu</h2>
-        <h3 style="color: var(--gold); margin-bottom: 15px;">Sıra: <span id="kervansarayPlayerName">Oyuncu</span></h3>
-        <p style="font-size: 0.9rem; margin-bottom: 20px;">Kervansaray bonusunuzdan <span id="kervansarayResCount" style="font-weight: bold; color: white;">1</span> adet temel kaynak seçme hakkınız var. Lütfen seçin:</p>
-        
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
-            <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('besin')">🌾 Besin</button>
-            <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('odun')">🪵 Odun</button>
-            <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('tas')">🪨 Taş</button>
-            <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('kil')">🧱 Kil</button>
-            <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('maden')">⚙️ Maden</button>
-        </div>
-    </div>
-</div>
-
-<!-- SAVAŞ RAPORU -->
-<div id="combatModal" class="modal-overlay">
-    <div class="modal-content" style="max-width:500px;text-align:center;">
-        <h2 id="combatTitle" style="margin-bottom:5px;">Savaş Raporu</h2>
-        <p id="combatDesc" style="font-size:0.9rem;color:#ccc;margin-bottom:20px;"></p>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;">
-            <div style="flex:1;">
-                <div id="combatAttackerName" style="font-weight:bold;margin-bottom:5px;color:#FFCDD2;">Saldıran</div>
-                <div id="combatAttackerEmoji" style="font-size:3rem;margin-bottom:5px;">⚔️</div>
-                <div id="combatAttackerStr" style="font-size:1.2rem;font-weight:bold;">Güç: 4</div>
-            </div>
-            <div style="font-size:2rem;font-weight:bold;color:var(--gold);padding:0 15px;">VS</div>
-            <div style="flex:1;">
-                <div id="combatDefenderName" style="font-weight:bold;margin-bottom:5px;color:#BBDEFB;">Savunan</div>
-                <div id="combatDefenderEmoji" style="font-size:3rem;margin-bottom:5px;">🛡️</div>
-                <div id="combatDefenderStr" style="font-size:1.2rem;font-weight:bold;">Güç: 3</div>
+    <div id="kervansarayModal" class="modal-overlay" style="z-index: 10000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h2 style="margin-bottom: 5px;">🐪 Kervansaray Bonusu</h2>
+            <h3 style="color: var(--gold); margin-bottom: 15px;">Sıra: <span id="kervansarayPlayerName">Oyuncu</span></h3>
+            <p style="font-size: 0.9rem; margin-bottom: 20px;">Kervansaray bonusunuzdan <span id="kervansarayResCount" style="font-weight: bold; color: white;">1</span> adet temel kaynak seçme hakkınız var. Lütfen seçin:</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+                <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('besin')">🌾 Besin</button>
+                <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('odun')">🪵 Odun</button>
+                <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('tas')">🪨 Taş</button>
+                <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('kil')">🧱 Kil</button>
+                <button class="btn-secondary" onclick="window.appMain.ui.selectKervansarayRes('maden')">⚙️ Maden</button>
             </div>
         </div>
-        <div id="combatResultText" style="font-size:1.1rem;font-weight:bold;margin-bottom:20px;padding:10px;border-radius:4px;background:rgba(255,255,255,0.1);">Sonuç</div>
-        <div class="modal-footer">
-            <button class="btn-secondary btn-premium-close" onclick="document.getElementById('combatModal').classList.remove('active')">Kapat</button>
+    </div>
+
+    <!-- ZAFER MODALI -->
+    <div id="victoryModal" class="modal-overlay">
+        <div class="modal-content victory-content"
+            style="text-align: center; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 2px solid var(--gold); box-shadow: 0 0 50px rgba(200, 168, 78, 0.3);">
+            <div class="victory-crown"
+                style="font-size: 5rem; margin-bottom: 20px; filter: drop-shadow(0 0 10px gold);">👑</div>
+            <h1 id="victoryTitle"
+                style="color: var(--gold); font-family: 'Cinzel', serif; font-size: 3rem; margin-bottom: 10px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                ZAFER!</h1>
+            <p id="victoryMessage" style="font-size: 1.2rem; color: #eee; margin-bottom: 20px;">Bir İmparatorluk
+                Doğuyor...</p>
+            <div id="victoryStats"
+                style="background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);">
+            </div>
+            <div class="modal-footer" style="justify-content: center;">
+                <button class="btn-primary" style="padding: 15px 40px; font-size: 1.2rem;"
+                    onclick="location.reload()">Yeni Dünyalar Fethet</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- ZAFER MODALI -->
-<div id="victoryModal" class="modal-overlay">
-    <div class="modal-content victory-content" style="text-align: center; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 2px solid var(--gold); box-shadow: 0 0 50px rgba(200, 168, 78, 0.3);">
-        <div class="victory-crown" style="font-size: 5rem; margin-bottom: 20px; filter: drop-shadow(0 0 10px gold);">👑</div>
-        <h1 id="victoryTitle" style="color: var(--gold); font-family: 'Cinzel', serif; font-size: 3rem; margin-bottom: 10px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">ZAFER!</h1>
-        <p id="victoryMessage" style="font-size: 1.2rem; color: #eee; margin-bottom: 20px;">Bir İmparatorluk Doğuyor...</p>
-        <div id="victoryStats" style="background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);"></div>
-        <div class="modal-footer" style="justify-content: center;">
-            <button class="btn-primary" style="padding: 15px 40px; font-size: 1.2rem;" onclick="location.reload()">Yeni Dünyalar Fethet</button>
-        </div>
-    </div>
-</div>
-
-<!-- JS Dosyaları -->
-<script src="js/config.js?v=3"></script>
-<script src="js/hexgrid.js?v=2"></script>
-<script src="js/mapgen.js?v=2"></script>
-<script src="js/state.js?v=3"></script>
-<script src="js/actions.js?v=3"></script>
-<script src="js/renderer.js?v=2"></script>
-<script src="js/ui.js?v=4"></script>
-<script src="js/ai.js?v=2"></script>
-<script src="js/game.js?v=2"></script>
+    <!-- JS Dosyaları -->
+    <script src="js/config.js?v=3"></script>
+    <script src="js/hexgrid.js?v=2"></script>
+    <script src="js/mapgen.js?v=2"></script>
+    <script src="js/state.js?v=3"></script>
+    <script src="js/actions.js?v=3"></script>
+    <script src="js/renderer.js?v=2"></script>
+    <script src="js/ui.js?v=4"></script>
+    <script src="js/ai.js?v=2"></script>
+    <script src="js/game.js?v=2"></script>
     <!-- Birim Seçim Dialogu (Yüzen) -->
     <div id="unit-picker" class="unit-picker"></div>
 </body>
+
 </html>

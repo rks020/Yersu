@@ -159,6 +159,12 @@ class Actions {
         if (!cost) return false;
 
         let actualCost = { ...cost };
+
+        // Çiftlik Seviye 2 (B) Bonusu: Maliyet sabit 6 besin
+        if (buildingType === 'ciftlik' && p.bonusState.ciftlikFixedCost) {
+            actualCost = { besin: 6 };
+        }
+
         // Tiyatro Seviye 1 Bonusu: Maliyet -1 azalır (En pahalı kaynaktan düşelim)
         if (hex.settlement.buildings.has('tiyatro')) {
             let maxRes = null;
@@ -229,20 +235,26 @@ class Actions {
 
         // İki node arasındaki kenarı bul
         const edge = Array.from(this.state.grid.edges.values()).find(e =>
-            (e.n1 === startNodeId && e.n2 === targetNodeId) || (e.n1 === targetNodeId && e.n2 === startNodeId)
+            (e.node1 === startNodeId && e.node2 === targetNodeId) || (e.node1 === targetNodeId && e.node2 === startNodeId)
         );
 
         if (edge && edge.road !== null) {
             const roadOwner = this.state.players.find(rp => rp.id === edge.road);
-            // Kendi yolum değilse ve yol sahibinin Kervansaray Sv.2 Bonus B'si varsa
-            if (roadOwner && roadOwner.id !== playerId) {
-                if (roadOwner.chosenBonuses?.kervansaray?.[2] === 'B') {
-                    roadOwner.resources.gold += 1;
-                    this.state.addLog(`💰 ${roadOwner.name}, ${p.name} kullanıcısının yolundan 1 Altın geçiş vergisi aldı.`, 'info');
+            // Kendi yolum değilse ve yol sahibinin Kervansaray Sv.2 Bonus B'si varsa (Yol Vergisi)
+            if (roadOwner && roadOwner.id !== playerId && roadOwner.bonusState.roadTax) {
+                const basicRes = ['besin', 'odun', 'tas', 'kil', 'maden'];
+                const availableRes = basicRes.filter(r => p.resources[r] > 0);
+                
+                if (availableRes.length > 0) {
+                    const stolen = availableRes[Math.floor(Math.random() * availableRes.length)];
+                    p.resources[stolen] -= 1;
+                    roadOwner.gain(stolen, 1);
+                    this.state.addLog(`💰 ${roadOwner.name}, ${p.name} oyuncusunun yolundan geçtiği için 1 ${RESOURCE_INFO[stolen].name} vergi aldı.`, 'info');
                 }
             }
 
-            if (edge.road === playerId && udata.cls !== 'kusatma') {
+            // Yol hız bonusu: Sadece kendi yolumuzsa ve kuşatma birimi değilse bonus al
+            if (udata.cls !== 'kusatma' && edge.road === playerId) {
                 cost = udata.speed / (udata.speed + 1);
             }
         }

@@ -34,11 +34,13 @@ class Player {
         this.bonusState = {
             ciftlikPopBonus: 0,
             ciftlikResPerTurn: 0,
-            ciftlikCostReduction: 0,
+            ciftlikFixedCost: false,
             ciftlikSiegeBonus: false,
             roadCostReduction: 0,
             roadDiscountRes: null, // 'odun' veya 'tas'
             bankRate: 6,
+            bankSellRate: 2,
+            roadTax: false,
             spawnUnitXp: 0,
             sovGoldReduction: 0,
             canBuildSiege: false,
@@ -272,7 +274,7 @@ class GameState {
         if (type === 'ciftlik') {
             if (level === 2) {
                 if (choice === 'A') player.bonusState.ciftlikResPerTurn = 1;
-                else player.bonusState.ciftlikCostReduction = 1;
+                else player.bonusState.ciftlikFixedCost = true;
             } else if (level === 3) {
                 if (choice === 'A') player.bonusState.ciftlikPopBonus += 2;
                 else player.bonusState.ciftlikSiegeBonus = true;
@@ -292,8 +294,11 @@ class GameState {
             if (level === 1) {
                 player.bonusState.kislaLv1Choice = choice; // A, B, veya C
             } else if (level === 2) {
-                if (choice === 'A') player.bonusState.spawnUnitXp += 20;
-                else player.bonusState.sovGoldReduction = 1;
+                player.bonusState.kislaLv2Choice = choice;
+                if (choice === 'A') player.bonusState.suvariSpeedBonus = 1;
+                else player.bonusState.knightDuelBonus = 1;
+            } else if (level === 3) {
+                player.bonusState.kislaLv3Choice = choice;
             }
         } else if (type === 'muhendishane') {
             if (level === 2) {
@@ -392,7 +397,11 @@ class GameState {
             // Main aşamada zar atılınca tüm birimlere hareket puanı ver
             this.currentPlayer.units.forEach(u => {
                 const data = UNIT_DATA[u.type];
-                u.movesLeft = data ? (data.speed || 2) : 2;
+                let speed = data ? (data.speed || 1) : 1;
+                if (this.currentPlayer.bonusState.suvariSpeedBonus && (u.type === 'hafif_suvari' || u.type === 'atli_okcu')) {
+                    speed += this.currentPlayer.bonusState.suvariSpeedBonus;
+                }
+                u.movesLeft = speed;
             });
             this.subPhase = 'build'; // Üretimden sonra İnşa/Ticaret başlar
         }
@@ -405,26 +414,39 @@ class GameState {
 
         this.grid.hexes.forEach(hex => {
             if (hex.number !== total) return;
-            if (!hex.resources || hex.resources.length === 0) return;
 
             if (hex.settlement) {
                 const owner = this.players.find(p => p.id === hex.settlement.playerId);
                 if (owner) {
-                    for (const res of hex.resources) {
-                        let amount = 1; 
-                        if (hex.settlement.type === 'sehir') amount = 2;
-                        else if (hex.settlement.type === 'metropol') amount = 3;
-
-                        if (res === 'besin' && hex.settlement.buildings.has('ciftlik')) amount += 1;
-                        owner.gain(res, amount);
+                    // Seviye 1 Çiftlik Bonusu: +1 Besin (Biyomda besin olmasına gerek yoktur)
+                    if (hex.settlement.buildings.has('ciftlik')) {
+                        owner.gain('besin', 1);
                         gained.push({ 
                             playerId: owner.id, 
-                            res, 
-                            amount, 
+                            res: 'besin', 
+                            amount: 1, 
                             x: hex.center.x, 
                             y: hex.center.y 
                         });
-                        this.addLog(`🌾 ${owner.name}, ${hex.number} zarından ${amount} ${RESOURCE_INFO[res].name} kazandı.`, 'success');
+                        this.addLog(`🚜 ${owner.name}, Çiftlik bonusundan +1 Besin kazandı.`, 'success');
+                    }
+
+                    if (hex.resources && hex.resources.length > 0) {
+                        for (const res of hex.resources) {
+                            let amount = 1; 
+                            if (hex.settlement.type === 'sehir') amount = 2;
+                            else if (hex.settlement.type === 'metropol') amount = 3;
+
+                            owner.gain(res, amount);
+                            gained.push({ 
+                                playerId: owner.id, 
+                                res, 
+                                amount, 
+                                x: hex.center.x, 
+                                y: hex.center.y 
+                            });
+                            this.addLog(`🌾 ${owner.name}, ${hex.number} zarından ${amount} ${RESOURCE_INFO[res].name} kazandı.`, 'success');
+                        }
                     }
                 }
             }
@@ -594,6 +616,12 @@ class GameState {
         }
     }
 
+    resetTurnActions() {
+        this.players.forEach(p => {
+            p.bonusState.kislaLv3BUsedThisTurn = false;
+        });
+    }
+
     clearSelection() {
         this.selected         = null;
         this.highlightedHexes = new Set();
@@ -671,33 +699,34 @@ class GameState {
         
         let strength = rollTotal + (data.duel || 0);
 
+        // --- GLOBAL KIŞLA BONUSLARI ---
+        const kislaCount = player.buildings?.['kisla'] || 0;
+        const kislaLv = kislaCount >= 4 ? 3 : kislaCount >= 2 ? 2 : kislaCount >= 1 ? 1 : 0;
+
+        if (kislaLv >= 1) {
+            const c1 = player.bonusState.kislaLv1Choice;
+            if (c1 === 'A' && unit.type === 'mizrakci') strength += 1;
+            else if (c1 === 'B' && unit.type === 'kilicli') strength += 1;
+            else if (c1 === 'C' && unit.type === 'okcu') strength += 1;
+        }
+
+        if (kislaLv >= 2) {
+            const c2 = player.bonusState.kislaLv2Choice;
+            if (c2 === 'B' && unit.type === 'sovalye') strength += 1;
+        }
+
+        if (kislaLv >= 3) {
+            const c3 = player.bonusState.kislaLv3Choice;
+            if (c3 === 'A') strength += 1;
+            else if (c3 === 'B' && ['kocbasi','mancinik','topcu'].includes(unit.type)) strength += 1;
+        }
+
+        // --- YEREL BONUSLAR (Tapınak vb.) ---
         if (node) {
             node.hexes.forEach(hid => {
                 const hex = this.grid.hexes.get(hid);
                 if (hex && hex.settlement && hex.settlement.playerId === player.id) {
-                    const b = hex.settlement.buildings;
-                    if (b.has('kisla')) {
-                        const count = player.buildings?.['kisla'] || 0;
-                        const lv = count >= 4 ? 3 : count >= 2 ? 2 : count >= 1 ? 1 : 0;
-                        
-                        // Sv. 1
-                        const c1 = player.bonusState.kislaLv1Choice;
-                        if (c1 === 'A' && unit.type === 'mizrakci') strength += 1;
-                        else if (c1 === 'B' && unit.type === 'kilicli') strength += 1;
-                        else if (c1 === 'C' && unit.type === 'okcu') strength += 1;
-
-                        // Sv. 2
-                        const c2 = player.bonusState.kislaLv2Choice;
-                        if (lv >= 2 && c2 === 'B' && unit.type === 'sovalye') strength += 1;
-
-                        // Sv. 3
-                        const c3 = player.bonusState.kislaLv3Choice;
-                        if (lv >= 3) {
-                            if (c3 === 'A') strength += 1;
-                            else if (c3 === 'B' && ['kocbasi','mancinik','topcu'].includes(unit.type)) strength += 1;
-                        }
-                    }
-                    if (this.sieges[hex.id] && b.has('tapinak')) {
+                    if (this.sieges[hex.id] && hex.settlement.buildings.has('tapinak')) {
                         strength += 1;
                     }
                 }
@@ -727,7 +756,7 @@ class GameState {
         if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) aStr += 1;
         if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) dStr += 1;
 
-        this.addLog(`⚔️ ${attackerUnit.type} [${aRes.rolls}] (${aStr}) vs ${defenderUnit.type} [${dRes.rolls}] (${dStr})`, 'info');
+        this.addLog(`⚔️ SAVAŞ: ${aData.name} (Güç: ${aStr}) vs ${dData.name} (Güç: ${dStr}) [Zarlar: ${aRes.rolls} vs ${dRes.rolls}]`, 'info');
 
         let winner = 'none';
         let casualty = 'none';
@@ -817,7 +846,7 @@ class GameState {
         if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) aStr += 1;
         if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) dStr += 1;
 
-        this.addLog(`🏹 Menzilli: ${attackerUnit.type} (${aStr}) vs ${defenderUnit.type} (${dStr})`, 'info');
+        this.addLog(`🏹 MENZİLLİ: ${aData.name} (Güç: ${aStr}) vs ${dData.name} (Güç: ${dStr}) [Zarlar: ${aRes.rolls} vs ${dRes.rolls}]`, 'info');
 
         let winner = 'none';
         let casualty = 'none';

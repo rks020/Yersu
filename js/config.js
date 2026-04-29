@@ -72,6 +72,7 @@ const UNIT_DATA = {
     sovalye:      { name: 'Şövalye',      cls: 'suvari',  gold: 4, duel: 2,  range: 0, speed: 2, siege: 0, special: null,                                   img: 'sovalye.png' },
     hafif_suvari: { name: 'Hafif Süvari', cls: 'suvari',  gold: 3, duel: 0,  range: 0, speed: 2, siege: 0, special: null,                                   img: 'hafifsuvari.png' },
     atli_okcu:    { name: 'Atlı Okçu',    cls: 'suvari',  gold: 3, duel: -1, range: 1, speed: 2, siege: 0, special: null,                                   img: 'atliokcu.png' },
+
     kocbasi:      { name: 'Koçbaşı',      cls: 'kusatma', gold: 3, duel: -3, range: 0, speed: 1, siege: 1, special: 'no_attack',                            img: 'kocbasi.png' },
     mancinik:     { name: 'Mancınık',     cls: 'kusatma', gold: 4, duel: -3, range: 1, speed: 1, siege: 1, special: null,                                   img: 'mancinik.png' },
     topcu:        { name: 'Topçu',        cls: 'kusatma', gold: 5, duel: -2, range: 0, speed: 1, siege: 1, special: 'multi_2',                              img: 'topcu.png'    },
@@ -130,7 +131,7 @@ const VP = {
 const BUILDING_BONUSES = {
     ciftlik: {
         1: ['Üretim zarı sonucu bu yerleşim yerine denk geldiyse +1 besin kazanılır (Biyomda besin olmasına gerek yoktur)'],
-        2: ['(A) Oyuncu her turunda 1 besin kazanır', '(B) Çiftlik inşası için gerekli temel kaynak türlerinin her biri için maliyet -1 azalır'],
+        2: ['(A) Oyuncu her turunda 1 besin kazanır', '(B) Gelecek çiftlik inşaları için maliyet artık sadece 6 besindir'],
         3: ['(A) Asker popülasyonu +2 artar (Maks 16)', '(B) Çiftlik bulunan her yerleşim için kuşatma puanı +1 artar'],
     },
     kervansaray: {

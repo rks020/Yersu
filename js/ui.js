@@ -759,7 +759,11 @@ class UI {
         ALL_BUILDINGS.forEach(b => {
             const el = document.getElementById(`cost-${b}`);
             if (el) {
-                const cost = BUILD_COSTS[b];
+                let cost = { ...BUILD_COSTS[b] };
+                if (b === 'ciftlik' && p.bonusState.ciftlikFixedCost) {
+                    cost = { besin: 6 };
+                }
+
                 let text = "";
                 if (cost.besin) text += `🌾${cost.besin} `;
                 if (cost.odun) text += `🪵${cost.odun} `;
@@ -864,7 +868,7 @@ class UI {
         if (popEl) popEl.textContent = `${p.getPopulationUsed()}/${p.maxPopulation}`;
 
         if (!p.units || p.units.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#666;font-size:0.78rem;">Henüz birim yok</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#666;font-size:0.78rem;">Henüz birim yok</td></tr>';
             return;
         }
 
@@ -877,14 +881,12 @@ class UI {
             const data = UNIT_DATA[type];
             if (!data) continue;
 
-            // Temel bonuslar
-            const baseParts = [];
-            if (data.duel > 0) baseParts.push(`Düello +${data.duel}`);
-            if (data.duel < 0) baseParts.push(`Düello ${data.duel}`);
-            if (data.range > 0) baseParts.push(`Menzil +${data.range}`);
-            if (data.siege > 0) baseParts.push(`Kuşatma +${data.siege}`);
-            if (data.special === 'anti_cavalry') baseParts.push('+1 vs Süvari');
-            if (data.special === 'anti_infantry') baseParts.push('+1 vs Piyade');
+            // Özel Bonuslar
+            const specialParts = [];
+            if (data.special === 'anti_cavalry') specialParts.push('+1 vs Süvari');
+            if (data.special === 'anti_infantry') specialParts.push('+1 vs Piyade');
+            if (data.special === 'multi_2') specialParts.push('Çift Hedef');
+            if (data.special === 'no_attack') specialParts.push('Saldıramaz');
 
             // Yapı bonusları
             const bldParts = [];
@@ -933,10 +935,13 @@ class UI {
             }
 
             const totalDuel = data.duel + duelBonus;
+            const totalSiege = data.siege; // Kuşatma zarı bonusu şu an sadece tapınak (o da savunmada)
+
             const totalParts = [];
             if (totalDuel !== 0) totalParts.push(`Düello ${totalDuel > 0 ? '+' : ''}${totalDuel}`);
-            if (data.range > 0) totalParts.push(`Menzil ${data.range + (hasRangeBonus ? 1 : 0)}`);
-            if (data.siege > 0) totalParts.push(`Kuşatma +${data.siege}`);
+            if (totalRange > 0) totalParts.push(`Menzil ${totalRange}`);
+            if (totalSiege > 0) totalParts.push(`Kuşatma +${totalSiege}`);
+
 
 
             html += `
@@ -946,7 +951,12 @@ class UI {
                     <span class="mil-unit-name">${data.name}</span>
                 </div></td>
                 <td class="mil-count">${units.length}</td>
-                <td class="mil-bonus-base">${baseParts.join(', ') || '-'}</td>
+                <td class="mil-range">${totalRange || '-'}</td>
+                <td class="mil-speed">${totalSpeed}</td>
+                <td class="mil-speed-road">${yolSpeed}</td>
+                <td class="mil-special">${specialParts.join(', ') || '-'}</td>
+                <td class="mil-duel">${totalDuel > 0 ? '+' : ''}${totalDuel}</td>
+                <td class="mil-siege">${totalSiege > 0 ? '+' : ''}${totalSiege}</td>
                 <td class="mil-bonus-bld">${bldParts.join('<br>') || '-'}</td>
                 <td class="mil-bonus-total total-col">${totalParts.join(', ') || '-'}</td>
             </tr>`;
