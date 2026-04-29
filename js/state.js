@@ -732,8 +732,8 @@ class GameState {
 
         return { 
             type: 'melee',
-            attacker: { player: attackerPlayer, unit: attackerUnit, str: aStr },
-            defender: { player: defenderPlayer, unit: defenderUnit, str: dStr },
+            attacker: { player: attackerPlayer, unit: attackerUnit, str: aStr, rolls: aRes.rolls },
+            defender: { player: defenderPlayer, unit: defenderUnit, str: dStr, rolls: dRes.rolls },
             winner, 
             casualty 
         };
@@ -774,8 +774,8 @@ class GameState {
 
         return { 
             type: 'range',
-            attacker: { player: attackerPlayer, unit: attackerUnit, str: aStr },
-            defender: { player: defenderPlayer, unit: defenderUnit, str: dStr },
+            attacker: { player: attackerPlayer, unit: attackerUnit, str: aStr, rolls: aRes.rolls },
+            defender: { player: defenderPlayer, unit: defenderUnit, str: dStr, rolls: dRes.rolls },
             winner, 
             casualty 
         };

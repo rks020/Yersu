@@ -345,7 +345,8 @@ class UI {
                 if (clickedNode.army && clickedNode.army.playerId !== current.id && udata.range > 0) {
                     const res = this.actions.rangeAttack(current.id, unit.uid, clickedNode.id, targetUnitUid);
                     if (res) {
-                        this.showCombatAnimation(clickedNode, '🏹');
+                        const sourceNode = this.state.grid.nodes.get(sourceNodeId);
+                        this.showCombatAnimation(sourceNode, clickedNode, res);
                         this.showCombatReport(res);
                         this.state.clearSelection();
                         this.update();
@@ -358,7 +359,8 @@ class UI {
                     if (res.type === 'move') {
                         this.showNotice("Birim hareket etti.", "info");
                     } else {
-                        this.showCombatAnimation(clickedNode, res.animation || '⚔️');
+                        const sourceNode = this.state.grid.nodes.get(sourceNodeId);
+                        this.showCombatAnimation(sourceNode, clickedNode, res);
                         this.showCombatReport(res);
                     }
 
@@ -1551,13 +1553,21 @@ class UI {
         }
     }
 
-    showCombatAnimation(obj, emoji) {
+    showCombatAnimation(attackerNode, defenderNode, res) {
+        // Renderer bazlı animasyonu tetikle
+        const type = res.type === 'range' ? 'range' : 'melee';
+        const d1 = res.attacker.rolls[0];
+        const d2 = res.defender.rolls[0]; // Şimdilik ilk zarı gösterelim veya toplamı
+        
+        this.renderer.triggerCombatAnimation(attackerNode, defenderNode, type, d1, d2);
+
+        // Eski emoji animasyonunu da (efekt olarak) hedefin üstünde gösterelim
         const el = document.createElement('div');
         el.className = 'combat-anim';
-        el.textContent = emoji;
+        el.textContent = res.type === 'range' ? '🏹' : '⚔️';
         const rect = this.renderer.canvas.getBoundingClientRect();
-        const sx = obj.x * this.renderer.scale + this.renderer.offsetX + rect.left;
-        const sy = obj.y * this.renderer.scale + this.renderer.offsetY + rect.top;
+        const sx = defenderNode.x * this.renderer.scale + this.renderer.offsetX + rect.left;
+        const sy = defenderNode.y * this.renderer.scale + this.renderer.offsetY + rect.top;
         el.style.left = `${sx}px`;
         el.style.top = `${sy}px`;
         document.body.appendChild(el);

@@ -13,6 +13,7 @@ class Renderer {
         this.offsetY = 0;
         this.scale = 1;
         this.unitImages = {};
+        this.animations = [];
         this._loadUnitImages();
         this._initCamera();
     }
@@ -53,8 +54,147 @@ class Renderer {
         this._drawNodes();
         this._drawArmies();
         this._drawSettlements();
+        this._drawAnimations();
 
         ctx.restore();
+    }
+
+    _drawAnimations() {
+        const now = Date.now();
+        this.animations = this.animations.filter(anim => {
+            const elapsed = now - anim.start;
+            const progress = Math.min(1, elapsed / anim.duration);
+            
+            if (anim.type === 'melee_swing') {
+                this._drawMeleeSwing(anim, progress);
+            } else if (anim.type === 'projectile') {
+                this._drawProjectile(anim, progress);
+            } else if (anim.type === 'combat_dice') {
+                this._drawCombatDice(anim, progress);
+            }
+            
+            return progress < 1;
+        });
+    }
+
+    _drawMeleeSwing(anim, progress) {
+        const ctx = this.ctx;
+        const { from, to } = anim;
+        
+        // Saldıran birimin hafifçe ileri gidip gelmesi (Bounce)
+        const bounce = Math.sin(progress * Math.PI);
+        const dist = 15;
+        const dx = (to.x - from.x) * (bounce * 0.5);
+        const dy = (to.y - from.y) * (bounce * 0.5);
+        
+        // Kılıç savurma çizgisi
+        if (progress > 0.2 && progress < 0.8) {
+            const p2 = (progress - 0.2) / 0.6;
+            const angle = Math.atan2(to.y - from.y, to.x - from.x);
+            const swingAngle = angle - Math.PI/3 + (Math.PI * 2/3 * p2);
+            
+            ctx.save();
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.arc(from.x + dx, from.y + dy, 30, swingAngle - 0.5, swingAngle + 0.5);
+            ctx.stroke();
+            
+            // Kılıç emojisi
+            ctx.font = '20px serif';
+            ctx.translate(from.x + dx + Math.cos(swingAngle) * 30, from.y + dy + Math.sin(swingAngle) * 30);
+            ctx.rotate(swingAngle + Math.PI/2);
+            ctx.fillText('⚔️', 0, 0);
+            ctx.restore();
+        }
+    }
+
+    _drawProjectile(anim, progress) {
+        const ctx = this.ctx;
+        const { from, to } = anim;
+        const x = from.x + (to.x - from.x) * progress;
+        const y = from.y + (to.y - from.y) * progress;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(Math.atan2(to.y - from.y, to.x - from.x) + Math.PI/4);
+        ctx.font = '20px serif';
+        ctx.fillText('🏹', 0, 0);
+        ctx.restore();
+    }
+
+    _drawCombatDice(anim, progress) {
+        const ctx = this.ctx;
+        const { x, y, d1, d2 } = anim;
+        const opacity = progress < 0.8 ? 1 : 1 - (progress - 0.8) / 0.2;
+        
+        ctx.save();
+        ctx.globalAlpha = opacity;
+        
+        const drawDie = (dx, dy, val, isRolling) => {
+            const size = 24;
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            
+            ctx.save();
+            ctx.translate(dx, dy);
+            if (isRolling) {
+                ctx.rotate(Math.sin(progress * 20) * 0.3);
+                ctx.scale(1 + Math.sin(progress * 15) * 0.1, 1 + Math.cos(progress * 15) * 0.1);
+            }
+            
+            ctx.beginPath();
+            ctx.roundRect(-size/2, -size/2, size, size, 4);
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = 'black';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(isRolling ? '?' : val, 0, 0);
+            ctx.restore();
+        };
+
+        const isRolling = progress < 0.5;
+        drawDie(x - 15, y - 40, d1, isRolling);
+        drawDie(x + 15, y - 40, d2, isRolling);
+        
+        ctx.restore();
+    }
+
+    triggerCombatAnimation(attackerNode, defenderNode, type, d1, d2) {
+        const from = { x: attackerNode.x, y: attackerNode.y };
+        const to = { x: defenderNode.x, y: defenderNode.y };
+        
+        if (type === 'melee') {
+            this.animations.push({
+                type: 'melee_swing',
+                from, to,
+                start: Date.now(),
+                duration: 600
+            });
+        } else {
+            this.animations.push({
+                type: 'projectile',
+                from, to,
+                start: Date.now(),
+                duration: 600
+            });
+        }
+
+        // Zarları biraz gecikmeli göster (saldırı hedefe ulaşınca)
+        setTimeout(() => {
+            this.animations.push({
+                type: 'combat_dice',
+                x: to.x, y: to.y,
+                d1, d2,
+                start: Date.now(),
+                duration: 1500
+            });
+        }, 300);
     }
 
     startAnimationLoop() {
