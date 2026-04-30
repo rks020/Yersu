@@ -745,11 +745,12 @@ class GameState {
     }
 
     resolveCombat(attackerUnit, attackerPlayer, targetNode, targetUnitOverride = null) {
-        const defenderPlayerId = targetNode.army.playerId;
-        const defenderPlayer   = this.players.find(p => p.id === defenderPlayerId);
-        
         // Eğer hedef birim seçilmediyse ilki (en üstteki) varsayılan olur
         const defenderUnit = targetUnitOverride || targetNode.army.units[0];
+        if (!defenderUnit) return { winner: 'attacker', casualty: 'none' };
+
+        const defenderPlayerId = defenderUnit.playerId !== undefined ? defenderUnit.playerId : targetNode.army.playerId;
+        const defenderPlayer   = this.players.find(p => p.id === defenderPlayerId);
         
         if (!defenderUnit) return { winner: 'attacker', casualty: 'none' };
 

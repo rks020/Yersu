@@ -208,14 +208,22 @@ class AIEngine {
                 sourceNode.adjacentNodes.forEach(nid => {
                     if (targetNode) return;
                     const n = this.state.grid.nodes.get(nid);
-                    if (n.army && n.army.playerId !== player.id) targetNode = n;
+                    const hasEnemy = n.army && n.army.units.some(u => {
+                        const ownerId = u.playerId !== undefined ? u.playerId : n.army.playerId;
+                        return ownerId !== player.id;
+                    });
+                    if (hasEnemy) targetNode = n;
                 });
 
                 // 2. Menzilli Dövüş Kontrolü (dist > 1)
                 if (!targetNode && udata.range > 0) {
                     this.state.grid.nodes.forEach(n => {
                         if (targetNode) return;
-                        if (n.army && n.army.playerId !== player.id) {
+                        const hasEnemy = n.army && n.army.units.some(u => {
+                            const ownerId = u.playerId !== undefined ? u.playerId : n.army.playerId;
+                            return ownerId !== player.id;
+                        });
+                        if (hasEnemy) {
                             const dist = this.state.grid.getDistance(unit.nodeId, n.id);
                             if (dist > 1 && dist <= udata.range) targetNode = n;
                         }

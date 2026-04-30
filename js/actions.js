@@ -42,7 +42,7 @@ class Actions {
         if (!ownsAdjacent) return false;
 
         const uid = p.nextUnitId();
-        const unitData = { uid, type: 'kilicli', hp: 1, movesLeft: 0, nodeId };
+        const unitData = { uid, type: 'kilicli', hp: 1, movesLeft: 0, nodeId, playerId: p.id };
 
         p.units.push(unitData);
 
@@ -207,7 +207,7 @@ class Actions {
 
         p.resources.gold -= cost;
         const uid = p.nextUnitId();
-        const unitData = { uid, type: unitType, hp: 1, movesLeft: 0, nodeId, hasAttacked: false };
+        const unitData = { uid, type: unitType, hp: 1, movesLeft: 0, nodeId, hasAttacked: false, playerId: p.id };
         p.units.push(unitData);
 
         if (!node.army) node.army = { playerId, units: [] };
@@ -269,16 +269,14 @@ class Actions {
 
         unitDef.movesLeft = Math.max(0, unitDef.movesLeft - cost);
         unitDef.nodeId = targetNodeId;
+        if (unitDef.playerId === undefined) unitDef.playerId = playerId; // Güvenlik için
 
-        // Düşman node'u mu?
-        if (targetNode.army && targetNode.army.playerId !== playerId) {
-            this.state.addLog(`⚠️ Düşman biriminin üzerine hareket edilemez! Saldırı için Saldırı Aşaması'nı bekleyin.`, 'warning');
-            return false;
+        // Hedefte ordu varsa ekle, yoksa yeni ordu oluştur
+        if (!targetNode.army) {
+            targetNode.army = { playerId, units: [] };
         }
-
-        // Dostane node veya boş node (Combat artık burada olmuyor)
-        if (!targetNode.army) targetNode.army = { playerId, units: [] };
         targetNode.army.units.push(movingUnit);
+        
         return { type: 'move' };
     }
 
@@ -291,7 +289,14 @@ class Actions {
         if (!udata || !udata.range) return false;
 
         const targetNode = this.state.grid.nodes.get(targetNodeId);
-        if (!targetNode || !targetNode.army || targetNode.army.playerId === playerId) return false;
+        if (!targetNode || !targetNode.army) return false;
+
+        // Hedefte en az bir düşman birimi olmalı
+        const hasEnemy = targetNode.army.units.some(u => {
+            const ownerId = u.playerId !== undefined ? u.playerId : targetNode.army.playerId;
+            return ownerId !== playerId;
+        });
+        if (!hasEnemy) return false;
 
         let actualRange = udata.range;
         if (unit.type === 'mancinik' && p.bonusState && p.bonusState.mancinikRangeBonus) {
@@ -313,7 +318,7 @@ class Actions {
         combat.animation = '🏹';
 
         if (combat.casualty === 'defender') {
-            const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
+            const defPlayer = this.state.players.find(pl => pl.id === combat.defender.unit.playerId);
             const killed = combat.defender.unit;
             if (defPlayer && killed) {
                 targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
@@ -332,7 +337,14 @@ class Actions {
         if (!unit || unit.hasAttacked) return false;
 
         const targetNode = this.state.grid.nodes.get(targetNodeId);
-        if (!targetNode || !targetNode.army || targetNode.army.playerId === playerId) return false;
+        if (!targetNode || !targetNode.army) return false;
+
+        // Hedefte en az bir düşman birimi olmalı
+        const hasEnemy = targetNode.army.units.some(u => {
+            const ownerId = u.playerId !== undefined ? u.playerId : targetNode.army.playerId;
+            return ownerId !== playerId;
+        });
+        if (!hasEnemy) return false;
 
         const dist = this.state.grid.getDistance(unit.nodeId, targetNodeId);
         const udata = UNIT_DATA[unit.type];
@@ -342,8 +354,8 @@ class Actions {
             return this.rangeAttack(playerId, unitUid, targetNodeId, targetUnitUid);
         }
 
-        // 2. Yakın Dövüş (Menzil 1)
-        if (dist === 1) {
+        // 2. Yakın Dövüş (Menzil <= 1)
+        if (dist <= 1) {
             if (udata.special === 'no_attack') {
                 this.state.addLog(`⚠️ ${udata.name} saldıramaz!`, 'warning');
                 return false;
@@ -364,10 +376,14 @@ class Actions {
                     if (sourceNode.army.units.length === 0) sourceNode.army = null;
                 }
             } else if (combat.casualty === 'defender') {
-                const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
                 const killed = combat.defender.unit;
-                targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
-                if (killed) defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
+                const defPlayerId = killed.playerId !== undefined ? killed.playerId : targetNode.army.playerId;
+                const defPlayer = this.state.players.find(pl => pl.id === defPlayerId);
+                
+                if (defPlayer && killed) {
+                    targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
+                    defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
+                }
 
                 if (targetNode.army.units.length === 0) {
                     targetNode.army = null;

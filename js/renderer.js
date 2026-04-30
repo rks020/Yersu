@@ -545,7 +545,14 @@ class Renderer {
             const units = node.army.units;
             units.forEach((unit, idx) => {
                 const offset = idx * 3; // Hafif kaydırma
-                this._drawUnitIcon(node.x + offset, node.y - offset, unit, player, isSelected);
+                
+                // Birimin kendi sahibini bul (yeni sistem), yoksa ordunun sahibini kullan (eski sistem)
+                const uid = unit.playerId !== undefined ? unit.playerId : node.army.playerId;
+                const unitPlayer = this.state.players.find(p => p.id === uid);
+                
+                if (unitPlayer) {
+                    this._drawUnitIcon(node.x + offset, node.y - offset, unit, unitPlayer, isSelected);
+                }
             });
 
             // Hareket puanı (İlk birim üzerinden göster)
