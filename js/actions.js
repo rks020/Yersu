@@ -207,7 +207,7 @@ class Actions {
 
         p.resources.gold -= cost;
         const uid = p.nextUnitId();
-        const unitData = { uid, type: unitType, hp: 1, movesLeft: 0, nodeId, hasAttacked: true };
+        const unitData = { uid, type: unitType, hp: 1, movesLeft: 0, nodeId, hasAttacked: false };
         p.units.push(unitData);
 
         if (!node.army) node.army = { playerId, units: [] };
