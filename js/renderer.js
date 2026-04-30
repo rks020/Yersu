@@ -531,66 +531,58 @@ class Renderer {
 
     _drawArmies() {
         const ctx = this.ctx;
+        if (!this.state.grid.nodes) return;
+
         for (const node of this.state.grid.nodes.values()) {
             if (!node.army || !node.army.units || node.army.units.length === 0) continue;
 
-            // 1. Gruplama: "playerId_unitType" bazlı sayım
-            const groupedData = {}; // key -> { count, unit, pid, type }
+            // 1. Oyuncu bazlı ayır
+            const pUnits = {};
             node.army.units.forEach(u => {
                 const pid = u.playerId || node.army.playerId;
-                const type = u.type;
-                const key = `${pid}_${type}`;
-                
-                if (!groupedData[key]) {
-                    groupedData[key] = { count: 0, unit: u, pid, type };
-                }
-                groupedData[key].count++;
+                if (!pUnits[pid]) pUnits[pid] = [];
+                pUnits[pid].push(u);
             });
 
-            // 2. Oyuncu bazlı grupları ayır
-            const playerGroups = {}; // pid -> [{count, unit, type}]
-            Object.values(groupedData).forEach(g => {
-                if (!playerGroups[g.pid]) playerGroups[g.pid] = [];
-                playerGroups[g.pid].push(g);
-            });
-
-            const pIds = Object.keys(playerGroups);
+            const pIds = Object.keys(pUnits);
             const isContested = pIds.length > 1;
 
             pIds.forEach((pid, pIdx) => {
                 const player = this.state.players.find(p => p.id === pid);
                 if (!player) return;
 
-                const pGroup = playerGroups[pid];
-                
-                // Oyuncu bazlı ana ofset
+                const counts = {};
+                const representative = {};
+                pUnits[pid].forEach(u => {
+                    if (!counts[u.type]) {
+                        counts[u.type] = 0;
+                        representative[u.type] = u;
+                    }
+                    counts[u.type]++;
+                });
+
                 const pBaseX = isContested ? (pIdx === 0 ? -22 : 22) : 0;
                 const pBaseY = isContested ? (pIdx === 0 ? -12 : 12) : 0;
 
-                pGroup.forEach((g, gIdx) => {
-                    const gOffset = gIdx * 5; 
+                Object.keys(counts).forEach((uType, uIdx) => {
+                    const count = counts[uType];
+                    const unit = representative[uType];
+                    const gOffset = uIdx * 5;
                     const drawX = node.x + pBaseX + gOffset;
                     const drawY = node.y + pBaseY - gOffset;
-                    
-                    // Seçim kontrolü
+
                     let isSelected = false;
                     if (this.state.selectedUnitNode === node.id && this.state.selectedUnit) {
                         const selPid = this.state.selectedUnit.playerId || this.state.currentPlayer.id;
-                        if (this.state.selectedUnit.type === g.type && selPid === pid) {
-                            isSelected = true;
-                        }
+                        if (this.state.selectedUnit.type === uType && selPid === pid) isSelected = true;
                     }
 
-                    this._drawUnitIcon(drawX, drawY, g.unit, player, isSelected);
-
-                    if (g.count > 1) {
-                        this._drawCountBadge(drawX + 13, drawY - 13, g.count);
-                    }
+                    this._drawUnitIcon(drawX, drawY, unit, player, isSelected);
+                    if (count > 1) this._drawCountBadge(drawX + 13, drawY - 13, count);
                 });
 
-                // MP Göstergesi
-                if (pid === this.state.currentPlayer.id && pGroup.length > 0) {
-                    const firstUnit = pGroup[0].unit;
+                if (pid === this.state.currentPlayer.id && pUnits[pid].length > 0) {
+                    const firstUnit = pUnits[pid][0];
                     if (firstUnit && firstUnit.movesLeft !== undefined) {
                         ctx.save();
                         ctx.font = 'bold 10px sans-serif';
