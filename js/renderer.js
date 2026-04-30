@@ -612,7 +612,7 @@ class Renderer {
                 ctx.textAlign = 'center';
                 ctx.fillText('💥', node.x, node.y - 30);
             }
-        });
+        }
     }
 
     _drawCountBadge(x, y, count) {
