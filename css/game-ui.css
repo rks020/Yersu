@@ -1456,13 +1456,13 @@ button:disabled {
 
 .dice-total-text {
     font-family: 'Cinzel', serif;
-    font-size: 2.2rem;
+    font-size: 1.4rem; /* Küçültüldü */
     color: var(--gold);
     text-shadow: 0 0 20px rgba(0, 0, 0, 1), 0 0 5px #000;
     font-weight: bold;
     background: rgba(0, 0, 0, 0.7);
-    padding: 12px 40px;
-    border-radius: 50px;
+    padding: 8px 25px; /* Daraltıldı */
+    border-radius: 40px;
     border: 1px solid var(--gold);
     backdrop-filter: blur(8px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
