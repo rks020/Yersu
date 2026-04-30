@@ -272,49 +272,11 @@ class Actions {
 
         // Düşman node'u mu?
         if (targetNode.army && targetNode.army.playerId !== playerId) {
-            if (udata.special === 'no_attack') {
-                // Hareketi geri al
-                unitDef.movesLeft += cost;
-                unitDef.nodeId = startNodeId;
-                if (!startNode.army) startNode.army = { playerId, units: [] };
-                startNode.army.units.push(movingUnit);
-                this.state.addLog(`⚠️ ${udata.name} saldıramaz!`, 'warning');
-                return false;
-            }
-
-            // Savaş
-            const targetUnit = targetUnitUid ? targetNode.army.units.find(u => u.uid === targetUnitUid) : null;
-            const combat = this.state.resolveCombat(movingUnit, p, targetNode, targetUnit);
-            combat.animation = '⚔️';
-            unitDef.hasAttacked = true;
-            unitDef.movesLeft = 0;
-
-            if (combat.casualty === 'attacker') {
-                p.units = p.units.filter(u => u.uid !== unitUid);
-            } else if (combat.casualty === 'defender') {
-                const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
-                const killed = combat.defender.unit;
-                targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
-                if (killed) defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
-
-                if (targetNode.army.units.length === 0) {
-                    targetNode.army = { playerId, units: [movingUnit] };
-                } else {
-                    unitDef.nodeId = startNodeId;
-                    if (!startNode.army) startNode.army = { playerId, units: [] };
-                    startNode.army.units.push(movingUnit);
-                }
-            } else {
-                unitDef.nodeId = startNodeId;
-                if (!startNode.army) startNode.army = { playerId, units: [] };
-                startNode.army.units.push(movingUnit);
-            }
-
-            this.state.checkVictory();
-            return combat;
+            this.state.addLog(`⚠️ Düşman biriminin üzerine hareket edilemez! Saldırı için Saldırı Aşaması'nı bekleyin.`, 'warning');
+            return false;
         }
 
-        // Dostane node veya boş node (Combat olmadıysa buraya düşer)
+        // Dostane node veya boş node (Combat artık burada olmuyor)
         if (!targetNode.army) targetNode.army = { playerId, units: [] };
         targetNode.army.units.push(movingUnit);
         return { type: 'move' };
@@ -362,6 +324,61 @@ class Actions {
 
         this.state.checkVictory();
         return combat;
+    }
+
+    performAttack(playerId, unitUid, targetNodeId, targetUnitUid = null) {
+        const p = this.state.players.find(pl => pl.id === playerId);
+        const unit = p?.units.find(u => u.uid === unitUid);
+        if (!unit || unit.hasAttacked) return false;
+
+        const targetNode = this.state.grid.nodes.get(targetNodeId);
+        if (!targetNode || !targetNode.army || targetNode.army.playerId === playerId) return false;
+
+        const dist = this.state.grid.getDistance(unit.nodeId, targetNodeId);
+        const udata = UNIT_DATA[unit.type];
+
+        // 1. Menzilli Saldırı
+        if (dist > 1) {
+            return this.rangeAttack(playerId, unitUid, targetNodeId, targetUnitUid);
+        }
+
+        // 2. Yakın Dövüş (Menzil 1)
+        if (dist === 1) {
+            if (udata.special === 'no_attack') {
+                this.state.addLog(`⚠️ ${udata.name} saldıramaz!`, 'warning');
+                return false;
+            }
+
+            unit.hasAttacked = true;
+            unit.movesLeft = 0;
+
+            const targetUnit = targetUnitUid ? targetNode.army.units.find(u => u.uid === targetUnitUid) : null;
+            const combat = this.state.resolveCombat(unit, p, targetNode, targetUnit);
+            combat.animation = '⚔️';
+
+            if (combat.casualty === 'attacker') {
+                p.units = p.units.filter(u => u.uid !== unitUid);
+                const sourceNode = this.state.grid.nodes.get(unit.nodeId);
+                if (sourceNode.army) {
+                    sourceNode.army.units = sourceNode.army.units.filter(u => u.uid !== unitUid);
+                    if (sourceNode.army.units.length === 0) sourceNode.army = null;
+                }
+            } else if (combat.casualty === 'defender') {
+                const defPlayer = this.state.players.find(pl => pl.id === targetNode.army.playerId);
+                const killed = combat.defender.unit;
+                targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
+                if (killed) defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
+
+                if (targetNode.army.units.length === 0) {
+                    targetNode.army = null;
+                }
+            }
+
+            this.state.checkVictory();
+            return combat;
+        }
+
+        return false;
     }
 
     tradeWithBank(playerId, sellRes, buyRes, buyRes2 = null, tradeCount = 1) {

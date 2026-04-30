@@ -187,28 +187,36 @@ class AIEngine {
 
         // 3. Saldırı Aşaması
         if (this.state.subPhase === 'attack') {
-            const rangeUnits = player.units.filter(u => {
-                const udata = UNIT_DATA[u.type];
-                return !u.hasAttacked && udata.range > 0;
-            });
+            const rangeUnits = player.units.filter(u => !u.hasAttacked);
 
             if (rangeUnits.length > 0) {
                 const unit = rangeUnits[0];
                 const udata = UNIT_DATA[unit.type];
                 const sourceNode = this.state.grid.nodes.get(unit.nodeId);
                 
-                // Menzildeki düşmanları bul
+                // Menzildeki düşmanları bul (Önce Menzilli, sonra Yakın)
                 let targetNode = null;
-                this.state.grid.nodes.forEach(n => {
+                
+                // 1. Yakın Dövüş Kontrolü (dist 1)
+                sourceNode.adjacentNodes.forEach(nid => {
                     if (targetNode) return;
-                    if (n.army && n.army.playerId !== player.id) {
-                        const dist = this.state.grid.getDistance(unit.nodeId, n.id);
-                        if (dist > 0 && dist <= udata.range) targetNode = n;
-                    }
+                    const n = this.state.grid.nodes.get(nid);
+                    if (n.army && n.army.playerId !== player.id) targetNode = n;
                 });
 
+                // 2. Menzilli Dövüş Kontrolü (dist > 1)
+                if (!targetNode && udata.range > 0) {
+                    this.state.grid.nodes.forEach(n => {
+                        if (targetNode) return;
+                        if (n.army && n.army.playerId !== player.id) {
+                            const dist = this.state.grid.getDistance(unit.nodeId, n.id);
+                            if (dist > 1 && dist <= udata.range) targetNode = n;
+                        }
+                    });
+                }
+
                 if (targetNode) {
-                    const res = this.actions.rangeAttack(player.id, unit.uid, targetNode.id);
+                    const res = this.actions.performAttack(player.id, unit.uid, targetNode.id);
                     if (res && window.appMain && window.appMain.ui) {
                         window.appMain.ui.showCombatAnimation(sourceNode, targetNode, res);
                         window.appMain.ui.showCombatReport(res);
@@ -217,7 +225,7 @@ class AIEngine {
                     setTimeout(() => this.doMainTurn(player), 2800);
                     return;
                 } else {
-                    // Menzilde kimse yoksa bu birimin sırasını geç
+                    // Saldıracak kimse yoksa bu birimin sırasını geç
                     unit.hasAttacked = true;
                     setTimeout(() => this.doMainTurn(player), 200);
                     return;
