@@ -2164,3 +2164,49 @@ button:disabled {
 .combat-modal.active {
     display: flex !important;
 }
+
+/* ─── THEMATIC COLORS & SPACING FIX ─── */
+
+.combat-unit-frame.attacker {
+    border-color: #00c6ff !important;
+    box-shadow: 0 0 25px rgba(0, 198, 255, 0.6) !important;
+}
+
+.combat-unit-frame.defender {
+    border-color: #ff4b2b !important;
+    box-shadow: 0 0 25px rgba(255, 75, 43, 0.6) !important;
+}
+
+.combat-info-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    margin-top: -10px; /* Bring it closer but not overlapping */
+    z-index: 100;
+    pointer-events: auto !important; /* Ensure children are clickable */
+}
+
+.combat-result-text {
+    margin: 5px 0 !important;
+    font-size: 1.4rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    z-index: 101;
+}
+
+.combat-footer {
+    margin-top: 5px;
+    z-index: 102;
+    pointer-events: auto !important;
+}
+
+.dice-central-area {
+    margin-top: 10px; /* Space from top */
+}
+
+/* Fix SVG covering everything */
+#animSvg {
+    pointer-events: none !important;
+}

@@ -474,7 +474,7 @@
                 <svg id="animSvg"></svg>
                 
                 <div class="combat-side" id="attacker-side">
-                    <div class="combat-unit-frame" id="atk-frame"></div>
+                    <div class="combat-unit-frame attacker" id="atk-frame"></div>
                     <div id="atk-name" class="combat-name">Saldıran</div>
                 </div>
 
@@ -498,15 +498,16 @@
                 </div>
 
                 <div class="combat-side" id="defender-side">
-                    <div class="combat-unit-frame" id="def-frame"></div>
+                    <div class="combat-unit-frame defender" id="def-frame"></div>
                     <div id="def-name" class="combat-name">Savunan</div>
                 </div>
             </div>
             
-            <div id="combat-result-text" class="combat-result-text"></div>
-
-            <div class="combat-footer">
-                <button id="btn-close-combat" class="btn-build">Devam Et</button>
+            <div class="combat-info-panel">
+                <div id="combat-result-text" class="combat-result-text"></div>
+                <div class="combat-footer">
+                    <button id="btn-close-combat" class="btn-build">Devam Et</button>
+                </div>
             </div>
         </div>
     </div>
