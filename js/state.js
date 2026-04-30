@@ -611,10 +611,13 @@ class GameState {
     }
 
     transitionToMove() {
-        if (this.subPhase === 'build') {
-            this.subPhase = 'move';
-            this.addLog("🏇 İnşa aşaması bitti, hareket aşaması başladı.", "info");
-        }
+        this.subPhase = 'move';
+        this.addLog("🏇 Hareket aşaması başladı.", "info");
+    }
+
+    transitionToAttack() {
+        this.subPhase = 'attack';
+        this.addLog("🏹 Saldırı aşaması başladı.", "info");
     }
 
     resetTurnActions() {

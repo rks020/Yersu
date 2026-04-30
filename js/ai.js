@@ -157,7 +157,6 @@ class AIEngine {
                 const node = this.state.grid.nodes.get(unit.nodeId);
                 const targetId = node.adjacentNodes[Math.floor(Math.random() * node.adjacentNodes.length)];
                 
-                // Kaynak Node'u kopyala (animasyon için)
                 const sourceNodeId = unit.nodeId;
                 const sourceNode = this.state.grid.nodes.get(sourceNodeId);
                 const targetNode = this.state.grid.nodes.get(targetId);
@@ -166,21 +165,63 @@ class AIEngine {
                 
                 let delay = 500;
                 if (!res) {
-                    // Eğer hareket geçerli değilse, takılmasını önlemek için MP'sini sıfırla
                     unit.movesLeft = 0;
                 } else if (res.type !== 'move') {
-                    // Savaş gerçekleştiyse animasyon ve rapor göster
                     if (window.appMain && window.appMain.ui) {
                         window.appMain.ui.showCombatAnimation(sourceNode, targetNode, res);
                         window.appMain.ui.showCombatReport(res);
                         window.appMain.ui.update();
                     }
-                    delay = 2800; // Savaş zarları (2.5s) kaybolana kadar bekle
+                    delay = 2800;
                 }
 
-                // Hareket sonrası tekrar kontrol için
                 setTimeout(() => this.doMainTurn(player), delay);
                 return;
+            }
+
+            // Hareketler bitti, saldırı aşamasına geç
+            this.state.transitionToAttack();
+            setTimeout(() => this.doMainTurn(player), 500);
+            return;
+        }
+
+        // 3. Saldırı Aşaması
+        if (this.state.subPhase === 'attack') {
+            const rangeUnits = player.units.filter(u => {
+                const udata = UNIT_DATA[u.type];
+                return !u.hasAttacked && udata.range > 0;
+            });
+
+            if (rangeUnits.length > 0) {
+                const unit = rangeUnits[0];
+                const udata = UNIT_DATA[unit.type];
+                const sourceNode = this.state.grid.nodes.get(unit.nodeId);
+                
+                // Menzildeki düşmanları bul
+                let targetNode = null;
+                this.state.grid.nodes.forEach(n => {
+                    if (targetNode) return;
+                    if (n.army && n.army.playerId !== player.id) {
+                        const dist = this.state.grid.getDistance(unit.nodeId, n.id);
+                        if (dist > 0 && dist <= udata.range) targetNode = n;
+                    }
+                });
+
+                if (targetNode) {
+                    const res = this.actions.rangeAttack(player.id, unit.uid, targetNode.id);
+                    if (res && window.appMain && window.appMain.ui) {
+                        window.appMain.ui.showCombatAnimation(sourceNode, targetNode, res);
+                        window.appMain.ui.showCombatReport(res);
+                        window.appMain.ui.update();
+                    }
+                    setTimeout(() => this.doMainTurn(player), 2800);
+                    return;
+                } else {
+                    // Menzilde kimse yoksa bu birimin sırasını geç
+                    unit.hasAttacked = true;
+                    setTimeout(() => this.doMainTurn(player), 200);
+                    return;
+                }
             }
         }
 

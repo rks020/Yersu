@@ -320,7 +320,14 @@ class UI {
             if (clickedNode.army && clickedNode.army.playerId === current.id) {
                 const unit = clickedNode.army.units[0];
                 const udata = UNIT_DATA[unit.type];
-                const canAct = unit.movesLeft > 0 || (udata.range > 0 && !unit.hasAttacked);
+                
+                // Hareket turunda movesLeft > 0 olmalı. Saldırı turunda hasAttacked false olmalı.
+                let canAct = false;
+                if (this.state.subPhase === 'move') {
+                    canAct = unit.movesLeft > 0;
+                } else if (this.state.subPhase === 'attack') {
+                    canAct = !unit.hasAttacked && udata.range > 0;
+                }
 
                 if (!canAct) {
                     this.showNotice("Bu birim bu tur yapabileceği her şeyi yaptı!", "warning");
@@ -329,8 +336,22 @@ class UI {
                 this.state.selectedUnit = unit;
                 this.state.selectedUnitNode = clickedNode.id;
                 this.state.actionMode = 'moveOrAttack';
-                this._updateMovementHighlights(clickedNode.id, unit);
-                this.showNotice("Hareket etmek veya saldırmak için HEDEF DÜĞME'ye tıklayın.", "info");
+                
+                if (this.state.subPhase === 'move') {
+                    this._updateMovementHighlights(clickedNode.id, unit);
+                    this.showNotice("Hareket etmek için HEDEF DÜĞME'ye tıklayın.", "info");
+                } else {
+                    // Saldırı turunda sadece menzilli saldırı seçeneği
+                    this.state.highlightedNodes.clear();
+                    // Menzilini gösterelim
+                    this.state.rangeHighlightedNodes.clear();
+                    const dist = udata.range;
+                    this.state.grid.nodes.forEach(n => {
+                        const d = this.state.grid.getDistance(clickedNode.id, n.id);
+                        if (d > 0 && d <= dist) this.state.rangeHighlightedNodes.add(n.id);
+                    });
+                    this.showNotice("Saldırmak için menzilindeki bir DÜŞMAN'a tıklayın.", "info");
+                }
             } else {
                 this.state.clearSelection();
             }
@@ -359,6 +380,12 @@ class UI {
                         this.update();
                         return;
                     }
+                }
+
+                // Saldırı turundaysak ve menzilli değilse harekete izin verme
+                if (this.state.subPhase === 'attack') {
+                    this.showNotice("Saldırı turunda hareket edemezsiniz!", "warning");
+                    return;
                 }
 
                 const res = this.actions.moveUnit(current.id, unit.uid, clickedNode.id, targetUnitUid);
@@ -419,19 +446,37 @@ class UI {
 
                 // OTOMATİK HAREKET MODU: Hareket aşamasındaysak ve kendi birimimizse doğrudan hareket moduna geç
                 // OTOMATİK HAREKET MODU: Hareket aşamasındaysak ve kendi birimimizse
-                if (this.state.subPhase === 'move' && clickedNode.army.playerId === current.id) {
+                // OTOMATİK SEÇİM: Hareket veya Saldırı aşamasındaysak ve kendi birimimizse
+                if ((this.state.subPhase === 'move' || this.state.subPhase === 'attack') && clickedNode.army.playerId === current.id) {
                     const selectUnit = (unit) => {
                         const udata = UNIT_DATA[unit.type];
-                        const canAct = unit.movesLeft > 0 || (udata.range > 0 && !unit.hasAttacked);
+                        let canAct = false;
+                        if (this.state.subPhase === 'move') {
+                            canAct = unit.movesLeft > 0;
+                        } else {
+                            canAct = !unit.hasAttacked && udata.range > 0;
+                        }
 
                         if (canAct) {
                             this.state.selectedUnit = unit;
                             this.state.selectedUnitNode = clickedNode.id;
                             this.state.actionMode = 'moveOrAttack';
-                            this._updateMovementHighlights(clickedNode.id, unit);
-                            this.showNotice(`${udata.name} seçildi. Hedef noktaya tıklayarak hareket edin veya saldırın.`, "info");
+                            
+                            if (this.state.subPhase === 'move') {
+                                this._updateMovementHighlights(clickedNode.id, unit);
+                                this.showNotice(`${udata.name} seçildi. Hareket etmek için hedef noktaya tıklayın.`, "info");
+                            } else {
+                                // Menzilini göster
+                                this.state.rangeHighlightedNodes.clear();
+                                const dist = udata.range;
+                                this.state.grid.nodes.forEach(n => {
+                                    const d = this.state.grid.getDistance(clickedNode.id, n.id);
+                                    if (d > 0 && d <= dist) this.state.rangeHighlightedNodes.add(n.id);
+                                });
+                                this.showNotice(`${udata.name} seçildi. Saldırmak için menzilindeki bir düşmana tıklayın.`, "info");
+                            }
                         } else {
-                            this.showNotice("Bu birim bu tur yapabileceği her şeyi yaptı!", "warning");
+                            this.showNotice("Bu birim bu aşamada yapabileceği her şeyi yaptı!", "warning");
                         }
                         this.update();
                     };
@@ -560,6 +605,12 @@ class UI {
             this.update();
             return;
         }
+        if (this.state.subPhase === 'move') {
+            this.state.transitionToAttack();
+            this.update();
+            return;
+        }
+        
         if (window.appMain) window.appMain.nextTurn();
         else { this.state.nextTurn(); this.update(); }
     }
@@ -737,7 +788,8 @@ class UI {
         const p = this.state.currentPlayer;
         const sub = (this.state.subPhase === 'production') ? 'Üretim' :
             (this.state.subPhase === 'build') ? 'İnşa & Ticaret' :
-                (this.state.subPhase === 'move') ? 'Hareket' : 'Eylem';
+                (this.state.subPhase === 'move') ? 'Hareket' : 
+                    (this.state.subPhase === 'attack') ? 'Saldırı' : 'Eylem';
 
         if (this.els.turnIndicator) {
             this.els.turnIndicator.innerHTML = `Tur ${this.state.turn} — <span style="color:${p.color}">${p.name}</span> (${sub})`;
@@ -745,7 +797,10 @@ class UI {
         if (this.els.rollDiceBtn) this.els.rollDiceBtn.disabled = (this.state.subPhase !== 'production' || p.isAI);
         if (this.els.endTurnBtn) {
             this.els.endTurnBtn.disabled = (this.state.subPhase === 'production' || p.isAI);
-            this.els.endTurnBtn.textContent = (this.state.subPhase === 'build') ? '⏭ Hareket Aşaması' : '🏁 Turu Bitir';
+            let btnText = '🏁 Turu Bitir';
+            if (this.state.subPhase === 'build') btnText = '⏭ Hareket Aşaması';
+            else if (this.state.subPhase === 'move') btnText = '⏭ Saldırı Aşaması';
+            this.els.endTurnBtn.textContent = btnText;
         }
         if (this.els.setupInstruction) {
             this.els.setupInstruction.style.display = (this.state.phase === 'setup' && !p.isAI) ? 'block' : 'none';
@@ -843,10 +898,16 @@ class UI {
             btn.title = `${titleText} [Sıra:${isTurn ? 'Sende' : 'Başkası'}, Faz:${this.state.phase}, AltFaz:${sub}]`;
 
             if (action === 'move_unit') {
-                btn.disabled = !isTurn || sub !== 'move';
+                const canUse = isTurn && (sub === 'move' || sub === 'attack');
+                btn.disabled = !canUse;
+                if (sub === 'attack') {
+                    btn.innerHTML = "🎯 Saldırı Yap";
+                } else {
+                    btn.innerHTML = "🏇 Birim Taşı";
+                }
             } else if (action === 'train_unit' || action === 'trade') {
-                // Ana oyunda sıra sendeyse her zaman aktif olsun (üretim zarı atılmamışsa kapat)
-                btn.disabled = !isTurn || !isMain || sub === 'production';
+                // Sadece inşa aşamasında asker üretimi ve ticarete izin verelim (veya move'da da olabilir ama attack'da olmasın)
+                btn.disabled = !isTurn || !isMain || (sub !== 'build' && sub !== 'move');
             } else {
                 // İnşa butonları
                 if (!isMain) {
