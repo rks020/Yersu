@@ -2264,14 +2264,14 @@ button:disabled {
 }
 
 .combat-result-text {
-    margin: 0 !important;
-    font-size: 1.1rem; /* Okunabilir boyuta geri getirdik */
+    margin: 10px 0 0 0 !important; /* Üstten pay bırak */
+    font-size: 1.1rem;
     color: #44ff44;
     text-shadow: 0 0 10px rgba(0,255,0,0.5);
     z-index: 101;
-    flex: 1; /* Sola yaslasın butondan ayırsın */
     text-align: center;
     font-weight: bold;
+    width: 100%;
 }
 
 .combat-info-panel {
@@ -2281,8 +2281,7 @@ button:disabled {
 
 .combat-footer {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end; /* Butonu sağa çek */
     width: 100%;
     padding: 0 10px;
     z-index: 102;
