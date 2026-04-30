@@ -121,6 +121,24 @@ class UI {
         }
 
         let isDragging = false, lastX, lastY, hasMoved = false;
+        let lastTouchDist = 0;
+
+        // Touch desteği için yardımcı fonksiyonlar
+        const getTouchPos = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: e.touches[0].clientX - rect.left,
+                y: e.touches[0].clientY - rect.top,
+                rawX: e.touches[0].clientX,
+                rawY: e.touches[0].clientY
+            };
+        };
+
+        const getTouchDist = (e) => {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        };
 
         canvas.addEventListener('mousedown', (e) => {
             isDragging = true;
@@ -128,6 +146,18 @@ class UI {
             lastX = e.clientX;
             lastY = e.clientY;
         });
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                hasMoved = false;
+                const pos = getTouchPos(e);
+                lastX = pos.rawX;
+                lastY = pos.rawY;
+            } else if (e.touches.length === 2) {
+                lastTouchDist = getTouchDist(e);
+            }
+        }, { passive: false });
 
         window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
@@ -139,11 +169,42 @@ class UI {
             lastY = e.clientY;
         });
 
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 1 && isDragging) {
+                const pos = getTouchPos(e);
+                const dx = pos.rawX - lastX;
+                const dy = pos.rawY - lastY;
+                if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
+                this.renderer.pan(dx, dy);
+                lastX = pos.rawX;
+                lastY = pos.rawY;
+                e.preventDefault();
+            } else if (e.touches.length === 2) {
+                const dist = getTouchDist(e);
+                const factor = dist / lastTouchDist;
+                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                const rect = canvas.getBoundingClientRect();
+                this.renderer.zoom(factor, midX - rect.left, midY - rect.top);
+                lastTouchDist = dist;
+                e.preventDefault();
+            }
+        }, { passive: false });
+
         window.addEventListener('mouseup', (e) => {
             if (!isDragging) return;
             isDragging = false;
             if (!hasMoved && (e.target === canvas || canvas.contains(e.target))) {
                 this.handleClick(e.clientX, e.clientY);
+            }
+        });
+
+        window.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            if (!hasMoved && e.changedTouches.length > 0) {
+                const t = e.changedTouches[0];
+                this.handleClick(t.clientX, t.clientY);
             }
         });
 
