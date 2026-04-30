@@ -472,25 +472,16 @@
         <div class="combat-box">
             <div class="battlefield" id="battlefield">
                 <svg id="animSvg"></svg>
+                
                 <div class="combat-side" id="attacker-side">
                     <div class="combat-unit-frame" id="atk-frame"></div>
-                    <div id="atk-name" style="font-family:'Cinzel'; color:var(--gold); margin-top:10px;">Saldıran</div>
+                    <div id="atk-name" class="combat-name">Saldıran</div>
                 </div>
-                
-                <div class="vs-text">VS</div>
-                
-                <div class="combat-side" id="defender-side">
-                    <div class="combat-unit-frame" id="def-frame"></div>
-                    <div id="def-name" style="font-family:'Cinzel'; color:var(--gold); margin-top:10px;">Savunan</div>
-                </div>
-            </div>
-            
-            <div class="combat-stats">
-                <div class="stat-group central">
-                    <span class="stat-label">Düello Zarları</span>
+
+                <div class="dice-central-area">
                     <div class="dice-duel-row">
                         <div class="dice-side" id="atk-dice"></div>
-                        <div class="dice-vs-divider">VS</div>
+                        <div class="vs-text-central">VS</div>
                         <div class="dice-side" id="def-dice"></div>
                     </div>
                     <div class="power-row">
@@ -499,9 +490,14 @@
                         <span class="stat-value" id="def-power">0</span>
                     </div>
                 </div>
-            </div>
 
-            <div id="combat-result-text" style="font-family:'Cinzel'; font-size:1.2rem; margin-bottom:20px; color:#fff;"></div>
+                <div class="combat-side" id="defender-side">
+                    <div class="combat-unit-frame" id="def-frame"></div>
+                    <div id="def-name" class="combat-name">Savunan</div>
+                </div>
+            </div>
+            
+            <div id="combat-result-text" class="combat-result-text"></div>
 
             <div class="combat-footer">
                 <button id="btn-close-combat" class="btn-build">Devam Et</button>
