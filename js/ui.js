@@ -62,6 +62,7 @@ class UI {
             choiceModalCloseBtn: document.getElementById('btnChoiceModalClose'),
             
             nodeTooltip: document.getElementById('node-tooltip'),
+            nodeActionBtn: document.getElementById('node-action-btn'),
             combatModal: document.getElementById('combat-modal'),
             combatAtkFrame: document.getElementById('atk-frame'),
             combatDefFrame: document.getElementById('def-frame'),
@@ -615,6 +616,7 @@ class UI {
 
     showNodeTooltip(node, clientX, clientY) {
         const tooltip = this.els.nodeTooltip;
+        const actionBtn = this.els.nodeActionBtn;
         if (!tooltip) return;
 
         // Oyuncu bazlı grupla
@@ -651,15 +653,6 @@ class UI {
             `;
         });
         
-        if (this.state.subPhase === 'attack' && pIds.length > 1) {
-            html += `
-                <div class="tooltip-actions" style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px;">
-                    <button class="btn-primary" style="width:100%; font-size:0.75rem; padding:6px; background:#8b0000; border:1px solid #ff4444; border-radius:4px; cursor:pointer; color:white; font-family:'Outfit';" 
-                        onclick="window.gameUI.handleTooltipAttack('${node.id}')">⚔️ SALDIRI BAŞLAT</button>
-                </div>
-            `;
-        }
-
         tooltip.innerHTML = html;
         
         // FİKS: Fareyi takip etmek yerine noda sabitle (Buton tıklamayı kolaylaştırır)
@@ -676,6 +669,27 @@ class UI {
         tooltip.style.left = `${left}px`;
         tooltip.style.top = `${top}px`;
         tooltip.classList.add('active');
+
+        // AYRI SALDIRI BUTONU
+        if (actionBtn) {
+            if (this.state.subPhase === 'attack' && pIds.length > 1) {
+                actionBtn.innerHTML = `
+                    <button class="btn-attack-node" onclick="window.gameUI.handleTooltipAttack('${node.id}')">
+                        <span class="icon">⚔️</span>
+                        <span>SALDIRI</span>
+                    </button>
+                `;
+                // Butonu nodun diğer tarafına koyalım (Tooltip sağdaysa buton solda)
+                let btnLeft = canvasPos.x + rect.left - 85;
+                let btnTop = canvasPos.y + rect.top - 35;
+                
+                actionBtn.style.left = `${btnLeft}px`;
+                actionBtn.style.top = `${btnTop}px`;
+                actionBtn.classList.add('active');
+            } else {
+                actionBtn.classList.remove('active');
+            }
+        }
     }
 
     handleTooltipAttack(nodeId) {
@@ -732,6 +746,7 @@ class UI {
 
     hideNodeTooltip() {
         if (this.els.nodeTooltip) this.els.nodeTooltip.classList.remove('active');
+        if (this.els.nodeActionBtn) this.els.nodeActionBtn.classList.remove('active');
     }
 
     // ── Eylem Butonları ───────────────────────────────────────────

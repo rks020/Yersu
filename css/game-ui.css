@@ -549,6 +549,52 @@ body {
     font-size: 0.75rem;
 }
 
+/* ─── NODE ACTION BUTTON (SALDIRI BUTONU) ─── */
+.node-action-btn {
+    position: absolute;
+    display: none;
+    z-index: 1100; /* Tooltip'in bir tık üstü */
+    pointer-events: auto;
+}
+
+.node-action-btn.active {
+    display: block;
+}
+
+.btn-attack-node {
+    background: linear-gradient(135deg, #8b0000 0%, #4a0000 100%);
+    color: white;
+    border: 2px solid #ff4444;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    box-shadow: 0 5px 20px rgba(255, 0, 0, 0.4), inset 0 0 10px rgba(0,0,0,0.5);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-transform: uppercase;
+    line-height: 1.1;
+    text-align: center;
+}
+
+.btn-attack-node:hover {
+    transform: scale(1.15) rotate(5deg);
+    background: linear-gradient(135deg, #a00000 0%, #600000 100%);
+    box-shadow: 0 8px 30px rgba(255, 0, 0, 0.6);
+    border-color: #fff;
+}
+
+.btn-attack-node .icon {
+    font-size: 1.5rem;
+    margin-bottom: 2px;
+}
+
 .hex-biome-header {
     display: flex;
     align-items: center;
