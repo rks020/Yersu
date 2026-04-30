@@ -75,6 +75,7 @@ class UI {
         this._bindEvents();
         this._initBonusPanel();
         this.victoryModalShown = false;
+        window.gameUI = this; // Tooltip içinden erişim için
     }
 
     _getBuildingLevel(player, type) {
@@ -649,11 +650,72 @@ class UI {
                 </div>
             `;
         });
+        
+        if (this.state.subPhase === 'attack' && pIds.length > 1) {
+            html += `
+                <div class="tooltip-actions" style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px;">
+                    <button class="btn-primary" style="width:100%; font-size:0.75rem; padding:6px; background:#8b0000; border:1px solid #ff4444; border-radius:4px; cursor:pointer; color:white; font-family:'Outfit';" 
+                        onclick="window.gameUI.handleTooltipAttack('${node.id}')">⚔️ SALDIRI BAŞLAT</button>
+                </div>
+            `;
+        }
 
         tooltip.innerHTML = html;
         tooltip.style.left = `${clientX + 15}px`;
         tooltip.style.top = `${clientY + 15}px`;
         tooltip.classList.add('active');
+    }
+
+    handleTooltipAttack(nodeId) {
+        const node = this.state.grid.nodes.get(nodeId);
+        if (!node || !node.army) return;
+
+        const current = this.state.currentPlayer;
+        const myUnits = node.army.units.filter(u => {
+            const ownerId = u.playerId !== undefined ? u.playerId : node.army.playerId;
+            return String(ownerId) === String(current.id);
+        });
+
+        if (myUnits.length === 0) {
+            this.showNotice("Burada size ait bir birim yok!", "warning");
+            return;
+        }
+
+        const startAttackFlow = (attackerUnit) => {
+            // Düşman birimlerini bul
+            const enemyUnits = node.army.units.filter(u => {
+                const ownerId = u.playerId !== undefined ? u.playerId : node.army.playerId;
+                return String(ownerId) !== String(current.id);
+            });
+
+            const executePerform = (targetUnit = null) => {
+                const res = this.actions.performAttack(current.id, attackerUnit.uid, node.id, targetUnit ? targetUnit.uid : null);
+                if (res) {
+                    this.showCombatVS(res);
+                    this.state.clearSelection();
+                    this.update();
+                }
+            };
+
+            if (enemyUnits.length > 1) {
+                // Hedef seç (Mouse pozisyonu için tooltip'in olduğu yeri kullanalım)
+                const tooltip = this.els.nodeTooltip;
+                const tx = parseInt(tooltip.style.left);
+                const ty = parseInt(tooltip.style.top);
+                this.showUnitSelectionModal(node, (t) => executePerform(t), tx, ty, "Saldırılacak Hedefi Seçin", true);
+            } else {
+                executePerform(enemyUnits[0]);
+            }
+        };
+
+        if (myUnits.length > 1) {
+            const tooltip = this.els.nodeTooltip;
+            const tx = parseInt(tooltip.style.left);
+            const ty = parseInt(tooltip.style.top);
+            this.showUnitSelectionModal(node, (u) => startAttackFlow(u), tx, ty, "Saldıran Birimi Seçin", false);
+        } else {
+            startAttackFlow(myUnits[0]);
+        }
     }
 
     hideNodeTooltip() {
@@ -1475,7 +1537,7 @@ class UI {
         const currentPid = this.state.currentPlayer.id;
         const filteredUnits = node.army.units.filter(u => {
             const ownerId = u.playerId !== undefined ? u.playerId : node.army.playerId;
-            return isEnemy ? (ownerId !== currentPid) : (ownerId === currentPid);
+            return isEnemy ? (String(ownerId) !== String(currentPid)) : (String(ownerId) === String(currentPid));
         });
 
         filteredUnits.forEach(u => {

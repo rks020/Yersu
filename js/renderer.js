@@ -554,8 +554,8 @@ class Renderer {
                                     this.state.selectedUnit.uid === unit.uid);
 
                 const pIdx = pIds.indexOf(pid);
-                const pBaseX = isContested ? (pIdx === 0 ? -18 : 18) : 0;
-                const pBaseY = isContested ? (pIdx === 0 ? -10 : 10) : 0;
+                const pBaseX = isContested ? (pIdx === 0 ? -8 : 8) : 0;
+                const pBaseY = isContested ? (pIdx === 0 ? -4 : 4) : 0;
 
                 const uIdx = units.filter((u, i) => i < idx && (u.playerId !== undefined ? u.playerId : node.army.playerId) === pid).length;
                 const stackOffset = uIdx * 2; 

@@ -342,7 +342,7 @@ class Actions {
         // Hedefte en az bir düşman birimi olmalı
         const hasEnemy = targetNode.army.units.some(u => {
             const ownerId = u.playerId !== undefined ? u.playerId : targetNode.army.playerId;
-            return ownerId !== playerId;
+            return String(ownerId) !== String(playerId);
         });
         if (!hasEnemy) return false;
 
