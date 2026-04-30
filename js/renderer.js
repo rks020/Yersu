@@ -513,6 +513,9 @@ class Renderer {
             ctx.stroke();
         });
     }
+
+    // ── Node'lar (köşe noktaları) ─────────────────────────────────
+
     _drawNodes() {
         const ctx = this.ctx;
         this.state.grid.nodes.forEach(node => {
@@ -531,108 +534,53 @@ class Renderer {
 
     _drawArmies() {
         const ctx = this.ctx;
-        if (!this.state.grid.nodes) return;
+        this.state.grid.nodes.forEach(node => {
+            if (!node.army || node.army.units.length === 0) return;
+            const player = this.state.players.find(p => p.id === node.army.playerId);
+            if (!player) return;
 
-        for (const node of this.state.grid.nodes.values()) {
-            if (!node.army || !node.army.units || node.army.units.length === 0) continue;
-
-            // 1. Oyuncu bazlı ayır
-            const pUnits = {};
-            node.army.units.forEach(u => {
-                const pid = u.playerId || node.army.playerId;
-                if (!pUnits[pid]) pUnits[pid] = [];
-                pUnits[pid].push(u);
-            });
-
-            const pIds = Object.keys(pUnits);
-            const isContested = pIds.length > 1;
-
-            pIds.forEach((pid, pIdx) => {
-                const player = this.state.players.find(p => p.id === pid);
-                if (!player) return;
-
-                const counts = {};
-                const representative = {};
-                pUnits[pid].forEach(u => {
-                    if (!counts[u.type]) {
-                        counts[u.type] = 0;
-                        representative[u.type] = u;
-                    }
-                    counts[u.type]++;
-                });
-
-                const pBaseX = isContested ? (pIdx === 0 ? -22 : 22) : 0;
-                const pBaseY = isContested ? (pIdx === 0 ? -12 : 12) : 0;
-
-                Object.keys(counts).forEach((uType, uIdx) => {
-                    const count = counts[uType];
-                    const unit = representative[uType];
-                    const gOffset = uIdx * 5;
-                    const drawX = node.x + pBaseX + gOffset;
-                    const drawY = node.y + pBaseY - gOffset;
-
-                    let isSelected = false;
-                    if (this.state.selectedUnitNode === node.id && this.state.selectedUnit) {
-                        const selPid = this.state.selectedUnit.playerId || this.state.currentPlayer.id;
-                        if (this.state.selectedUnit.type === uType && selPid === pid) isSelected = true;
-                    }
-
-                    this._drawUnitIcon(drawX, drawY, unit, player, isSelected);
-                    if (count > 1) this._drawCountBadge(drawX + 13, drawY - 13, count);
-                });
-
-                if (pid === this.state.currentPlayer.id && pUnits[pid].length > 0) {
-                    const firstUnit = pUnits[pid][0];
-                    if (firstUnit && firstUnit.movesLeft !== undefined) {
-                        ctx.save();
-                        ctx.font = 'bold 10px sans-serif';
-                        ctx.fillStyle = '#ffeb3b';
-                        ctx.textAlign = 'center';
-                        ctx.shadowColor = 'black';
-                        ctx.shadowBlur = 4;
-                        ctx.fillText(`MP:${firstUnit.movesLeft}`, node.x + pBaseX, node.y + pBaseY + 25);
-                        ctx.shadowBlur = 0;
-                        ctx.restore();
-                    }
+            const isSelected = this.state.selectedUnitNode === node.id;
+            
+            // Orduyu çiz (Tersten çizerek üst üste binme sırasını ayarla)
+            const units = node.army.units;
+            units.forEach((unit, idx) => {
+                const offset = idx * 12; // Daha belirgin yan yana duruş için offset'i artırdık
+                
+                // Birimin kendi sahibini bul (yeni sistem), yoksa ordunun sahibini kullan (eski sistem)
+                const uid = unit.playerId !== undefined ? unit.playerId : node.army.playerId;
+                const unitPlayer = this.state.players.find(p => p.id === uid);
+                
+                if (unitPlayer) {
+                    this._drawUnitIcon(node.x + offset, node.y - offset, unit, unitPlayer, isSelected);
                 }
             });
 
+            // Hareket puanı (İlk birim üzerinden göster)
+            const firstUnit = units[0];
+            if (firstUnit && firstUnit.movesLeft !== undefined && player.id === this.state.currentPlayer.id) {
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillStyle = '#ffeb3b';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = 'black';
+                ctx.shadowBlur = 4;
+                ctx.fillText(`MP:${firstUnit.movesLeft}`, node.x, node.y + 25);
+                ctx.shadowBlur = 0;
+            }
+
             // Kuşatma göstergesi
-            const hasSiege = node.army.units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma');
+            const hasSiege = units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma');
             if (hasSiege) {
                 ctx.font = `14px serif`;
-                ctx.textAlign = 'center';
-                ctx.fillText('💥', node.x, node.y - 30);
+                ctx.fillText('💥', node.x + 18, node.y - 18);
             }
-        }
-    }
-
-    _drawCountBadge(x, y, count) {
-        const ctx = this.ctx;
-        const r = 9;
-        
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffeb3b'; // Altın sarısı
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        
-        ctx.font = 'bold 10px sans-serif';
-        ctx.fillStyle = '#000';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(count.toString(), x, y);
+        });
     }
 
     _drawUnitIcon(x, y, unit, player, isSelected) {
         const ctx = this.ctx;
-        const r = 19; 
+        const r = 19; // İkonu biraz daha büyüttük
         const data = UNIT_DATA[unit.type];
-        if (!data) return; // Güvenlik kontrolü: Veri yoksa çizme
-        
-        const img = this.unitImages[unit.type]; // Güvenlik kontrolü
+        const img = this.unitImages[unit.type];
 
         // 1. Seçim Highlight / Dış Gölge
         ctx.beginPath();
@@ -643,7 +591,7 @@ class Renderer {
         // 2. Kalın Oyuncu Rengi Çerçevesi
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = player.color || player.hex || '#ccc'; // Fallback eklendi
+        ctx.fillStyle = player.color; // Takım rengi (Kırmızı/Mavi vb.)
         ctx.fill();
         
         // İç Beyaz Kontur (Daha şık durması için)
