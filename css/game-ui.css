@@ -1712,14 +1712,15 @@ button:disabled {
 .combat-box {
     background: linear-gradient(90deg, #1b431b 0%, #0a230a 100%);
     border: 2px solid rgba(255,215,0,0.3);
-    border-radius: 12px;
+    border-radius: 8px;
     width: 100%;
     height: auto;
-    padding: 10px;
+    padding: 5px;
     box-shadow: 0 10px 50px rgba(0,0,0,0.8);
     display: flex;
+    flex-direction: column; /* Dikey stack */
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     position: relative;
     overflow: hidden;
 }
@@ -2004,10 +2005,10 @@ button:disabled {
 /* ─── ENHANCED DUEL DICE (SQUARE) ─── */
 
 .dice-container .die-body {
-    width: 44px;
-    height: 44px;
-    font-size: 1.5rem;
-    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    font-size: 1.2rem;
+    border-radius: 6px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
 
@@ -2043,14 +2044,14 @@ button:disabled {
 .dice-duel-row {
     display: flex;
     align-items: center;
-    gap: 20px;
-    margin: 15px 0;
+    gap: 10px;
+    margin: 5px 0;
 }
 
 .dice-side {
     display: flex;
-    gap: 8px;
-    min-width: 100px;
+    gap: 4px;
+    min-width: 60px;
     justify-content: center;
 }
 
@@ -2201,18 +2202,19 @@ button:disabled {
 
 .combat-modal {
     display: none !important;
-    position: absolute; /* Merkezi değil, noda yakın açılacak */
+    position: absolute;
     z-index: 10000;
-    width: 550px; /* Çok daha küçük ve kompakt */
+    width: 500px; /* Biraz daha dar */
     background: rgba(10, 12, 18, 0.98);
     backdrop-filter: blur(12px);
     border: 1px solid var(--gold);
     border-radius: 8px;
-    padding: 15px;
+    padding: 10px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.9);
     flex-direction: column;
     justify-content: flex-start;
     min-height: auto;
+    max-height: 250px; /* Yüksekliği iyice kısıtladık */
     pointer-events: auto;
     overflow: hidden;
 }
@@ -2222,21 +2224,23 @@ button:disabled {
 }
 
 .battlefield {
-    height: 180px !important; /* Yüksekliği azalttık */
-    margin-bottom: 5px;
+    height: 110px !important; /* İyice küçülttük */
+    margin-bottom: 0px;
+    padding: 0 15px !important;
+    width: 100% !important;
 }
 
 .combat-unit-frame {
-    width: 100px !important;
-    height: 100px !important;
+    width: 70px !important; /* 100'den 70'e */
+    height: 70px !important;
 }
 
 .stat-value {
-    font-size: 2rem !important;
+    font-size: 1.6rem !important; /* 2.2'den 1.6'ya */
 }
 
 .vs-text-central {
-    font-size: 1.5rem !important;
+    font-size: 1rem !important;
 }
 
 /* ─── THEMATIC COLORS & SPACING FIX ─── */
