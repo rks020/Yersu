@@ -366,35 +366,7 @@
         </div>
     </div>
 
-    <!-- SAVAŞ RAPORU -->
-    <div id="combatModal" class="modal-overlay">
-        <div class="modal-content" style="max-width:500px;text-align:center;">
-            <h2 id="combatTitle" style="margin-bottom:5px;">Savaş Raporu</h2>
-            <p id="combatDesc" style="font-size:0.9rem;color:#ccc;margin-bottom:20px;"></p>
-            <div
-                style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;">
-                <div style="flex:1;">
-                    <div id="combatAttackerName" style="font-weight:bold;margin-bottom:5px;color:#FFCDD2;">Saldıran
-                    </div>
-                    <div id="combatAttackerEmoji" style="font-size:3rem;margin-bottom:5px;">⚔️</div>
-                    <div id="combatAttackerStr" style="font-size:1.2rem;font-weight:bold;">Güç: 4</div>
-                </div>
-                <div style="font-size:2rem;font-weight:bold;color:var(--gold);padding:0 15px;">VS</div>
-                <div style="flex:1;">
-                    <div id="combatDefenderName" style="font-weight:bold;margin-bottom:5px;color:#BBDEFB;">Savunan</div>
-                    <div id="combatDefenderEmoji" style="font-size:3rem;margin-bottom:5px;">🛡️</div>
-                    <div id="combatDefenderStr" style="font-size:1.2rem;font-weight:bold;">Güç: 3</div>
-                </div>
-            </div>
-            <div id="combatResultText"
-                style="font-size:1.1rem;font-weight:bold;margin-bottom:20px;padding:10px;border-radius:4px;background:rgba(255,255,255,0.1);">
-                Sonuç</div>
-            <div class="modal-footer">
-                <button class="btn-secondary btn-premium-close"
-                    onclick="document.getElementById('combatModal').classList.remove('active')">Kapat</button>
-            </div>
-        </div>
-    </div>
+
 
     <!-- KAYNAK DEĞİŞTİRME MODALI (Mühendishane 2B) -->
     <div id="changeBiomeModal" class="modal-overlay" style="z-index: 10000;">
@@ -464,6 +436,8 @@
     <script src="js/ai.js?v=2"></script>
     <script src="js/game.js?v=2"></script>
     <!-- Birim Seçim Dialogu (Yüzen) -->
+    <div id="unit-picker" class="unit-picker"></div>
+
     <!-- NODE TOOLTIP (HOVER LİSTELEME) -->
     <div id="node-tooltip" class="node-tooltip"></div>
 
