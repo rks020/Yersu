@@ -2140,3 +2140,27 @@ button:disabled {
     justify-content: space-between;
     min-height: 500px; /* Fixed height to keep spacing consistent */
 }
+
+/* ─── MODAL VISIBILITY FIX ─── */
+
+.combat-modal {
+    display: none !important; /* Hide by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    width: 900px; /* Restructured for the wide layout */
+    background: var(--bg-panel-solid);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 0 100px rgba(0,0,0,0.8);
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 500px;
+}
+
+.combat-modal.active {
+    display: flex !important;
+}
