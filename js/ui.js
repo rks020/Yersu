@@ -342,9 +342,17 @@ class UI {
             const udata = UNIT_DATA[unit.type];
 
             if (clickedNode.id === sourceNodeId) {
-                this.state.clearSelection();
-                this.update();
-                return;
+                // Eğer aynı nodeda düşman varsa tıklama saldırı tetiklemeli, yoksa iptal etmeli
+                const hasEnemyOnSameNode = clickedNode.army && clickedNode.army.units.some(u => {
+                    const ownerId = u.playerId !== undefined ? u.playerId : clickedNode.army.playerId;
+                    return String(ownerId) !== String(current.id);
+                });
+                
+                if (!hasEnemyOnSameNode) {
+                    this.state.clearSelection();
+                    this.update();
+                    return;
+                }
             }
 
             const executeAction = (targetUnitUid = null) => {
