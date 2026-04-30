@@ -701,9 +701,9 @@ class UI {
                 const wrap = document.createElement('div');
                 wrap.className = 'node-action-wrap';
                 
-                // Sol üst çapraz (User request: İşaretlenen yer)
-                let left = canvasPos.x + rect.left - 90;
-                let top = canvasPos.y + rect.top - 90;
+                // Tam merkeze oturt (Buton 50px olduğu için -25px)
+                let left = canvasPos.x + rect.left - 25;
+                let top = canvasPos.y + rect.top - 25;
 
                 wrap.style.left = `${left}px`;
                 wrap.style.top = `${top}px`;

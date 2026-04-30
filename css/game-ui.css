@@ -574,15 +574,15 @@ body {
     color: white;
     border: 2px solid #ff4444;
     border-radius: 50%;
-    width: 65px;
-    height: 65px;
+    width: 50px;
+    height: 50px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     font-family: 'Cinzel', serif;
-    font-size: 0.6rem;
+    font-size: 0.5rem;
     font-weight: 700;
     box-shadow: 0 5px 20px rgba(255, 0, 0, 0.4), inset 0 0 10px rgba(0,0,0,0.5);
     transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -592,15 +592,15 @@ body {
 }
 
 .btn-attack-node:hover {
-    transform: scale(1.15) rotate(5deg);
+    transform: scale(1.2) rotate(10deg);
     background: linear-gradient(135deg, #a00000 0%, #600000 100%);
     box-shadow: 0 8px 30px rgba(255, 0, 0, 0.6);
     border-color: #fff;
 }
 
 .btn-attack-node .icon {
-    font-size: 1.2rem;
-    margin-bottom: 1px;
+    font-size: 1rem;
+    margin-bottom: 0px;
 }
 
 .hex-biome-header {
@@ -1713,9 +1713,9 @@ button:disabled {
     background: linear-gradient(90deg, #1b431b 0%, #0a230a 100%);
     border: 2px solid rgba(255,215,0,0.3);
     border-radius: 12px;
-    width: 900px;
-    height: 220px;
-    padding: 0 40px;
+    width: 100%;
+    height: auto;
+    padding: 10px;
     box-shadow: 0 10px 50px rgba(0,0,0,0.8);
     display: flex;
     align-items: center;
