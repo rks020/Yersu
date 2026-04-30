@@ -651,7 +651,7 @@ class Renderer {
         // 2. Kalın Oyuncu Rengi Çerçevesi
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = player.color; // Takım rengi (Kırmızı/Mavi vb.)
+        ctx.fillStyle = player.hex; // Takım rengi (Kırmızı/Mavi vb.)
         ctx.fill();
         
         // İç Beyaz Kontur (Daha şık durması için)
