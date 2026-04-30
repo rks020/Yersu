@@ -62,7 +62,7 @@ class UI {
             choiceModalCloseBtn: document.getElementById('btnChoiceModalClose'),
             
             nodeTooltip: document.getElementById('node-tooltip'),
-            nodeActionBtn: document.getElementById('node-action-btn'),
+            nodeActionsContainer: document.getElementById('node-actions-container'),
             combatModal: document.getElementById('combat-modal'),
             combatAtkFrame: document.getElementById('atk-frame'),
             combatDefFrame: document.getElementById('def-frame'),
@@ -596,19 +596,9 @@ class UI {
         if (foundNode && foundNode.army && foundNode.army.units.length > 0) {
             this.showNodeTooltip(foundNode, clientX, clientY);
             this.hideBiomeDetail();
-            this._lastHoveredNode = foundNode; // Takip için
             return;
         } else {
-            // Eğer daha önce bir noda bakıyorsak ve şu an boşluğa çıktıysak, 
-            // ama hala o nodun butonunun/tooltipinin üzerindeysek kapatma
-            if (this._lastHoveredNode) {
-                const d = Math.sqrt((gx - this._lastHoveredNode.x)**2 + (gy - this._lastHoveredNode.y)**2);
-                if (d < 100) { // Daha geniş bir alan tanı (Butona ulaşmak için)
-                    return; 
-                }
-            }
             this.hideNodeTooltip();
-            this._lastHoveredNode = null;
         }
 
         const hex = this.state.grid.pixelToNearestHex(gx, gy);
@@ -626,7 +616,6 @@ class UI {
 
     showNodeTooltip(node, clientX, clientY) {
         const tooltip = this.els.nodeTooltip;
-        const actionBtn = this.els.nodeActionBtn;
         if (!tooltip) return;
 
         // Oyuncu bazlı grupla
@@ -664,7 +653,7 @@ class UI {
         
         tooltip.innerHTML = html;
         
-        // FİKS: Fareyi takip etmek yerine noda sabitle (Buton tıklamayı kolaylaştırır)
+        // FİKS: Fareyi takip etmek yerine noda sabitle
         const canvasPos = this.renderer.gameToCanvas(node.x, node.y);
         const rect = this.renderer.canvas.getBoundingClientRect();
         
@@ -678,27 +667,56 @@ class UI {
         tooltip.style.left = `${left}px`;
         tooltip.style.top = `${top}px`;
         tooltip.classList.add('active');
+    }
 
-        // AYRI SALDIRI BUTONU
-        if (actionBtn) {
-            if (this.state.subPhase === 'attack' && pIds.length > 1) {
-                actionBtn.innerHTML = `
+    _updateNodeActionButtons() {
+        const container = this.els.nodeActionsContainer;
+        if (!container) return;
+        container.innerHTML = '';
+
+        // Sadece SALDIRI aşamasında butonları göster
+        if (this.state.subPhase !== 'attack') return;
+
+        const currentP = this.state.currentPlayer;
+        const rect = this.renderer.canvas.getBoundingClientRect();
+
+        this.state.grid.nodes.forEach(node => {
+            if (!node.army) return;
+
+            // Oyuncu bazlı grupla
+            const groups = {};
+            node.army.units.forEach(u => {
+                const pid = u.playerId !== undefined ? u.playerId : node.army.playerId;
+                if (!groups[pid]) groups[pid] = [];
+                groups[pid].push(u);
+            });
+
+            const pIds = Object.keys(groups);
+            const hasEnemy = pIds.some(pid => String(pid) !== String(currentP.id));
+            const hasMine = pIds.some(pid => String(pid) === String(currentP.id));
+
+            // Eğer hem benim hem düşmanın birimi varsa KALICI buton koy
+            if (hasEnemy && hasMine) {
+                const canvasPos = this.renderer.gameToCanvas(node.x, node.y);
+                const wrap = document.createElement('div');
+                wrap.className = 'node-action-wrap';
+                
+                // Sol üst çapraz (User request: İşaretlenen yer)
+                let left = canvasPos.x + rect.left - 90;
+                let top = canvasPos.y + rect.top - 90;
+
+                wrap.style.left = `${left}px`;
+                wrap.style.top = `${top}px`;
+
+                wrap.innerHTML = `
                     <button class="btn-attack-node" onclick="window.gameUI.handleTooltipAttack('${node.id}')">
                         <span class="icon">⚔️</span>
                         <span>SALDIRI</span>
                     </button>
                 `;
-                // Butonu noda göre konumlandır (İşaretlenen yer: Sol Üst)
-                let btnLeft = canvasPos.x + rect.left - 90;
-                let btnTop = canvasPos.y + rect.top - 90;
-                
-                actionBtn.style.left = `${btnLeft}px`;
-                actionBtn.style.top = `${btnTop}px`;
-                actionBtn.classList.add('active');
-            } else {
-                actionBtn.classList.remove('active');
+                container.appendChild(wrap);
             }
-        }
+        });
     }
 
     handleTooltipAttack(nodeId) {
@@ -755,7 +773,6 @@ class UI {
 
     hideNodeTooltip() {
         if (this.els.nodeTooltip) this.els.nodeTooltip.classList.remove('active');
-        if (this.els.nodeActionBtn) this.els.nodeActionBtn.classList.remove('active');
     }
 
     // ── Eylem Butonları ───────────────────────────────────────────
@@ -863,6 +880,7 @@ class UI {
         this._updateLogs();
         this._updateTurnUI();
         this._updateActionButtons();
+        this._updateNodeActionButtons();
         this._updateCostLabels();
         this.renderer.render();
         // Zafer Kontrolü
