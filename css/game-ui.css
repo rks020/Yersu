@@ -1712,10 +1712,10 @@ button:disabled {
 .combat-box {
     background: linear-gradient(90deg, #1b431b 0%, #0a230a 100%);
     border: 2px solid rgba(255,215,0,0.3);
-    border-radius: 8px;
+    border-radius: 6px;
     width: 100%;
     height: auto;
-    padding: 5px;
+    padding: 2px;
     box-shadow: 0 10px 50px rgba(0,0,0,0.8);
     display: flex;
     flex-direction: column; /* Dikey stack */
@@ -2005,10 +2005,10 @@ button:disabled {
 /* ─── ENHANCED DUEL DICE (SQUARE) ─── */
 
 .dice-container .die-body {
-    width: 38px;
-    height: 38px;
-    font-size: 1.2rem;
-    border-radius: 6px;
+    width: 26px;
+    height: 26px;
+    font-size: 0.8rem;
+    border-radius: 4px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
 
@@ -2050,8 +2050,8 @@ button:disabled {
 
 .dice-side {
     display: flex;
-    gap: 4px;
-    min-width: 60px;
+    gap: 3px;
+    min-width: 40px;
     justify-content: center;
 }
 
@@ -2071,7 +2071,7 @@ button:disabled {
 }
 
 .power-vs-text {
-    font-size: 0.8rem;
+    font-size: 0.5rem;
     color: #888;
     text-transform: uppercase;
 }
@@ -2140,18 +2140,11 @@ button:disabled {
 .combat-name {
     font-family: 'Cinzel', serif;
     color: var(--gold);
-    font-size: 0.9rem;
+    font-size: 0.65rem;
     text-align: center;
 }
 
-.combat-result-text {
-    font-family: 'Cinzel', serif;
-    font-size: 1.4rem;
-    color: #fff;
-    text-align: center;
-    margin: 20px 0;
-    min-height: 1.6em;
-}
+/* Removed redundant combat-result-text */
 
 .power-row {
     margin-top: 5px;
@@ -2171,7 +2164,7 @@ button:disabled {
 }
 
 .power-bonus-info {
-    font-size: 0.75rem;
+    font-size: 0.55rem;
     color: var(--text-muted);
     font-family: var(--font-ui);
     opacity: 0.8;
@@ -2204,17 +2197,17 @@ button:disabled {
     display: none !important;
     position: absolute;
     z-index: 10000;
-    width: 500px; /* Biraz daha dar */
+    width: 420px; /* Daha da dar */
     background: rgba(10, 12, 18, 0.98);
     backdrop-filter: blur(12px);
     border: 1px solid var(--gold);
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.9);
     flex-direction: column;
     justify-content: flex-start;
     min-height: auto;
-    max-height: 250px; /* Yüksekliği iyice kısıtladık */
+    max-height: 180px; /* Daha kısa */
     pointer-events: auto;
     overflow: hidden;
 }
@@ -2224,23 +2217,23 @@ button:disabled {
 }
 
 .battlefield {
-    height: 110px !important; /* İyice küçülttük */
+    height: 75px !important;
     margin-bottom: 0px;
-    padding: 0 15px !important;
+    padding: 0 10px !important;
     width: 100% !important;
 }
 
 .combat-unit-frame {
-    width: 70px !important; /* 100'den 70'e */
-    height: 70px !important;
+    width: 45px !important; /* 100 -> 70 -> 45 */
+    height: 45px !important;
 }
 
 .stat-value {
-    font-size: 1.6rem !important; /* 2.2'den 1.6'ya */
+    font-size: 1.1rem !important; /* 2.2 -> 1.6 -> 1.1 */
 }
 
 .vs-text-central {
-    font-size: 1rem !important;
+    font-size: 0.7rem !important;
 }
 
 /* ─── THEMATIC COLORS & SPACING FIX ─── */
@@ -2255,23 +2248,23 @@ button:disabled {
     box-shadow: 0 0 30px rgba(0, 198, 255, 0.6) !important;
 }
 
+.combat-result-text {
+    margin: 2px 0 !important;
+    font-size: 0.9rem; /* Sığması için küçülttük */
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    z-index: 101;
+    text-align: center;
+}
+
 .combat-info-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    padding: 10px;
-    margin-top: -10px; /* Bring it closer but not overlapping */
+    gap: 2px;
+    padding: 2px;
+    margin-top: 0;
     z-index: 100;
-    pointer-events: auto !important; /* Ensure children are clickable */
-}
-
-.combat-result-text {
-    margin: 5px 0 !important;
-    font-size: 1.4rem;
-    color: #fff;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    z-index: 101;
 }
 
 .combat-footer {
