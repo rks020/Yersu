@@ -1839,14 +1839,14 @@ class UI {
         
         // Atk info
         const atkData = UNIT_DATA[attacker.unit.type];
-        this.els.combatAtkFrame.innerHTML = atkData.img ? `<img src="${atkData.img}" style="width:70%; height:70%; object-fit:contain;">` : `<span style="font-size:3rem;">${atkData.emoji || '👤'}</span>`;
+        this.els.combatAtkFrame.innerHTML = atkData.img ? `<img src="${atkData.img}" style="width:100%; height:100%; object-fit:cover;">` : `<span style="font-size:2rem;">${atkData.emoji || '👤'}</span>`;
         this.els.combatAtkPower.innerText = atkPower;
         document.getElementById('atk-name').innerText = `${attacker.player.name} (${atkData.name})`;
         document.getElementById('atk-name').style.color = attacker.player.color || attacker.player.hex;
         
         // Def info
         const defData = UNIT_DATA[defender.unit.type];
-        this.els.combatDefFrame.innerHTML = defData.img ? `<img src="${defData.img}" style="width:70%; height:70%; object-fit:contain;">` : `<span style="font-size:3rem;">${defData.emoji || '👤'}</span>`;
+        this.els.combatDefFrame.innerHTML = defData.img ? `<img src="${defData.img}" style="width:100%; height:100%; object-fit:cover;">` : `<span style="font-size:2rem;">${defData.emoji || '👤'}</span>`;
         this.els.combatDefPower.innerText = defPower;
         document.getElementById('def-name').innerText = `${defender.player.name} (${defData.name})`;
         document.getElementById('def-name').style.color = defender.player.color || defender.player.hex;

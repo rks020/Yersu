@@ -2055,6 +2055,14 @@ button:disabled {
     justify-content: center;
 }
 
+.dice-side .die-body {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 0.65rem !important;
+    border-radius: 3px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important;
+}
+
 .dice-vs-divider {
     font-family: 'Cinzel', serif;
     font-weight: bold;
