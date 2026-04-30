@@ -1787,18 +1787,20 @@ class UI {
             atkDiceEl.innerHTML = (attacker.rolls || []).map(() => `<div class="die-body blue rolling">?</div>`).join('');
             defDiceEl.innerHTML = (defender.rolls || []).map(() => `<div class="die-body red rolling">?</div>`).join('');
             
-            // Animasyon bitişinde değerleri yaz (Vuruş anıyla senkronize olması için executeCombatAnimation içinde de kontrol edilebilir ama burada basitçe yapalım)
+            // Animasyon bitişinde değerleri yaz
             setTimeout(() => {
                 atkDiceEl.innerHTML = (attacker.rolls || []).map(val => `<div class="die-body blue settle">${val}</div>`).join('');
                 defDiceEl.innerHTML = (defender.rolls || []).map(val => `<div class="die-body red settle">${val}</div>`).join('');
-                this._createParticles(atkDiceEl.firstChild); // Efekt ekle
-                this._createParticles(defDiceEl.firstChild);
+                
+                // Efektleri her zar için ekle
+                atkDiceEl.querySelectorAll('.die-body').forEach(el => this._createParticles(el));
+                defDiceEl.querySelectorAll('.die-body').forEach(el => this._createParticles(el));
             }, 600);
         }
 
         // Result text (Initially empty, will fill after animation)
         this.els.combatResultText.innerText = "";
-        this.els.combatResultText.style.marginTop = "30px"; // Overlap engellemek için margin artırıldı
+        this.els.combatResultText.style.marginTop = "10px"; 
         this.els.combatModal.classList.add('active');
 
         // Animasyon Tetikle

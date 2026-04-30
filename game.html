@@ -486,15 +486,18 @@
             </div>
             
             <div class="combat-stats">
-                <div class="stat-group">
+                <div class="stat-group central">
                     <span class="stat-label">Düello Zarları</span>
-                    <div class="dice-container" id="atk-dice"></div>
-                    <span class="stat-value" id="atk-power">0</span>
-                </div>
-                <div class="stat-group">
-                    <span class="stat-label">Düello Zarları</span>
-                    <div class="dice-container" id="def-dice"></div>
-                    <span class="stat-value" id="def-power">0</span>
+                    <div class="dice-duel-row">
+                        <div class="dice-side" id="atk-dice"></div>
+                        <div class="dice-vs-divider">VS</div>
+                        <div class="dice-side" id="def-dice"></div>
+                    </div>
+                    <div class="power-row">
+                        <span class="stat-value" id="atk-power">0</span>
+                        <span class="power-vs-text">vs</span>
+                        <span class="stat-value" id="def-power">0</span>
+                    </div>
                 </div>
             </div>
 
