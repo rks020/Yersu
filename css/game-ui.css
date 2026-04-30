@@ -2144,25 +2144,42 @@ button:disabled {
 /* ─── MODAL VISIBILITY FIX ─── */
 
 .combat-modal {
-    display: none !important; /* Hide by default */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    display: none !important;
+    position: absolute; /* Merkezi değil, noda yakın açılacak */
     z-index: 10000;
-    width: 900px; /* Restructured for the wide layout */
-    background: var(--bg-panel-solid);
-    border: 2px solid var(--gold);
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 0 100px rgba(0,0,0,0.8);
+    width: 550px; /* Çok daha küçük ve kompakt */
+    background: rgba(10, 12, 18, 0.95); /* Hafif şeffaf */
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.9);
     flex-direction: column;
-    justify-content: space-between;
-    min-height: 500px;
+    justify-content: flex-start;
+    min-height: auto;
+    pointer-events: auto;
 }
 
 .combat-modal.active {
     display: flex !important;
+}
+
+.battlefield {
+    height: 180px !important; /* Yüksekliği azalttık */
+    margin-bottom: 5px;
+}
+
+.combat-unit-frame {
+    width: 100px !important;
+    height: 100px !important;
+}
+
+.stat-value {
+    font-size: 2rem !important;
+}
+
+.vs-text-central {
+    font-size: 1.5rem !important;
 }
 
 /* ─── THEMATIC COLORS & SPACING FIX ─── */

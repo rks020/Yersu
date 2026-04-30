@@ -423,7 +423,7 @@ class UI {
                         if (res) {
                             const sourceNode = this.state.grid.nodes.get(sourceNodeId);
                             this.showCombatAnimation(sourceNode, clickedNode, res);
-                            this.showCombatVS(res);
+                            this.showCombatVS(res, clickedNode);
                             this.state.clearSelection();
                             this.update();
                         }
@@ -445,7 +445,7 @@ class UI {
                     } else {
                         const sourceNode = this.state.grid.nodes.get(sourceNodeId);
                         this.showCombatAnimation(sourceNode, clickedNode, res);
-                        this.showCombatVS(res);
+                        this.showCombatVS(res, clickedNode);
                     }
 
                     // Hala hareket puanı var mı?
@@ -703,7 +703,7 @@ class UI {
             const executePerform = (targetUnit = null) => {
                 const res = this.actions.performAttack(current.id, attackerUnit.uid, node.id, targetUnit ? targetUnit.uid : null);
                 if (res) {
-                    this.showCombatVS(res);
+                    this.showCombatVS(res, node);
                     this.state.clearSelection();
                     this.update();
                 }
@@ -1770,8 +1770,26 @@ class UI {
         });
     }
 
-    showCombatVS(combat) {
+    showCombatVS(combat, targetNode = null) {
         if (!this.els.combatModal) return;
+
+        // Pozisyon Ayarla (Savaşın olduğu yerde çıksın)
+        if (targetNode) {
+            const canvasPos = this.renderer.gameToCanvas(targetNode.x, targetNode.y);
+            const rect = this.renderer.canvas.getBoundingClientRect();
+            
+            let left = canvasPos.x + rect.left - 275; // Modal genişliğinin yarısı kadar sola
+            let top = canvasPos.y + rect.top - 150;
+            
+            // Sınır kontrolleri
+            if (left < 10) left = 10;
+            if (left + 560 > window.innerWidth) left = window.innerWidth - 570;
+            if (top < 10) top = 10;
+            if (top + 400 > window.innerHeight) top = window.innerHeight - 410;
+
+            this.els.combatModal.style.left = `${left}px`;
+            this.els.combatModal.style.top = `${top}px`;
+        }
 
         const { attacker, defender, result, casualty } = combat;
         const atkPower = attacker.str;
