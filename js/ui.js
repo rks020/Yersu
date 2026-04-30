@@ -463,8 +463,8 @@ class UI {
                 this.update();
             };
 
-            // Eğer hedefte birden fazla DÜŞMAN birimi varsa seçtir
-            if (clickedNode.army && String(clickedNode.army.playerId) !== String(current.id) && clickedNode.army.units.length > 1) {
+            // Eğer SALDIRI aşamasındaysak ve hedefte birden fazla DÜŞMAN birimi varsa seçtir
+            if (this.state.subPhase === 'attack' && clickedNode.army && String(clickedNode.army.playerId) !== String(current.id) && clickedNode.army.units.length > 1) {
                 this.showUnitSelectionModal(clickedNode, (targetUnit) => {
                     executeAction(targetUnit.uid);
                 }, clientX, clientY, "Saldırılacak Hedefi Seçin", true);
