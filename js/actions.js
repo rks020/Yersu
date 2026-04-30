@@ -330,8 +330,8 @@ class Actions {
         if (!targetNode || !targetNode.army || targetNode.army.playerId === playerId) return false;
 
         let actualRange = udata.range;
-        if (unit.type === 'topcu' && p.bonusState && p.bonusState.topcuRangeBonus) {
-            actualRange += p.bonusState.topcuRangeBonus;
+        if (unit.type === 'mancinik' && p.bonusState && p.bonusState.mancinikRangeBonus) {
+            actualRange += p.bonusState.mancinikRangeBonus;
         }
 
         const dist = this.state.grid.getDistance(unit.nodeId, targetNodeId);

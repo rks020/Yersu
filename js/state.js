@@ -302,7 +302,7 @@ class GameState {
             }
         } else if (type === 'muhendishane') {
             if (level === 2) {
-                if (choice === 'A') player.bonusState.topcuRangeBonus = 1;
+                if (choice === 'A') player.bonusState.mancinikRangeBonus = 1;
                 else player.bonusState.canChangeBiomeResource = true;
             } else if (level === 3) {
                 if (choice === 'A') player.bonusState.muhendishaneSiegeBonus = true;

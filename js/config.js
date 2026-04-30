@@ -69,7 +69,7 @@ const UNIT_DATA = {
     mizrakci:     { name: 'Mızrakçı',    cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 1, siege: 0, special: 'anti_cavalry',  duelBonusVs: 'suvari', img: 'mizrakci.png' },
     kilicli:      { name: 'Kılıçlı',     cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 1, siege: 0, special: 'anti_infantry', duelBonusVs: 'piyade', img: 'kilicli.png' },
     okcu:         { name: 'Okçu',         cls: 'piyade',  gold: 2, duel: -1, range: 1, speed: 1, siege: 0, special: null,                                   img: 'okcu.png'    },
-    sovalye:      { name: 'Şövalye',      cls: 'suvari',  gold: 4, duel: 2,  range: 0, speed: 2, siege: 0, special: null,                                   img: 'sovalye.png' },
+    sovalye:      { name: 'Şövalye',      cls: 'suvari',  gold: 4, duel: 2,  range: 0, speed: 1, siege: 0, special: null,                                   img: 'sovalye.png' },
     hafif_suvari: { name: 'Hafif Süvari', cls: 'suvari',  gold: 3, duel: 0,  range: 0, speed: 2, siege: 0, special: null,                                   img: 'hafifsuvari.png' },
     atli_okcu:    { name: 'Atlı Okçu',    cls: 'suvari',  gold: 3, duel: -1, range: 1, speed: 2, siege: 0, special: null,                                   img: 'atliokcu.png' },
 
@@ -141,7 +141,7 @@ const BUILDING_BONUSES = {
     },
     muhendishane: {
         1: ['Oyuncu artık kuşatma birimleri üretebilir'],
-        2: ['(A) Topçu birimi menzili +1 artar', '(B) Üretim zarı atmadan önce yerleşim kurduğu biyomlara atanan kaynağı değiştirebilir'],
+        2: ['(A) Mancınık birimi menzili +1 artar', '(B) Üretim zarı atmadan önce yerleşim kurduğu biyomlara atanan kaynağı değiştirebilir'],
         3: ['(A) Mühendishane bulunan her yerleşim için kuşatma puanı +1 artar', '(B) Kuşatma altındaki yerleşim yerindeki mancınık ve topçu rakip şehri ele geçirene kadar yok edilemez'],
     },
     tiyatro: {
