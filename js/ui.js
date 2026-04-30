@@ -471,6 +471,9 @@ class UI {
                                 this._updateMovementHighlights(clickedNode.id, unit);
                                 this.showNotice(`${udata.name} seçildi. Hareket etmek için hedef noktaya tıklayın.`, "info");
                             } else {
+                                // Saldırı aşamasında hareket kutucuklarını (mavi) temizle
+                                this.state.highlightedNodes.clear();
+                                
                                 // Menzilini göster (Yakın dövüş için de mesafe 1 olanları gösterelim)
                                 this.state.rangeHighlightedNodes.clear();
                                 const dist = Math.max(1, udata.range || 0);
