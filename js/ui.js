@@ -489,14 +489,14 @@ class UI {
                 // OTOMATİK SEÇİM: Hareket veya Saldırı aşamasındaysak ve kendi birimimizse
                 const hasMyUnit = clickedNode.army && clickedNode.army.units.some(u => {
                     const ownerId = u.playerId !== undefined ? u.playerId : clickedNode.army.playerId;
-                    return ownerId === current.id;
+                    return String(ownerId) === String(current.id);
                 });
 
                 if ((this.state.subPhase === 'move' || this.state.subPhase === 'attack') && hasMyUnit) {
                     const selectUnit = (unit) => {
                         // Birimin sahibi kontrolü (Yeni sistemde birim bazlı sahiplik var)
                         const ownerId = unit.playerId !== undefined ? unit.playerId : clickedNode.army.playerId;
-                        if (ownerId !== current.id) return; // Kendi birimimiz değilse seçme
+                        if (String(ownerId) !== String(current.id)) return; // Kendi birimimiz değilse seçme
 
                         const udata = UNIT_DATA[unit.type];
                         let canAct = false;
@@ -535,7 +535,7 @@ class UI {
 
                     const myUnits = clickedNode.army.units.filter(u => {
                         const ownerId = u.playerId !== undefined ? u.playerId : clickedNode.army.playerId;
-                        return ownerId === current.id;
+                        return String(ownerId) === String(current.id);
                     });
 
                     if (myUnits.length > 1) {
