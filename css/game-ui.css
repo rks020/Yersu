@@ -2005,10 +2005,10 @@ button:disabled {
 /* ─── ENHANCED DUEL DICE (SQUARE) ─── */
 
 .dice-container .die-body {
-    width: 26px;
-    height: 26px;
-    font-size: 0.8rem;
-    border-radius: 4px;
+    width: 20px; /* Daha da küçüldü */
+    height: 20px;
+    font-size: 0.65rem;
+    border-radius: 3px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
 
@@ -2197,17 +2197,17 @@ button:disabled {
     display: none !important;
     position: absolute;
     z-index: 10000;
-    width: 420px; /* Daha da dar */
+    width: 380px; /* Biraz daha dar */
     background: rgba(10, 12, 18, 0.98);
     backdrop-filter: blur(12px);
     border: 1px solid var(--gold);
     border-radius: 6px;
-    padding: 8px;
+    padding: 6px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.9);
     flex-direction: column;
     justify-content: flex-start;
     min-height: auto;
-    max-height: 180px; /* Daha kısa */
+    max-height: 220px; /* Bir miktar pay bıraktık */
     pointer-events: auto;
     overflow: hidden;
 }
@@ -2217,15 +2217,26 @@ button:disabled {
 }
 
 .battlefield {
-    height: 75px !important;
+    height: 60px !important; /* İyice daralttık */
     margin-bottom: 0px;
-    padding: 0 10px !important;
+    padding: 0 5px !important;
     width: 100% !important;
 }
 
 .combat-unit-frame {
-    width: 45px !important; /* 100 -> 70 -> 45 */
-    height: 45px !important;
+    width: 40px !important; /* 45 -> 40 */
+    height: 40px !important;
+    padding: 2px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.combat-unit-frame img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 .stat-value {
@@ -2249,12 +2260,13 @@ button:disabled {
 }
 
 .combat-result-text {
-    margin: 2px 0 !important;
-    font-size: 0.9rem; /* Sığması için küçülttük */
-    color: #fff;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    margin: 4px 0 !important;
+    font-size: 0.8rem; /* Daha küçük */
+    color: #00ff00; /* Daha belirgin (Yeşil/Kırmızı duruma göre JS'den basılabilir) */
+    text-shadow: 0 0 10px rgba(0,255,0,0.5);
     z-index: 101;
     text-align: center;
+    font-weight: bold;
 }
 
 .combat-info-panel {
