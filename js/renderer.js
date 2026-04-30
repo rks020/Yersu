@@ -692,12 +692,17 @@ class Renderer {
 
             // 1. Arka plan halkası (Badge)
             ctx.beginPath();
-            ctx.arc(hex.x, hex.y, baseSize * 1.1, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0,0,0,0.3)'; // Koyu arka plan
+            ctx.arc(hex.x, hex.y, baseSize * 1.3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.5)'; // Daha koyu arka plan
             ctx.fill();
+            
+            ctx.save();
             ctx.strokeStyle = color;
-            ctx.lineWidth   = 3;
+            ctx.lineWidth   = 5; // Daha kalın halka
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 15; // Parlama efekti
             ctx.stroke();
+            ctx.restore();
 
             // 2. İkon
             ctx.save();

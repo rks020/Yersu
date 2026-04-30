@@ -620,7 +620,7 @@ class UI {
         let html = '';
 
         pIds.forEach(pid => {
-            const player = this.state.players.find(p => p.id === pid);
+            const player = this.state.players.find(p => String(p.id) === String(pid));
             const name = player ? player.name : 'Bilinmeyen';
             const color = player ? (player.color || player.hex) : '#ccc';
             
