@@ -20,6 +20,13 @@ class Renderer {
         this._initCamera();
     }
 
+    getScreenPos(mapX, mapY) {
+        return {
+            x: mapX * this.scale + this.offsetX,
+            y: mapY * this.scale + this.offsetY
+        };
+    }
+
     _loadImages() {
         // Birimler
         Object.entries(UNIT_DATA).forEach(([id, data]) => {

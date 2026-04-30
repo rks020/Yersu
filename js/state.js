@@ -504,6 +504,7 @@ class GameState {
                 }
                 
                 u.movesLeft = speed;
+                u.hasAttacked = false;
             });
         }
     }

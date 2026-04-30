@@ -207,7 +207,7 @@ class Actions {
 
         p.resources.gold -= cost;
         const uid = p.nextUnitId();
-        const unitData = { uid, type: unitType, hp: 1, movesLeft: 0, nodeId };
+        const unitData = { uid, type: unitType, hp: 1, movesLeft: 0, nodeId, hasAttacked: true };
         p.units.push(unitData);
 
         if (!node.army) node.army = { playerId, units: [] };
@@ -286,6 +286,8 @@ class Actions {
             const targetUnit = targetUnitUid ? targetNode.army.units.find(u => u.uid === targetUnitUid) : null;
             const combat = this.state.resolveCombat(movingUnit, p, targetNode, targetUnit);
             combat.animation = '⚔️';
+            unitDef.hasAttacked = true;
+            unitDef.movesLeft = 0;
 
             if (combat.casualty === 'attacker') {
                 p.units = p.units.filter(u => u.uid !== unitUid);
@@ -321,7 +323,7 @@ class Actions {
     rangeAttack(playerId, unitUid, targetNodeId, targetUnitUid = null) {
         const p = this.state.players.find(pl => pl.id === playerId);
         const unit = p?.units.find(u => u.uid === unitUid);
-        if (!unit) return false;
+        if (!unit || unit.hasAttacked) return false;
 
         const udata = UNIT_DATA[unit.type];
         if (!udata || !udata.range) return false;
@@ -341,6 +343,7 @@ class Actions {
         }
 
         unit.movesLeft = 0;
+        unit.hasAttacked = true;
 
         const targetUnit = targetUnitUid ? targetNode.army.units.find(u => u.uid === targetUnitUid) : null;
         const combat = this.state.resolveRangeAttack(unit, p, targetNode, targetUnit);

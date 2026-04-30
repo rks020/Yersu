@@ -3,6 +3,10 @@
 // UI — Arayüz etkileşimlerini yönetir
 // ============================================================
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+let arrowAnimId = null;
+let trailTimeouts = [];
+
 class UI {
     constructor(state, actions, renderer) {
         this.state = state;
@@ -315,8 +319,11 @@ class UI {
         else if (mode === 'selectUnitForMove' && clickedNode) {
             if (clickedNode.army && clickedNode.army.playerId === current.id) {
                 const unit = clickedNode.army.units[0];
-                if (unit.movesLeft <= 0) {
-                    this.showNotice("Bu birimin hareket puanı bitti!", "warning");
+                const udata = UNIT_DATA[unit.type];
+                const canAct = unit.movesLeft > 0 || (udata.range > 0 && !unit.hasAttacked);
+
+                if (!canAct) {
+                    this.showNotice("Bu birim bu tur yapabileceği her şeyi yaptı!", "warning");
                     return;
                 }
                 this.state.selectedUnit = unit;
@@ -414,14 +421,17 @@ class UI {
                 // OTOMATİK HAREKET MODU: Hareket aşamasındaysak ve kendi birimimizse
                 if (this.state.subPhase === 'move' && clickedNode.army.playerId === current.id) {
                     const selectUnit = (unit) => {
-                        if (unit.movesLeft > 0) {
+                        const udata = UNIT_DATA[unit.type];
+                        const canAct = unit.movesLeft > 0 || (udata.range > 0 && !unit.hasAttacked);
+
+                        if (canAct) {
                             this.state.selectedUnit = unit;
                             this.state.selectedUnitNode = clickedNode.id;
                             this.state.actionMode = 'moveOrAttack';
                             this._updateMovementHighlights(clickedNode.id, unit);
-                            this.showNotice(`${UNIT_DATA[unit.type].name} seçildi. Hedef noktaya tıklayarak hareket edin.`, "info");
+                            this.showNotice(`${udata.name} seçildi. Hedef noktaya tıklayarak hareket edin veya saldırın.`, "info");
                         } else {
-                            this.showNotice("Bu birimin hareket puanı bitti!", "warning");
+                            this.showNotice("Bu birim bu tur yapabileceği her şeyi yaptı!", "warning");
                         }
                         this.update();
                     };
@@ -1270,7 +1280,7 @@ class UI {
         node.army.units.forEach(u => {
             const data = UNIT_DATA[u.type];
             const item = document.createElement('div');
-            const canSelect = isEnemy || u.movesLeft > 0;
+            const canSelect = isEnemy || u.movesLeft > 0 || (data.range > 0 && !u.hasAttacked);
             item.className = `unit-picker-item ${canSelect ? '' : 'disabled'}`;
             
             const iconHtml = data.img ? `<img src="${data.img}">` : `<span class="emoji">${data.emoji || '👤'}</span>`;
@@ -1292,7 +1302,7 @@ class UI {
             } else {
                 item.onclick = (e) => {
                     e.stopPropagation();
-                    this.showNotice("Hareket puanı bitti!", "warning");
+                    this.showNotice("Bu birim bu tur yapabileceği her şeyi yaptı!", "warning");
                 };
             }
             picker.appendChild(item);
@@ -1512,7 +1522,17 @@ class UI {
         const atkStrEl = document.getElementById('combatAttackerStr');
         const defStrEl = document.getElementById('combatDefenderStr');
 
-        if (data.type === 'overwatch') {
+        if (data.type === 'range') {
+            atkStrEl.textContent = `Atış Gücü: ${data.attacker.str}`;
+            defStrEl.textContent = `Zırh/Savunma: ${data.defender.str}`;
+            if (data.winner === 'attacker') {
+                resultEl.textContent = `🎯 ${data.attacker.player.name} hedefi vurdu! Düşman yok edildi.`;
+                resultEl.style.backgroundColor = "rgba(0, 255, 0, 0.3)";
+            } else {
+                resultEl.textContent = `🏹 Atış ıskaladı veya zırhı geçemedi. Saldıran güvende.`;
+                resultEl.style.backgroundColor = "rgba(255, 165, 0, 0.3)";
+            }
+        } else if (data.type === 'overwatch') {
             atkStrEl.textContent = "Geçersiz";
             defStrEl.textContent = "Mancınık Atışı";
             resultEl.textContent = "💥 Mancınık Menziline Giren Birim Yok Edildi!";
@@ -1658,12 +1678,25 @@ class UI {
     }
 
     showCombatAnimation(attackerNode, defenderNode, res) {
+        console.log("Combat Anim:", { type: res.type, res });
+
+        if (res.type === 'range' || res.type === 'overwatch') {
+            const startPos = this.renderer.getScreenPos(attackerNode.x, attackerNode.y);
+            const endPos = this.renderer.getScreenPos(defenderNode.x, defenderNode.y);
+            
+            this.shootArrow(startPos, endPos, () => {
+                this.createImpactRing(endPos.x, endPos.y);
+                this.els.canvas.classList.add('hit');
+                setTimeout(() => this.els.canvas.classList.remove('hit'), 500);
+            });
+        }
+
         // Renderer bazlı animasyonu tetikle
-        const type = res.type === 'range' ? 'range' : 'melee';
+        const animType = (res.type === 'range' || res.type === 'overwatch') ? 'range' : 'melee';
         const aRolls = res.attacker.rolls;
         const dRolls = res.defender.rolls;
         
-        // Bonusları hesapla (Toplam - Zar Toplamı)
+        // Bonusları hesapla
         const aTotal = res.attacker.str;
         const dTotal = res.defender.str;
         const aBonus = aTotal - (aRolls[0] + aRolls[1]);
@@ -1671,7 +1704,7 @@ class UI {
         
         const unitType = res.attacker.unit ? res.attacker.unit.type : 'kilicli';
         
-        this.renderer.triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal, unitType);
+        this.renderer.triggerCombatAnimation(attackerNode, defenderNode, animType, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal, unitType);
 
         // Eski emoji animasyonunu da (efekt olarak) hedefin üstünde gösterelim
         const el = document.createElement('div');
@@ -1737,6 +1770,156 @@ class UI {
 
         document.body.appendChild(overlay);
         overlay.querySelector('.combat-close-btn').onclick = () => overlay.remove();
+    }
+
+    // ── SVG ARROW ANIMATION ────────────────────────────────────────
+    
+    makeSvgEl(tag, attrs) {
+        const el = document.createElementNS(SVG_NS, tag);
+        for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+        return el;
+    }
+
+    clearArrow() {
+        const svg = document.getElementById('arrowSvg');
+        if (!svg) return;
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+        trailTimeouts.forEach(clearTimeout);
+        trailTimeouts = [];
+        if (arrowAnimId) { cancelAnimationFrame(arrowAnimId); arrowAnimId = null; }
+    }
+
+    shootArrow(startPos, endPos, onComplete) {
+        this.clearArrow();
+
+        const svg = document.getElementById('arrowSvg');
+        const wrapper = document.getElementById('canvasWrapper');
+        if (!svg || !wrapper) return;
+
+        svg.setAttribute('viewBox', `0 0 ${wrapper.offsetWidth} ${wrapper.offsetHeight}`);
+
+        const defs = this.makeSvgEl('defs', {});
+        const marker = this.makeSvgEl('marker', {
+            id: 'arrowhead',
+            viewBox: '0 0 10 10',
+            refX: '8', refY: '5',
+            markerWidth: '5', markerHeight: '5',
+            orient: 'auto-start-reverse'
+        });
+        const mpath = this.makeSvgEl('path', {
+            d: 'M1 1L9 5L1 9',
+            fill: 'none',
+            stroke: '#e8c96a',
+            'stroke-width': '2',
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round'
+        });
+        marker.appendChild(mpath);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+
+        const trailGroup = this.makeSvgEl('g', {});
+        const glow       = this.makeSvgEl('line', {
+            stroke: 'rgba(255,240,150,0.35)',
+            'stroke-width': '7',
+            'stroke-linecap': 'round'
+        });
+        const shaft      = this.makeSvgEl('line', {
+            stroke: '#c8a84b',
+            'stroke-width': '3.5',
+            'stroke-linecap': 'round',
+            'marker-end': 'url(#arrowhead)'
+        });
+        const feather    = this.makeSvgEl('polygon', {
+            fill: '#8b5e3c',
+            stroke: '#6b3f1c',
+            'stroke-width': '0.5'
+        });
+
+        svg.appendChild(trailGroup);
+        svg.appendChild(glow);
+        svg.appendChild(shaft);
+        svg.appendChild(feather);
+
+        const DURATION = 420; 
+        const ARC_HEIGHT = -18;
+        const TAIL_LENGTH = 36;
+        const TRAIL_INTERVAL = 28;
+
+        const startTime = performance.now();
+        let lastTrail = 0;
+
+        const easeOut = (t) => 1 - Math.pow(1 - t, 2.5);
+
+        const frame = (now) => {
+            const elapsed = now - startTime;
+            const t  = Math.min(elapsed / DURATION, 1);
+            const et = easeOut(t);
+
+            const cx = startPos.x + (endPos.x - startPos.x) * et;
+            const cy = startPos.y + (endPos.y - startPos.y) * et + ARC_HEIGHT * Math.sin(Math.PI * et);
+
+            const nextT = Math.min(t + 0.01, 1);
+            const nextEt = easeOut(nextT);
+            const nx = startPos.x + (endPos.x - startPos.x) * nextEt;
+            const ny = startPos.y + (endPos.y - startPos.y) * nextEt + ARC_HEIGHT * Math.sin(Math.PI * nextEt);
+            const rad = Math.atan2(ny - cy, nx - cx);
+
+            const tx = cx - Math.cos(rad) * TAIL_LENGTH;
+            const ty = cy - Math.sin(rad) * TAIL_LENGTH;
+
+            shaft.setAttribute('x1', tx);  shaft.setAttribute('y1', ty);
+            shaft.setAttribute('x2', cx);  shaft.setAttribute('y2', cy);
+
+            glow.setAttribute('x1', tx + Math.cos(rad) * 4);
+            glow.setAttribute('y1', ty + Math.sin(rad) * 4);
+            glow.setAttribute('x2', cx);   glow.setAttribute('y2', cy);
+
+            const fw = 8, fh = 5;
+            const px = tx - Math.cos(rad) * fw;
+            const py = ty - Math.sin(rad) * fw;
+            const perp = rad + Math.PI / 2;
+            const p1x = px + Math.cos(perp) * fh, p1y = py + Math.sin(perp) * fh;
+            const p2x = px - Math.cos(perp) * fh, p2y = py - Math.sin(perp) * fh;
+            feather.setAttribute('points', `${tx},${ty} ${p1x},${p1y} ${px},${py} ${p2x},${p2y}`);
+
+            if (elapsed - lastTrail > TRAIL_INTERVAL && t < 0.95) {
+                lastTrail = elapsed;
+                const dot = this.makeSvgEl('circle', {
+                    cx: cx, cy: cy, r: '2',
+                    fill: 'rgba(255,230,100,0.6)'
+                });
+                trailGroup.appendChild(dot);
+                const tid = setTimeout(() => {
+                    if (!dot.parentNode) return;
+                    dot.style.transition = 'opacity 0.2s';
+                    dot.style.opacity = '0';
+                    setTimeout(() => dot.parentNode?.removeChild(dot), 200);
+                }, 100);
+                trailTimeouts.push(tid);
+            }
+
+            if (t < 1) {
+                arrowAnimId = requestAnimationFrame(frame);
+            } else {
+                this.clearArrow();
+                if (onComplete) onComplete();
+            }
+        };
+
+        arrowAnimId = requestAnimationFrame(frame);
+    }
+
+    createImpactRing(x, y) {
+        const ring = document.createElement('div');
+        ring.className = 'impact-ring';
+        ring.style.left = `${x}px`;
+        ring.style.top = `${y}px`;
+        const wrapper = document.getElementById('canvasWrapper');
+        if (wrapper) {
+            wrapper.appendChild(ring);
+            setTimeout(() => ring.remove(), 600);
+        }
     }
 
     showBiomeDetail(hex, x, y) {

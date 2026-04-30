@@ -1536,3 +1536,39 @@ button:disabled {
     font-size: 0.7rem;
     color: #aaa;
 }
+/* Okçu ve Hedef Animasyonları */
+.unit-archer.shoot {
+  animation: archerShoot 0.25s ease forwards;
+}
+@keyframes archerShoot {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.9) translateX(-5px); }
+  100% { transform: scale(1); }
+}
+
+.unit-enemy.hit, #gameCanvas.hit {
+  animation: unitHit 0.45s ease;
+}
+@keyframes unitHit {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(9px); }
+  45%  { transform: translateX(-7px); }
+  65%  { transform: translateX(4px); }
+  85%  { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+.impact-ring {
+  border-radius: 50%;
+  border: 3px solid #ffd166;
+  position: absolute;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  animation: impactRingAnim 0.5s ease-out forwards;
+}
+@keyframes impactRingAnim {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
