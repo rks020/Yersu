@@ -531,12 +531,11 @@ class Renderer {
 
     _drawArmies() {
         const ctx = this.ctx;
-        this.state.grid.nodes.forEach(node => {
-            if (!node.army || node.army.units.length === 0) return;
+        for (const node of this.state.grid.nodes.values()) {
+            if (!node.army || !node.army.units || node.army.units.length === 0) continue;
 
             // 1. Gruplama: "playerId_unitType" bazlı sayım
             const groupedData = {}; // key -> { count, unit, pid, type }
-
             node.army.units.forEach(u => {
                 const pid = u.playerId || node.army.playerId;
                 const type = u.type;
@@ -548,7 +547,7 @@ class Renderer {
                 groupedData[key].count++;
             });
 
-            // 2. Oyuncu bazlı grupları ayır (offset hesaplamak için)
+            // 2. Oyuncu bazlı grupları ayır
             const playerGroups = {}; // pid -> [{count, unit, type}]
             Object.values(groupedData).forEach(g => {
                 if (!playerGroups[g.pid]) playerGroups[g.pid] = [];
@@ -564,14 +563,12 @@ class Renderer {
 
                 const pGroup = playerGroups[pid];
                 
-                // Oyuncu bazlı ana ofset (Eğer düşman varsa birbirinden uzaklaşırlar)
+                // Oyuncu bazlı ana ofset
                 const pBaseX = isContested ? (pIdx === 0 ? -22 : 22) : 0;
                 const pBaseY = isContested ? (pIdx === 0 ? -12 : 12) : 0;
 
                 pGroup.forEach((g, gIdx) => {
-                    // Aynı oyuncunun FARKLI tür birimleri çok hafif üst üste biner (stacking)
                     const gOffset = gIdx * 5; 
-                    
                     const drawX = node.x + pBaseX + gOffset;
                     const drawY = node.y + pBaseY - gOffset;
                     
@@ -586,16 +583,16 @@ class Renderer {
 
                     this._drawUnitIcon(drawX, drawY, g.unit, player, isSelected);
 
-                    // Sayı Rozeti (Eğer aynı türden birden fazla varsa)
                     if (g.count > 1) {
                         this._drawCountBadge(drawX + 13, drawY - 13, g.count);
                     }
                 });
 
-                // MP Göstergesi (Sadece aktif oyuncunun grubu üzerinde)
-                if (pid === this.state.currentPlayer.id) {
+                // MP Göstergesi
+                if (pid === this.state.currentPlayer.id && pGroup.length > 0) {
                     const firstUnit = pGroup[0].unit;
                     if (firstUnit && firstUnit.movesLeft !== undefined) {
+                        ctx.save();
                         ctx.font = 'bold 10px sans-serif';
                         ctx.fillStyle = '#ffeb3b';
                         ctx.textAlign = 'center';
@@ -603,6 +600,7 @@ class Renderer {
                         ctx.shadowBlur = 4;
                         ctx.fillText(`MP:${firstUnit.movesLeft}`, node.x + pBaseX, node.y + pBaseY + 25);
                         ctx.shadowBlur = 0;
+                        ctx.restore();
                     }
                 }
             });
@@ -638,9 +636,11 @@ class Renderer {
 
     _drawUnitIcon(x, y, unit, player, isSelected) {
         const ctx = this.ctx;
-        const r = 19; // İkonu biraz daha büyüttük
+        const r = 19; 
         const data = UNIT_DATA[unit.type];
-        const img = this.unitImages[unit.type];
+        if (!data) return; // Güvenlik kontrolü: Veri yoksa çizme
+        
+        const img = this.unitImages[unit.type]; // Güvenlik kontrolü
 
         // 1. Seçim Highlight / Dış Gölge
         ctx.beginPath();
@@ -651,7 +651,7 @@ class Renderer {
         // 2. Kalın Oyuncu Rengi Çerçevesi
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = player.hex; // Takım rengi (Kırmızı/Mavi vb.)
+        ctx.fillStyle = player.color || player.hex || '#ccc'; // Fallback eklendi
         ctx.fill();
         
         // İç Beyaz Kontur (Daha şık durması için)
