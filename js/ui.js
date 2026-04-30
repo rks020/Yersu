@@ -515,9 +515,16 @@ class UI {
                         this.update();
                     };
 
-                    if (clickedNode.army.units.length > 1) {
+                    const myUnits = clickedNode.army.units.filter(u => {
+                        const ownerId = u.playerId !== undefined ? u.playerId : clickedNode.army.playerId;
+                        return ownerId === current.id;
+                    });
+
+                    if (myUnits.length > 1) {
                         this.showUnitSelectionModal(clickedNode, selectUnit, clientX, clientY);
-                        return; // Modal açıldıysa burayı bitir, callback devam ettirecek
+                        return; 
+                    } else if (myUnits.length === 1) {
+                        selectUnit(myUnits[0]);
                     } else {
                         selectUnit(clickedNode.army.units[0]);
                     }
@@ -1372,10 +1379,17 @@ class UI {
         
         picker.innerHTML = `<div style="font-size:0.7rem; color:var(--gold); font-weight:bold; padding:4px 8px; border-bottom:1px solid rgba(255,215,0,0.2); margin-bottom:4px;">${title}</div>`;
         
-        node.army.units.forEach(u => {
+        const currentPid = this.state.currentPlayer.id;
+        const filteredUnits = node.army.units.filter(u => {
+            const ownerId = u.playerId !== undefined ? u.playerId : node.army.playerId;
+            return isEnemy ? (ownerId !== currentPid) : (ownerId === currentPid);
+        });
+
+        filteredUnits.forEach(u => {
             const data = UNIT_DATA[u.type];
             const item = document.createElement('div');
-            const canSelect = isEnemy || u.movesLeft > 0 || (data.range > 0 && !u.hasAttacked);
+            // canSelect mantığı: Kendi birimimizse MP veya saldırı hakkı olmalı, düşmansa her zaman seçilebilir (hedef olarak)
+            const canSelect = isEnemy || u.movesLeft > 0 || (data.range > 0 && !u.hasAttacked) || (data.range === 0 && !u.hasAttacked);
             item.className = `unit-picker-item ${canSelect ? '' : 'disabled'}`;
             
             const iconHtml = data.img ? `<img src="${data.img}">` : `<span class="emoji">${data.emoji || '👤'}</span>`;

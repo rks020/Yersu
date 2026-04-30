@@ -536,42 +536,59 @@ class Renderer {
         const ctx = this.ctx;
         this.state.grid.nodes.forEach(node => {
             if (!node.army || node.army.units.length === 0) return;
-            const player = this.state.players.find(p => p.id === node.army.playerId);
-            if (!player) return;
 
-            const isSelected = this.state.selectedUnitNode === node.id;
-            
-            // Orduyu çiz (Tersten çizerek üst üste binme sırasını ayarla)
             const units = node.army.units;
+            const currentPid = this.state.currentPlayer.id;
+
+            // Oyuncu bazlı ayır (Side-by-side için)
+            const pIds = Array.from(new Set(units.map(u => u.playerId !== undefined ? u.playerId : node.army.playerId)));
+            const isContested = pIds.length > 1;
+
             units.forEach((unit, idx) => {
-                const offset = idx * 12; // Daha belirgin yan yana duruş için offset'i artırdık
-                
-                // Birimin kendi sahibini bul (yeni sistem), yoksa ordunun sahibini kullan (eski sistem)
-                const uid = unit.playerId !== undefined ? unit.playerId : node.army.playerId;
-                const unitPlayer = this.state.players.find(p => p.id === uid);
-                
-                if (unitPlayer) {
-                    this._drawUnitIcon(node.x + offset, node.y - offset, unit, unitPlayer, isSelected);
+                const pid = unit.playerId !== undefined ? unit.playerId : node.army.playerId;
+                const player = this.state.players.find(p => p.id === pid);
+                if (!player) return;
+
+                // Seçim kontrolü (SADECE bu birim mi seçili?)
+                const isSelected = (this.state.selectedUnitNode === node.id && 
+                                    this.state.selectedUnit && 
+                                    this.state.selectedUnit.uid === unit.uid);
+
+                // Ofset hesapla
+                const pIdx = pIds.indexOf(pid);
+                const pBaseX = isContested ? (pIdx === 0 ? -22 : 22) : 0;
+                const pBaseY = isContested ? (pIdx === 0 ? -12 : 12) : 0;
+
+                // Aynı oyuncunun birimleri için küçük iç ofset (stacking)
+                const uIdx = units.filter((u, i) => i < idx && (u.playerId !== undefined ? u.playerId : node.army.playerId) === pid).length;
+                const uOffset = uIdx * 5;
+
+                const drawX = node.x + pBaseX + uOffset;
+                const drawY = node.y + pBaseY - uOffset;
+
+                this._drawUnitIcon(drawX, drawY, unit, player, isSelected);
+
+                // MP Göstergesi (Sadece oyuncunun kendi birimleri ve o oyuncunun sırasıyken)
+                if (uIdx === 0 && pid === currentPid && unit.movesLeft !== undefined) {
+                    ctx.save();
+                    ctx.font = 'bold 10px sans-serif';
+                    ctx.fillStyle = '#ffeb3b';
+                    ctx.textAlign = 'center';
+                    ctx.shadowColor = 'black';
+                    ctx.shadowBlur = 4;
+                    ctx.fillText(`MP:${unit.movesLeft}`, node.x + pBaseX, node.y + pBaseY + 25);
+                    ctx.restore();
                 }
             });
-
-            // Hareket puanı (İlk birim üzerinden göster)
-            const firstUnit = units[0];
-            if (firstUnit && firstUnit.movesLeft !== undefined && player.id === this.state.currentPlayer.id) {
-                ctx.font = 'bold 10px sans-serif';
-                ctx.fillStyle = '#ffeb3b';
-                ctx.textAlign = 'center';
-                ctx.shadowColor = 'black';
-                ctx.shadowBlur = 4;
-                ctx.fillText(`MP:${firstUnit.movesLeft}`, node.x, node.y + 25);
-                ctx.shadowBlur = 0;
-            }
 
             // Kuşatma göstergesi
             const hasSiege = units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma');
             if (hasSiege) {
+                ctx.save();
                 ctx.font = `14px serif`;
-                ctx.fillText('💥', node.x + 18, node.y - 18);
+                ctx.textAlign = 'center';
+                ctx.fillText('💥', node.x, node.y - 30);
+                ctx.restore();
             }
         });
     }
