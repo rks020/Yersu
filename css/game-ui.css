@@ -2278,3 +2278,104 @@ button:disabled {
 #animSvg {
     pointer-events: none !important;
 }
+
+/* ─── RESPONSIVE DESIGN (MOBILE) ─── */
+@media (max-width: 768px) {
+    #gameContainer {
+        grid-template-rows: auto 1fr; /* Header otomatik, main kalan */
+        height: 100dvh;
+    }
+
+    .game-header {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .header-player {
+        min-width: auto;
+    }
+
+    .player-name-header {
+        display: none; /* Mobilde isim gizlensin, sadece amblem */
+    }
+
+    .header-resources {
+        overflow-x: auto;
+        padding-bottom: 2px;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .hres-item {
+        flex-shrink: 0;
+        padding: 2px 6px;
+    }
+
+    .game-main {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Panelleri mobilde şimdilik gizliyoruz, haritaya odaklanıyoruz */
+    .side-panel, .game-bottom {
+        display: none !important;
+    }
+
+    /* COMBAT MODAL MOBILE FIX */
+    .combat-modal {
+        width: 94vw !important;
+        left: 3vw !important;
+        max-height: 85vh !important;
+        padding: 10px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+    }
+
+    .combat-box {
+        padding: 10px !important;
+        border-radius: 8px !important;
+    }
+
+    .battlefield {
+        flex-direction: column !important;
+        height: auto !important;
+        gap: 10px !important;
+        padding: 5px 0 !important;
+    }
+
+    .combat-side {
+        width: 100% !important;
+        justify-content: center !important;
+        flex-direction: row !important;
+        gap: 10px;
+    }
+
+    .combat-unit-frame {
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    .dice-central-area {
+        margin: 5px 0 !important;
+        transform: scale(0.9);
+    }
+
+    .combat-name {
+        display: none; /* Mobilde yer kazanmak için isimleri gizle */
+    }
+
+    .combat-result-text {
+        font-size: 0.9rem !important;
+        margin: 5px 0 !important;
+    }
+
+    .combat-footer {
+        padding: 0 5px !important;
+    }
+
+    .btn-build {
+        padding: 6px 15px !important;
+        font-size: 0.8rem !important;
+    }
+}
