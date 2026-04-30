@@ -596,9 +596,19 @@ class UI {
         if (foundNode && foundNode.army && foundNode.army.units.length > 0) {
             this.showNodeTooltip(foundNode, clientX, clientY);
             this.hideBiomeDetail();
+            this._lastHoveredNode = foundNode; // Takip için
             return;
         } else {
+            // Eğer daha önce bir noda bakıyorsak ve şu an boşluğa çıktıysak, 
+            // ama hala o nodun butonunun/tooltipinin üzerindeysek kapatma
+            if (this._lastHoveredNode) {
+                const d = Math.sqrt((gx - this._lastHoveredNode.x)**2 + (gy - this._lastHoveredNode.y)**2);
+                if (d < 100) { // Daha geniş bir alan tanı (Butona ulaşmak için)
+                    return; 
+                }
+            }
             this.hideNodeTooltip();
+            this._lastHoveredNode = null;
         }
 
         const hex = this.state.grid.pixelToNearestHex(gx, gy);
@@ -645,7 +655,6 @@ class UI {
                             <div class="tooltip-unit-item">
                                 ${icon}
                                 <span class="unit-name">${data.name}</span>
-                                <span class="unit-stat">${u.hp}❤️</span>
                             </div>
                         `;
                     }).join('')}
@@ -679,9 +688,9 @@ class UI {
                         <span>SALDIRI</span>
                     </button>
                 `;
-                // Butonu nodun diğer tarafına koyalım (Tooltip sağdaysa buton solda)
-                let btnLeft = canvasPos.x + rect.left - 85;
-                let btnTop = canvasPos.y + rect.top - 35;
+                // Butonu noda göre konumlandır (İşaretlenen yer: Sol Üst)
+                let btnLeft = canvasPos.x + rect.left - 90;
+                let btnTop = canvasPos.y + rect.top - 90;
                 
                 actionBtn.style.left = `${btnLeft}px`;
                 actionBtn.style.top = `${btnTop}px`;
