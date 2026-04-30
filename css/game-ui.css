@@ -1883,3 +1883,66 @@ button:disabled {
   60%  { opacity: 0.6; transform: translateX(65px) rotate(30deg) scale(1.0); }
   100% { opacity: 0; transform: translateX(60px) rotate(0deg)  scale(0); }
 }
+
+/* ─── DICE BALLS & COMBAT LAYOUT FIX ─── */
+
+.dice-container {
+    display: flex;
+    gap: 6px;
+    margin: 8px 0;
+    justify-content: center;
+    min-height: 24px;
+}
+
+.dice-ball {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5), inset 0 0 5px rgba(0,0,0,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.dice-ball.blue {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    border-color: #00c6ff;
+}
+
+.dice-ball.red {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border-color: #ff0844;
+}
+
+.combat-stats {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 25px; /* Spacing for result text */
+    position: relative;
+    z-index: 10;
+}
+
+.vs-text {
+    font-size: 5rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.15; /* Make VS more background-like to avoid overlap issues */
+    pointer-events: none;
+}
+
+#combat-result-text {
+    margin-top: 20px;
+    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+    position: relative;
+    z-index: 15;
+}

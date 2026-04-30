@@ -1779,6 +1779,14 @@ class UI {
         document.getElementById('def-name').innerText = `${defender.player.name} (${defData.name})`;
         document.getElementById('def-name').style.color = defender.player.color || defender.player.hex;
 
+        // Düello Zarlarını Göster
+        const atkDiceEl = document.getElementById('atk-dice');
+        const defDiceEl = document.getElementById('def-dice');
+        if (atkDiceEl && defDiceEl) {
+            atkDiceEl.innerHTML = (attacker.rolls || []).map(val => `<div class="dice-ball blue">${val}</div>`).join('');
+            defDiceEl.innerHTML = (defender.rolls || []).map(val => `<div class="dice-ball red">${val}</div>`).join('');
+        }
+
         // Result text (Initially empty, will fill after animation)
         this.els.combatResultText.innerText = "";
         this.els.combatModal.classList.add('active');
