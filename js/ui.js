@@ -1699,7 +1699,9 @@ class UI {
     showCombatVS(combat) {
         if (!this.els.combatModal) return;
 
-        const { attacker, defender, result, casualty, atkPower, defPower } = combat;
+        const { attacker, defender, result, casualty } = combat;
+        const atkPower = attacker.str;
+        const defPower = defender.str;
         
         // Atk info
         const atkData = UNIT_DATA[attacker.unit.type];
@@ -1715,21 +1717,144 @@ class UI {
         document.getElementById('def-name').innerText = `${defender.player.name} (${defData.name})`;
         document.getElementById('def-name').style.color = defender.player.color || defender.player.hex;
 
-        // Result text
-        let resText = "";
-        if (casualty === 'attacker') {
-            resText = `❌ ${atkData.name} mağlup oldu ve geri çekildi!`;
-            this.els.combatResultText.style.color = "#ff4444";
-        } else if (casualty === 'defender') {
-            resText = `⚔️ ${defData.name} yok edildi! Zafer!`;
-            this.els.combatResultText.style.color = "#44ff44";
-        } else {
-            resText = "🛡️ İki taraf da ayakta kaldı. Yenişemediler.";
-            this.els.combatResultText.style.color = "#aaa";
-        }
-        
-        this.els.combatResultText.innerText = resText;
+        // Result text (Initially empty, will fill after animation)
+        this.els.combatResultText.innerText = "";
         this.els.combatModal.classList.add('active');
+
+        // Animasyon Tetikle
+        this.executeCombatAnimation(combat);
+    }
+
+    executeCombatAnimation(combat) {
+        const field = document.getElementById('battlefield');
+        const svg = document.getElementById('animSvg');
+        const attackerEl = this.els.combatAtkFrame;
+        const defenderEl = this.els.combatDefFrame;
+        
+        if (!field || !svg) return;
+
+        const fw = field.offsetWidth;
+        const midY = field.offsetHeight / 2;
+        const startX = 100;
+        const endX = fw - 100;
+
+        const unitType = combat.attacker.unit.type;
+        
+        // Animasyon Yardımcıları (Kapsama dahil edildi)
+        const SVG_NS = 'http://www.w3.org/2000/svg';
+        const mkEl = (tag, attrs) => {
+            const e = document.createElementNS(SVG_NS, tag);
+            for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+            return e;
+        };
+
+        const triggerAnim = (el, animName, durationMs) => {
+            return new Promise(res => {
+                el.style.animation = 'none';
+                void el.offsetWidth;
+                el.style.animation = `${animName} ${durationMs}ms ease forwards`;
+                setTimeout(() => { res(); }, durationMs);
+            });
+        };
+
+        const meleeFlash = (emoji = '⚡', dur = 320) => {
+            const el = document.createElement('div');
+            el.style.cssText = `position:absolute; top:50%; right:120px; font-size:40px; z-index:10; pointer-events:none; animation:meleeFlash ${dur}ms ease forwards;`;
+            el.textContent = emoji;
+            field.appendChild(el);
+            setTimeout(() => el.remove(), dur + 100);
+        };
+
+        const smokeEffect = (x, y) => {
+            ['rgba(180,180,180,0.7)', 'rgba(140,140,140,0.5)'].forEach((color, i) => {
+                const size = 20 + i * 15;
+                const s = document.createElement('div');
+                s.style.cssText = `position:absolute; border-radius:50%; pointer-events:none; z-index:4; width:${size}px; height:${size}px; background:${color}; left:${x - size/2}px; top:${y - size/2}px; transition:opacity 0.5s, transform 0.5s;`;
+                field.appendChild(s);
+                void s.offsetWidth;
+                s.style.opacity = '0';
+                s.style.transform = 'scale(2) translateY(-20px)';
+                setTimeout(() => s.remove(), 700);
+            });
+        };
+
+        const flyProjectile = (sx, sy, ex, ey, opts, onEnd) => {
+            svg.setAttribute('viewBox', `0 0 ${fw} ${field.offsetHeight}`);
+            const projectile = mkEl(opts.shape === 'circle' ? 'circle' : 'line', {
+                fill: opts.fill || '#555', stroke: opts.stroke || '#c8a84b', 'stroke-width': 3
+            });
+            if (opts.shape === 'circle') { projectile.setAttribute('r', opts.r || 8); }
+            svg.appendChild(projectile);
+
+            const DURATION = opts.dur || 400;
+            const t0 = performance.now();
+            const frame = (now) => {
+                const t = Math.min((now - t0) / DURATION, 1);
+                const cx = sx + (ex - sx) * t;
+                const arc = (opts.arc || 0) * Math.sin(Math.PI * t);
+                const cy = sy + (ey - sy) * t + arc;
+                if (opts.shape === 'circle') {
+                    projectile.setAttribute('cx', cx); projectile.setAttribute('cy', cy);
+                } else {
+                    projectile.setAttribute('x1', cx - 20); projectile.setAttribute('y1', cy);
+                    projectile.setAttribute('x2', cx); projectile.setAttribute('y2', cy);
+                }
+                if (t < 1) requestAnimationFrame(frame);
+                else { projectile.remove(); onEnd(); }
+            };
+            requestAnimationFrame(frame);
+        };
+
+        const onHit = () => {
+            defenderEl.style.animation = 'none'; void defenderEl.offsetWidth;
+            defenderEl.style.animation = 'enemyShake 0.5s ease';
+            
+            // Sonuç metnini göster
+            const { attacker, defender, casualty } = combat;
+            const atkData = UNIT_DATA[attacker.unit.type];
+            const defData = UNIT_DATA[defender.unit.type];
+            let resText = "";
+            if (casualty === 'attacker') {
+                resText = `❌ ${atkData.name} mağlup oldu!`;
+                this.els.combatResultText.style.color = "#ff4444";
+            } else if (casualty === 'defender') {
+                resText = `⚔️ ${defData.name} yok edildi!`;
+                this.els.combatResultText.style.color = "#44ff44";
+            } else {
+                resText = "🛡️ İki taraf da sağ kaldı.";
+                this.els.combatResultText.style.color = "#aaa";
+            }
+            this.els.combatResultText.innerText = resText;
+        };
+
+        // Birim bazlı animasyon tetikleme
+        if (unitType === 'okcu' || unitType === 'atli_okcu') {
+            triggerAnim(attackerEl, 'archerShoot', 300);
+            setTimeout(() => flyProjectile(startX + 30, midY, endX - 30, midY, { arc: -40, dur: 450 }, onHit), 150);
+        } else if (unitType === 'mizrakci') {
+            triggerAnim(attackerEl, 'spearThrust', 400).then(onHit);
+            meleeFlash('⚡');
+        } else if (unitType === 'topcu' || unitType === 'mancinik') {
+            triggerAnim(attackerEl, 'cannonRecoil', 400);
+            smokeEffect(startX + 40, midY);
+            setTimeout(() => flyProjectile(startX + 40, midY, endX - 20, midY, { shape: 'circle', arc: -60, dur: 600 }, () => {
+                smokeEffect(endX - 20, midY);
+                onHit();
+            }), 200);
+        } else if (unitType === 'sovalye') {
+            triggerAnim(attackerEl, 'knightCharge', 500).then(onHit);
+            meleeFlash('💥');
+        } else if (unitType === 'hafif_suvari') {
+            triggerAnim(attackerEl, 'cavalryGallop', 500).then(onHit);
+            meleeFlash('⚔️');
+        } else if (unitType === 'kocbasi') {
+            triggerAnim(attackerEl, 'ramCharge', 600).then(onHit);
+            meleeFlash('💥');
+        } else {
+            // Varsayılan kılıçlı animasyonu
+            triggerAnim(attackerEl, 'swordSlash', 450).then(onHit);
+            meleeFlash('⚔️');
+        }
     }
 
     showTradeModal() {

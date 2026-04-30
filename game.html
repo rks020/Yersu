@@ -470,15 +470,18 @@
     <!-- COMBAT MODAL (VS EKRANI) -->
     <div id="combat-modal" class="combat-modal">
         <div class="combat-box">
-            <div class="combat-vs-header">
+            <div class="battlefield" id="battlefield">
+                <svg id="animSvg"></svg>
                 <div class="combat-side" id="attacker-side">
                     <div class="combat-unit-frame" id="atk-frame"></div>
-                    <div id="atk-name" style="font-family:'Cinzel'; color:var(--gold);">Saldıran</div>
+                    <div id="atk-name" style="font-family:'Cinzel'; color:var(--gold); margin-top:10px;">Saldıran</div>
                 </div>
+                
                 <div class="vs-text">VS</div>
+                
                 <div class="combat-side" id="defender-side">
                     <div class="combat-unit-frame" id="def-frame"></div>
-                    <div id="def-name" style="font-family:'Cinzel'; color:var(--gold);">Savunan</div>
+                    <div id="def-name" style="font-family:'Cinzel'; color:var(--gold); margin-top:10px;">Savunan</div>
                 </div>
             </div>
             
