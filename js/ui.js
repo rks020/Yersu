@@ -218,6 +218,29 @@ class UI {
         if (this.els.rollDiceBtn) this.els.rollDiceBtn.addEventListener('click', () => this.handleRollDice());
         if (this.els.endTurnBtn) this.els.endTurnBtn.addEventListener('click', () => this.handleEndTurn());
 
+        // Mobile Toggles
+        const tLeft = document.getElementById('toggleLeft');
+        const tRight = document.getElementById('toggleRight');
+        const tBottom = document.getElementById('toggleBottom');
+        const lPanel = document.querySelector('.left-panel');
+        const rPanel = document.querySelector('.right-panel');
+        const bPanel = document.querySelector('.game-bottom');
+
+        if (tLeft) tLeft.onclick = () => lPanel.classList.toggle('mobile-active');
+        if (tRight) tRight.onclick = () => rPanel.classList.toggle('mobile-active');
+        if (tBottom) tBottom.onclick = () => bPanel.classList.toggle('mobile-active');
+
+        // Panellere tıklayınca veya dışarı tıklayınca kapansın (basit yaklaşım)
+        [lPanel, rPanel, bPanel].forEach(p => {
+            if (p) p.addEventListener('click', (e) => {
+                if (e.target.classList.contains('panel-title-bar') || e.target.tagName === 'BUTTON') {
+                    // Butona basınca işlem yapsın ama paneli hemen kapatmasın (opsiyonel)
+                } else if (e.target === p) {
+                    p.classList.remove('mobile-active');
+                }
+            });
+        });
+
         if (this.els.actionMenu) {
             this.els.actionMenu.addEventListener('click', (e) => {
                 const btn = e.target.closest('.action-btn');
