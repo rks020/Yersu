@@ -469,7 +469,12 @@ class UI {
                 // OTOMATİK HAREKET MODU: Hareket aşamasındaysak ve kendi birimimizse doğrudan hareket moduna geç
                 // OTOMATİK HAREKET MODU: Hareket aşamasındaysak ve kendi birimimizse
                 // OTOMATİK SEÇİM: Hareket veya Saldırı aşamasındaysak ve kendi birimimizse
-                if ((this.state.subPhase === 'move' || this.state.subPhase === 'attack') && clickedNode.army.playerId === current.id) {
+                const hasMyUnit = clickedNode.army && clickedNode.army.units.some(u => {
+                    const ownerId = u.playerId !== undefined ? u.playerId : clickedNode.army.playerId;
+                    return ownerId === current.id;
+                });
+
+                if ((this.state.subPhase === 'move' || this.state.subPhase === 'attack') && hasMyUnit) {
                     const selectUnit = (unit) => {
                         // Birimin sahibi kontrolü (Yeni sistemde birim bazlı sahiplik var)
                         const ownerId = unit.playerId !== undefined ? unit.playerId : clickedNode.army.playerId;

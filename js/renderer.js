@@ -544,7 +544,7 @@ class Renderer {
             // Orduyu çiz (Tersten çizerek üst üste binme sırasını ayarla)
             const units = node.army.units;
             units.forEach((unit, idx) => {
-                const offset = idx * 3; // Hafif kaydırma
+                const offset = idx * 12; // Daha belirgin yan yana duruş için offset'i artırdık
                 
                 // Birimin kendi sahibini bul (yeni sistem), yoksa ordunun sahibini kullan (eski sistem)
                 const uid = unit.playerId !== undefined ? unit.playerId : node.army.playerId;
