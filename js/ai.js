@@ -63,9 +63,16 @@ class AIEngine {
             const hexId = player.settlements[0];
             const hex = this.state.grid.hexes.get(hexId);
             if (hex) {
-                const nodeId = hex.nodeIds[Math.floor(Math.random() * hex.nodeIds.length)];
-                if (this.actions.setupPlaceInitialUnit(player.id, nodeId)) {
-                    // UI'yı güncelle ve sıradaki oyuncuya geç
+                // Boş bir node bulana kadar dene
+                let placed = false;
+                for (const nodeId of hex.nodeIds) {
+                    if (this.actions.setupPlaceInitialUnit(player.id, nodeId)) {
+                        placed = true;
+                        break;
+                    }
+                }
+                
+                if (placed) {
                     if (window.appMain) window.appMain.nextTurn();
                     else this.state.nextTurn();
                     return;

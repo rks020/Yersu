@@ -595,15 +595,15 @@ class GameState {
         // Setup aşaması kontrolü: Eğer herkes köyünü ve askerini koyduysa Main'e geç
         if (this.phase === 'setup') {
             const allDone = this.players.every(pl => pl.settlements.length >= 1 && pl.units.length >= 1);
-            if (allDone) {
+            if (allDone || this.turn > 4) { // Güvenlik önlemi: 4 turdan sonra zorla Main'e geç
                 this.phase = 'Main';
                 this.addLog("⚔️ Kurulum tamamlandı! Ana aşama başlıyor.", "success");
             }
         }
 
-        // Setup aşamasında üretim (zar) yok, direkt aksiyona geçiyoruz
-        this.subPhase = (this.phase === 'setup') ? 'action' : 'production';
-        this.activeCombat = null; // Tur başında savaşı temizle
+        // Setup aşamasında üretim (zar) yok, direkt inşa/aksiyon aşamasına geçiyoruz
+        this.subPhase = (this.phase === 'setup') ? 'build' : 'production';
+        this.activeCombat = null; 
         this.addLog(`🔔 Sıra ${nextP.name} oyuncusunda.`, 'info');
         this.clearSelection();
         
@@ -621,8 +621,13 @@ class GameState {
     }
 
     resetTurnActions() {
+        this.subPhase = 'production';
         this.players.forEach(p => {
             p.bonusState.kislaLv3BUsedThisTurn = false;
+            p.units.forEach(u => {
+                u.hasAttacked = false;
+                // movesLeft resets in rollProductionDice
+            });
         });
     }
 
