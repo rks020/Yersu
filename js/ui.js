@@ -661,8 +661,20 @@ class UI {
         }
 
         tooltip.innerHTML = html;
-        tooltip.style.left = `${clientX + 15}px`;
-        tooltip.style.top = `${clientY + 15}px`;
+        
+        // FİKS: Fareyi takip etmek yerine noda sabitle (Buton tıklamayı kolaylaştırır)
+        const canvasPos = this.renderer.gameToCanvas(node.x, node.y);
+        const rect = this.renderer.canvas.getBoundingClientRect();
+        
+        let left = canvasPos.x + rect.left + 25;
+        let top = canvasPos.y + rect.top - 50;
+        
+        // Ekran dışına taşma kontrolü
+        if (left + 220 > window.innerWidth) left = canvasPos.x + rect.left - 230;
+        if (top + 150 > window.innerHeight) top = window.innerHeight - 160;
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
         tooltip.classList.add('active');
     }
 

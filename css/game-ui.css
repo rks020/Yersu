@@ -1582,7 +1582,7 @@ button:disabled {
     padding: 10px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(201, 162, 39, 0.2);
     z-index: 1000;
-    pointer-events: none;
+    pointer-events: auto;
     display: none;
     min-width: 220px;
     font-family: 'Inter', sans-serif;
