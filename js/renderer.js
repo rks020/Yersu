@@ -540,7 +540,7 @@ class Renderer {
             const units = node.army.units;
             const currentPid = this.state.currentPlayer.id;
 
-            // Oyuncu bazlı ayır (Side-by-side için)
+            // Oyuncu bazlı ayır
             const pIds = Array.from(new Set(units.map(u => u.playerId !== undefined ? u.playerId : node.army.playerId)));
             const isContested = pIds.length > 1;
 
@@ -549,26 +549,22 @@ class Renderer {
                 const player = this.state.players.find(p => p.id === pid);
                 if (!player) return;
 
-                // Seçim kontrolü (SADECE bu birim mi seçili?)
                 const isSelected = (this.state.selectedUnitNode === node.id && 
                                     this.state.selectedUnit && 
                                     this.state.selectedUnit.uid === unit.uid);
 
-                // Ofset hesapla
                 const pIdx = pIds.indexOf(pid);
-                const pBaseX = isContested ? (pIdx === 0 ? -22 : 22) : 0;
-                const pBaseY = isContested ? (pIdx === 0 ? -12 : 12) : 0;
+                const pBaseX = isContested ? (pIdx === 0 ? -18 : 18) : 0;
+                const pBaseY = isContested ? (pIdx === 0 ? -10 : 10) : 0;
 
-                // Aynı oyuncunun birimleri için küçük iç ofset (stacking)
                 const uIdx = units.filter((u, i) => i < idx && (u.playerId !== undefined ? u.playerId : node.army.playerId) === pid).length;
-                const uOffset = uIdx * 5;
+                const stackOffset = uIdx * 2; 
 
-                const drawX = node.x + pBaseX + uOffset;
-                const drawY = node.y + pBaseY - uOffset;
+                const drawX = node.x + pBaseX + stackOffset;
+                const drawY = node.y + pBaseY - stackOffset;
 
                 this._drawUnitIcon(drawX, drawY, unit, player, isSelected);
 
-                // MP Göstergesi (Sadece oyuncunun kendi birimleri ve o oyuncunun sırasıyken)
                 if (uIdx === 0 && pid === currentPid && unit.movesLeft !== undefined) {
                     ctx.save();
                     ctx.font = 'bold 10px sans-serif';
@@ -581,7 +577,6 @@ class Renderer {
                 }
             });
 
-            // Kuşatma göstergesi
             const hasSiege = units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma');
             if (hasSiege) {
                 ctx.save();

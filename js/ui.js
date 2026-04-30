@@ -60,6 +60,15 @@ class UI {
 
             unitPicker: document.getElementById('unit-picker'),
             choiceModalCloseBtn: document.getElementById('btnChoiceModalClose'),
+            
+            nodeTooltip: document.getElementById('node-tooltip'),
+            combatModal: document.getElementById('combat-modal'),
+            combatAtkFrame: document.getElementById('atk-frame'),
+            combatDefFrame: document.getElementById('def-frame'),
+            combatAtkPower: document.getElementById('atk-power'),
+            combatDefPower: document.getElementById('def-power'),
+            combatResultText: document.getElementById('combat-result-text'),
+            btnCloseCombat: document.getElementById('btn-close-combat')
         };
 
         this.activeBonusTab = 'ciftlik';
@@ -98,7 +107,16 @@ class UI {
         const canvas = this.renderer.canvas;
 
         canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e.clientX, e.clientY));
-        canvas.addEventListener('mouseleave', () => this.hideBiomeDetail());
+        canvas.addEventListener('mouseleave', () => {
+            this.hideBiomeDetail();
+            this.hideNodeTooltip();
+        });
+
+        if (this.els.btnCloseCombat) {
+            this.els.btnCloseCombat.onclick = () => {
+                this.els.combatModal.classList.remove('active');
+            };
+        }
 
         let isDragging = false, lastX, lastY, hasMoved = false;
 
@@ -395,7 +413,7 @@ class UI {
                         if (res) {
                             const sourceNode = this.state.grid.nodes.get(sourceNodeId);
                             this.showCombatAnimation(sourceNode, clickedNode, res);
-                            this.showCombatReport(res);
+                            this.showCombatVS(res);
                             this.state.clearSelection();
                             this.update();
                         }
@@ -417,7 +435,7 @@ class UI {
                     } else {
                         const sourceNode = this.state.grid.nodes.get(sourceNodeId);
                         this.showCombatAnimation(sourceNode, clickedNode, res);
-                        this.showCombatReport(res);
+                        this.showCombatVS(res);
                     }
 
                     // Hala hareket puanı var mı?
@@ -548,15 +566,34 @@ class UI {
 
         if (px < 0 || py < 0 || px > rect.width || py > rect.height) {
             this.hideBiomeDetail();
+            this.hideNodeTooltip();
             return;
         }
 
         const { x: gx, y: gy } = this.renderer.canvasToGame(px, py);
-        const hex = this.state.grid.pixelToNearestHex(gx, gy);
+        
+        // 1. Önce Node Kontrolü (Birim Listesi için)
+        let foundNode = null;
+        for (const node of this.state.grid.nodes.values()) {
+            const d = Math.sqrt((gx - node.x)**2 + (gy - node.y)**2);
+            if (d < 25) {
+                foundNode = node;
+                break;
+            }
+        }
 
+        if (foundNode && foundNode.army && foundNode.army.units.length > 0) {
+            this.showNodeTooltip(foundNode, clientX, clientY);
+            this.hideBiomeDetail();
+            return;
+        } else {
+            this.hideNodeTooltip();
+        }
+
+        // 2. Hex Kontrolü (Biyom Detayı için)
+        const hex = this.state.grid.pixelToNearestHex(gx, gy);
         if (hex) {
             const dist = Math.sqrt((gx - hex.center.x) ** 2 + (gy - hex.center.y) ** 2);
-            // Hex yarıçapı yaklaşık 50-60 birimdir
             if (dist < 60) {
                 this.showBiomeDetail(hex, clientX, clientY);
             } else {
@@ -565,6 +602,54 @@ class UI {
         } else {
             this.hideBiomeDetail();
         }
+    }
+
+    showNodeTooltip(node, clientX, clientY) {
+        const tooltip = this.els.nodeTooltip;
+        if (!tooltip) return;
+
+        // Oyuncu bazlı grupla
+        const groups = {};
+        node.army.units.forEach(u => {
+            const pid = u.playerId !== undefined ? u.playerId : node.army.playerId;
+            if (!groups[pid]) groups[pid] = [];
+            groups[pid].push(u);
+        });
+
+        const pIds = Object.keys(groups);
+        let html = '';
+
+        pIds.forEach(pid => {
+            const player = this.state.players.find(p => p.id === pid);
+            const name = player ? player.name : 'Bilinmeyen';
+            const color = player ? (player.color || player.hex) : '#ccc';
+            
+            html += `
+                <div class="tooltip-col">
+                    <div class="tooltip-col-title" style="color:${color}">${name}</div>
+                    ${groups[pid].map(u => {
+                        const data = UNIT_DATA[u.type];
+                        const icon = data.img ? `<img src="${data.img}">` : `<span>${data.emoji || '👤'}</span>`;
+                        return `
+                            <div class="tooltip-unit-item">
+                                ${icon}
+                                <span class="unit-name">${data.name}</span>
+                                <span class="unit-stat">${u.hp}❤️</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        });
+
+        tooltip.innerHTML = html;
+        tooltip.style.left = `${clientX + 15}px`;
+        tooltip.style.top = `${clientY + 15}px`;
+        tooltip.classList.add('active');
+    }
+
+    hideNodeTooltip() {
+        if (this.els.nodeTooltip) this.els.nodeTooltip.classList.remove('active');
     }
 
     // ── Eylem Butonları ───────────────────────────────────────────
@@ -1603,64 +1688,40 @@ class UI {
         });
     }
 
-    showCombatReport(data) {
-        const modal = document.getElementById('combatModal');
-        if (!modal) return;
-        document.getElementById('combatAttackerName').textContent = data.attacker.player.name;
-        document.getElementById('combatAttackerName').style.color = data.attacker.player.color;
+    showCombatVS(combat) {
+        if (!this.els.combatModal) return;
+
+        const { attacker, defender, result, casualty, atkPower, defPower } = combat;
         
-        const attackerUnitData = UNIT_DATA[data.attacker.unit.type];
-        const defenderUnitData = UNIT_DATA[data.defender.unit.type];
+        // Atk info
+        const atkData = UNIT_DATA[attacker.unit.type];
+        this.els.combatAtkFrame.innerHTML = atkData.img ? `<img src="${atkData.img}" style="width:70%; height:70%; object-fit:contain;">` : `<span style="font-size:3rem;">${atkData.emoji || '👤'}</span>`;
+        this.els.combatAtkPower.innerText = atkPower;
+        document.getElementById('atk-name').innerText = `${attacker.player.name} (${atkData.name})`;
+        document.getElementById('atk-name').style.color = attacker.player.color || attacker.player.hex;
+        
+        // Def info
+        const defData = UNIT_DATA[defender.unit.type];
+        this.els.combatDefFrame.innerHTML = defData.img ? `<img src="${defData.img}" style="width:70%; height:70%; object-fit:contain;">` : `<span style="font-size:3rem;">${defData.emoji || '👤'}</span>`;
+        this.els.combatDefPower.innerText = defPower;
+        document.getElementById('def-name').innerText = `${defender.player.name} (${defData.name})`;
+        document.getElementById('def-name').style.color = defender.player.color || defender.player.hex;
 
-        if (attackerUnitData?.img) {
-            document.getElementById('combatAttackerEmoji').innerHTML = `<img src="${attackerUnitData.img}" style="width:60px;height:60px;object-fit:contain;">`;
+        // Result text
+        let resText = "";
+        if (casualty === 'attacker') {
+            resText = `❌ ${atkData.name} mağlup oldu ve geri çekildi!`;
+            this.els.combatResultText.style.color = "#ff4444";
+        } else if (casualty === 'defender') {
+            resText = `⚔️ ${defData.name} yok edildi! Zafer!`;
+            this.els.combatResultText.style.color = "#44ff44";
         } else {
-            document.getElementById('combatAttackerEmoji').textContent = attackerUnitData?.emoji || '⚔️';
+            resText = "🛡️ İki taraf da ayakta kaldı. Yenişemediler.";
+            this.els.combatResultText.style.color = "#aaa";
         }
-
-        document.getElementById('combatDefenderName').textContent = data.defender.player.name;
-        document.getElementById('combatDefenderName').style.color = data.defender.player.color;
-
-        if (defenderUnitData?.img) {
-            document.getElementById('combatDefenderEmoji').innerHTML = `<img src="${defenderUnitData.img}" style="width:60px;height:60px;object-fit:contain;">`;
-        } else {
-            document.getElementById('combatDefenderEmoji').textContent = defenderUnitData?.emoji || '🛡️';
-        }
-
-        const resultEl = document.getElementById('combatResultText');
-        const atkStrEl = document.getElementById('combatAttackerStr');
-        const defStrEl = document.getElementById('combatDefenderStr');
-
-        if (data.type === 'range') {
-            atkStrEl.textContent = `Atış Gücü: ${data.attacker.str}`;
-            defStrEl.textContent = `Zırh/Savunma: ${data.defender.str}`;
-            if (data.winner === 'attacker') {
-                resultEl.textContent = `🎯 ${data.attacker.player.name} hedefi vurdu! Düşman yok edildi.`;
-                resultEl.style.backgroundColor = "rgba(0, 255, 0, 0.3)";
-            } else {
-                resultEl.textContent = `🏹 Atış ıskaladı veya zırhı geçemedi. Saldıran güvende.`;
-                resultEl.style.backgroundColor = "rgba(255, 165, 0, 0.3)";
-            }
-        } else if (data.type === 'overwatch') {
-            atkStrEl.textContent = "Geçersiz";
-            defStrEl.textContent = "Mancınık Atışı";
-            resultEl.textContent = "💥 Mancınık Menziline Giren Birim Yok Edildi!";
-            resultEl.style.backgroundColor = "rgba(255, 0, 0, 0.4)";
-        } else {
-            atkStrEl.textContent = `Saldırı Gücü: ${data.attacker.str}`;
-            defStrEl.textContent = `Savunma Gücü: ${data.defender.str}`;
-            if (data.winner === 'attacker') {
-                resultEl.textContent = `🏆 ${data.attacker.player.name} kazandı! Savunan yok edildi.`;
-                resultEl.style.backgroundColor = "rgba(0, 255, 0, 0.3)";
-            } else if (data.winner === 'defender') {
-                resultEl.textContent = `💀 ${data.defender.player.name} savundu! Saldıran yok edildi.`;
-                resultEl.style.backgroundColor = "rgba(255, 0, 0, 0.3)";
-            } else {
-                resultEl.textContent = "⚔️ Beraberlik! İki taraf da ağır kayıp verdi.";
-                resultEl.style.backgroundColor = "rgba(255, 165, 0, 0.3)";
-            }
-        }
-        modal.classList.add('active');
+        
+        this.els.combatResultText.innerText = resText;
+        this.els.combatModal.classList.add('active');
     }
 
     showTradeModal() {

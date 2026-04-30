@@ -464,7 +464,42 @@
     <script src="js/ai.js?v=2"></script>
     <script src="js/game.js?v=2"></script>
     <!-- Birim Seçim Dialogu (Yüzen) -->
-    <div id="unit-picker" class="unit-picker"></div>
+    <!-- NODE TOOLTIP (HOVER LİSTELEME) -->
+    <div id="node-tooltip" class="node-tooltip"></div>
+
+    <!-- COMBAT MODAL (VS EKRANI) -->
+    <div id="combat-modal" class="combat-modal">
+        <div class="combat-box">
+            <div class="combat-vs-header">
+                <div class="combat-side" id="attacker-side">
+                    <div class="combat-unit-frame" id="atk-frame"></div>
+                    <div id="atk-name" style="font-family:'Cinzel'; color:var(--gold);">Saldıran</div>
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="combat-side" id="defender-side">
+                    <div class="combat-unit-frame" id="def-frame"></div>
+                    <div id="def-name" style="font-family:'Cinzel'; color:var(--gold);">Savunan</div>
+                </div>
+            </div>
+            
+            <div class="combat-stats">
+                <div class="stat-group">
+                    <span class="stat-label">Saldırı Gücü</span>
+                    <span class="stat-value" id="atk-power">0</span>
+                </div>
+                <div class="stat-group">
+                    <span class="stat-label">Savunma Gücü</span>
+                    <span class="stat-value" id="def-power">0</span>
+                </div>
+            </div>
+
+            <div id="combat-result-text" style="font-family:'Cinzel'; font-size:1.2rem; margin-bottom:20px; color:#fff;"></div>
+
+            <div class="combat-footer">
+                <button id="btn-close-combat" class="btn-build">Devam Et</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
