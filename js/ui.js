@@ -1779,16 +1779,26 @@ class UI {
         document.getElementById('def-name').innerText = `${defender.player.name} (${defData.name})`;
         document.getElementById('def-name').style.color = defender.player.color || defender.player.hex;
 
-        // Düello Zarlarını Göster
+        // Düello Zarlarını Göster (Animasyonlu)
         const atkDiceEl = document.getElementById('atk-dice');
         const defDiceEl = document.getElementById('def-dice');
         if (atkDiceEl && defDiceEl) {
-            atkDiceEl.innerHTML = (attacker.rolls || []).map(val => `<div class="dice-ball blue">${val}</div>`).join('');
-            defDiceEl.innerHTML = (defender.rolls || []).map(val => `<div class="dice-ball red">${val}</div>`).join('');
+            // İlk aşama: Yuvarlanıyor
+            atkDiceEl.innerHTML = (attacker.rolls || []).map(() => `<div class="die-body blue rolling">?</div>`).join('');
+            defDiceEl.innerHTML = (defender.rolls || []).map(() => `<div class="die-body red rolling">?</div>`).join('');
+            
+            // Animasyon bitişinde değerleri yaz (Vuruş anıyla senkronize olması için executeCombatAnimation içinde de kontrol edilebilir ama burada basitçe yapalım)
+            setTimeout(() => {
+                atkDiceEl.innerHTML = (attacker.rolls || []).map(val => `<div class="die-body blue settle">${val}</div>`).join('');
+                defDiceEl.innerHTML = (defender.rolls || []).map(val => `<div class="die-body red settle">${val}</div>`).join('');
+                this._createParticles(atkDiceEl.firstChild); // Efekt ekle
+                this._createParticles(defDiceEl.firstChild);
+            }, 600);
         }
 
         // Result text (Initially empty, will fill after animation)
         this.els.combatResultText.innerText = "";
+        this.els.combatResultText.style.marginTop = "30px"; // Overlap engellemek için margin artırıldı
         this.els.combatModal.classList.add('active');
 
         // Animasyon Tetikle

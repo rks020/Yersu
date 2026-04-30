@@ -1946,3 +1946,33 @@ button:disabled {
     position: relative;
     z-index: 15;
 }
+
+/* ─── ENHANCED DUEL DICE (SQUARE) ─── */
+
+.dice-container .die-body {
+    width: 44px;
+    height: 44px;
+    font-size: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.die-body.blue {
+    background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+    color: white;
+    border: 2px solid #00c6ff;
+}
+
+.die-body.red {
+    background: linear-gradient(135deg, #cb2d3e 0%, #ef473a 100%);
+    color: white;
+    border: 2px solid #ff4b2b;
+}
+
+.die-body.rolling {
+    animation: physicsRoll 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+.die-body.settle {
+    animation: settleWobble 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+}
