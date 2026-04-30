@@ -385,7 +385,12 @@ class UI {
             const executeAction = (targetUnitUid = null) => {
                 // SALDIRI AŞAMASI: Sadece saldırı eylemi
                 if (this.state.subPhase === 'attack') {
-                    if (clickedNode.army && clickedNode.army.playerId !== current.id) {
+                    const hasEnemy = clickedNode.army && clickedNode.army.units.some(u => {
+                        const ownerId = u.playerId !== undefined ? u.playerId : clickedNode.army.playerId;
+                        return ownerId !== current.id;
+                    });
+
+                    if (hasEnemy) {
                         const res = this.actions.performAttack(current.id, unit.uid, clickedNode.id, targetUnitUid);
                         if (res) {
                             const sourceNode = this.state.grid.nodes.get(sourceNodeId);
@@ -401,11 +406,9 @@ class UI {
                     }
                 }
 
-                // HAREKET AŞAMASI: Sadece hareket eylemi (Combat yasak)
-                if (clickedNode.army && clickedNode.army.playerId !== current.id) {
-                    this.showNotice("Hareket aşamasında saldıramazsınız! Saldırı aşamasını bekleyin.", "warning");
-                    return;
-                }
+                // HAREKET AŞAMASI: Sadece hareket eylemi
+                // Artık düşman nodunun içine girmek serbest olduğu için kontrolü kaldırıyoruz.
+
 
                 const res = this.actions.moveUnit(current.id, unit.uid, clickedNode.id, targetUnitUid);
                 if (res) {
