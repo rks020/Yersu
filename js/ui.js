@@ -349,7 +349,7 @@ class UI {
                     } else if (this.state.subPhase === 'attack') {
                         this.state.highlightedNodes.clear();
                         this.state.rangeHighlightedNodes.clear();
-                        const dist = Math.max(1, udata.range || 0); 
+                        const dist = udata.range || 0; 
                         this.state.grid.nodes.forEach(n => {
                             const d = this.state.grid.getDistance(clickedNode.id, n.id);
                             if (d >= 0 && d <= dist) this.state.rangeHighlightedNodes.add(n.id);
@@ -500,9 +500,9 @@ class UI {
                                 // Saldırı aşamasında hareket kutucuklarını (mavi) temizle
                                 this.state.highlightedNodes.clear();
                                 
-                                // Menzilini göster (Yakın dövüş için de mesafe 1 olanları gösterelim)
+                                // Menzilini göster (Mesafe 0 için sadece kendi karesini, Mesafe 1+ için çevreyi de gösterir)
                                 this.state.rangeHighlightedNodes.clear();
-                                const dist = Math.max(1, udata.range || 0);
+                                const dist = udata.range || 0;
                                 this.state.grid.nodes.forEach(n => {
                                     const d = this.state.grid.getDistance(clickedNode.id, n.id);
                                     if (d >= 0 && d <= dist) this.state.rangeHighlightedNodes.add(n.id);
@@ -515,11 +515,17 @@ class UI {
                         this.update();
                     };
 
-                    if (clickedNode.army.units.length > 1) {
+                    // Kaç tane bana ait birim var?
+                    const myUnits = clickedNode.army.units.filter(u => {
+                        const ownerId = u.playerId !== undefined ? u.playerId : clickedNode.army.playerId;
+                        return ownerId === current.id;
+                    });
+
+                    if (myUnits.length > 1) {
                         this.showUnitSelectionModal(clickedNode, selectUnit, clientX, clientY);
-                        return; // Modal açıldıysa burayı bitir, callback devam ettirecek
+                        return;
                     } else {
-                        selectUnit(clickedNode.army.units[0]);
+                        selectUnit(myUnits[0]);
                     }
                 }
             } else if (clickedHex) {
@@ -1372,10 +1378,22 @@ class UI {
         
         picker.innerHTML = `<div style="font-size:0.7rem; color:var(--gold); font-weight:bold; padding:4px 8px; border-bottom:1px solid rgba(255,215,0,0.2); margin-bottom:4px;">${title}</div>`;
         
-        node.army.units.forEach(u => {
+        const currentPlayerId = this.state.currentPlayer.id;
+        const filteredUnits = node.army.units.filter(u => {
+            const ownerId = u.playerId !== undefined ? u.playerId : node.army.playerId;
+            return isEnemy ? (ownerId !== currentPlayerId) : (ownerId === currentPlayerId);
+        });
+
+        filteredUnits.forEach(u => {
             const data = UNIT_DATA[u.type];
             const item = document.createElement('div');
-            const canSelect = isEnemy || u.movesLeft > 0 || (data.range > 0 && !u.hasAttacked);
+            // Hareket aşamasındaysak MP > 0, Saldırı aşamasındaysak hasAttacked === false olmalı
+            let canSelect = isEnemy;
+            if (!isEnemy) {
+                if (this.state.subPhase === 'move') canSelect = u.movesLeft > 0;
+                else if (this.state.subPhase === 'attack') canSelect = !u.hasAttacked;
+                else canSelect = true; // Build vb.
+            }
             item.className = `unit-picker-item ${canSelect ? '' : 'disabled'}`;
             
             const iconHtml = data.img ? `<img src="${data.img}">` : `<span class="emoji">${data.emoji || '👤'}</span>`;
