@@ -2105,3 +2105,38 @@ button:disabled {
 .stat-value {
     font-size: 1.8rem !important;
 }
+
+/* ─── POWER BONUS INFO & BUTTON SPACING ─── */
+
+.power-side-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.power-bonus-info {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-ui);
+    opacity: 0.8;
+}
+
+.combat-result-text {
+    margin-top: 15px !important;
+    margin-bottom: 25px !important;
+    font-size: 1.5rem;
+}
+
+.combat-footer {
+    margin-top: 20px;
+    padding-bottom: 10px;
+}
+
+/* Ensure button doesn't float into stats */
+.combat-modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 500px; /* Fixed height to keep spacing consistent */
+}

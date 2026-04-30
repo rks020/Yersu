@@ -1779,6 +1779,20 @@ class UI {
         document.getElementById('def-name').innerText = `${defender.player.name} (${defData.name})`;
         document.getElementById('def-name').style.color = defender.player.color || defender.player.hex;
 
+        // Bonusları Hesapla ve Yaz
+        const calculateBonus = (rolls, total) => {
+            const diceSum = rolls.reduce((a, b) => a + b, 0);
+            return total - diceSum;
+        };
+
+        const atkB = calculateBonus(attacker.rolls || [], atkPower);
+        const defB = calculateBonus(defender.rolls || [], defPower);
+        
+        const atkBLabel = document.getElementById('atk-bonus');
+        const defBLabel = document.getElementById('def-bonus');
+        if (atkBLabel) atkBLabel.innerText = `(Zar: ${atkPower - atkB} + Bonus: ${atkB})`;
+        if (defBLabel) defBLabel.innerText = `(Zar: ${defPower - defB} + Bonus: ${defB})`;
+
         // Düello Zarlarını Göster (Animasyonlu)
         const atkDiceEl = document.getElementById('atk-dice');
         const defDiceEl = document.getElementById('def-dice');
