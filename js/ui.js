@@ -1820,14 +1820,14 @@ class UI {
             const canvasPos = this.renderer.gameToCanvas(targetNode.x, targetNode.y);
             const rect = this.renderer.canvas.getBoundingClientRect();
             
-            let left = canvasPos.x + rect.left - 275; // Modal genişliğinin yarısı kadar sola
+            let left = canvasPos.x + rect.left - 350; // 700px / 2
             let top = canvasPos.y + rect.top - 150;
             
             // Sınır kontrolleri
             if (left < 10) left = 10;
-            if (left + 560 > window.innerWidth) left = window.innerWidth - 570;
+            if (left + 710 > window.innerWidth) left = window.innerWidth - 720;
             if (top < 10) top = 10;
-            if (top + 400 > window.innerHeight) top = window.innerHeight - 410;
+            if (top + 350 > window.innerHeight) top = window.innerHeight - 360;
 
             this.els.combatModal.style.left = `${left}px`;
             this.els.combatModal.style.top = `${top}px`;

@@ -2205,17 +2205,17 @@ button:disabled {
     display: none !important;
     position: absolute;
     z-index: 10000;
-    width: 480px; /* Sağa doğru büyüttük */
+    width: 700px; /* Sağa doğru ciddi oranda genişlettik */
     background: rgba(10, 12, 18, 0.98);
     backdrop-filter: blur(12px);
     border: 1px solid var(--gold);
-    border-radius: 6px;
-    padding: 10px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.9);
     flex-direction: column;
     justify-content: flex-start;
     min-height: auto;
-    max-height: 250px;
+    max-height: 300px;
     pointer-events: auto;
     overflow: hidden;
 }
@@ -2225,9 +2225,9 @@ button:disabled {
 }
 
 .battlefield {
-    height: 60px !important; /* İyice daralttık */
+    height: 100px !important; 
     margin-bottom: 0px;
-    padding: 0 5px !important;
+    padding: 0 40px !important; /* Daha geniş yayılım */
     width: 100% !important;
 }
 
@@ -2268,28 +2268,27 @@ button:disabled {
 }
 
 .combat-result-text {
-    margin: 10px 0 0 0 !important;
-    font-size: 0.7rem; /* Küçültüldü */
-    color: #00ff00;
+    margin: 0 !important;
+    font-size: 1.1rem; /* Okunabilir boyuta geri getirdik */
+    color: #44ff44;
     text-shadow: 0 0 10px rgba(0,255,0,0.5);
     z-index: 101;
+    flex: 1; /* Sola yaslasın butondan ayırsın */
     text-align: center;
     font-weight: bold;
-    width: 100%;
 }
 
 .combat-info-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 2px;
-    margin-top: 0;
-    z-index: 100;
+    width: 100%;
+    margin-top: 15px;
 }
 
 .combat-footer {
-    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 10px;
     z-index: 102;
     pointer-events: auto !important;
 }
