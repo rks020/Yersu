@@ -1842,14 +1842,14 @@ class UI {
         const atkDiceEl = document.getElementById('atk-dice');
         const defDiceEl = document.getElementById('def-dice');
         if (atkDiceEl && defDiceEl) {
-            // İlk aşama: Yuvarlanıyor
-            atkDiceEl.innerHTML = (attacker.rolls || []).map(() => `<div class="die-body blue rolling">?</div>`).join('');
-            defDiceEl.innerHTML = (defender.rolls || []).map(() => `<div class="die-body red rolling">?</div>`).join('');
+            // İlk aşama: Yuvarlanıyor (Kullanıcı Kırmızı, AI Mavi)
+            atkDiceEl.innerHTML = (attacker.rolls || []).map(() => `<div class="die-body red rolling">?</div>`).join('');
+            defDiceEl.innerHTML = (defender.rolls || []).map(() => `<div class="die-body blue rolling">?</div>`).join('');
             
             // Animasyon bitişinde değerleri yaz
             setTimeout(() => {
-                atkDiceEl.innerHTML = (attacker.rolls || []).map(val => `<div class="die-body blue settle">${val}</div>`).join('');
-                defDiceEl.innerHTML = (defender.rolls || []).map(val => `<div class="die-body red settle">${val}</div>`).join('');
+                atkDiceEl.innerHTML = (attacker.rolls || []).map(val => `<div class="die-body red settle">${val}</div>`).join('');
+                defDiceEl.innerHTML = (defender.rolls || []).map(val => `<div class="die-body blue settle">${val}</div>`).join('');
                 
                 // Efektleri her zar için ekle
                 atkDiceEl.querySelectorAll('.die-body').forEach(el => this._createParticles(el));
