@@ -500,9 +500,9 @@ class UI {
                                 // Saldırı aşamasında hareket kutucuklarını (mavi) temizle
                                 this.state.highlightedNodes.clear();
                                 
-                                // Menzilini göster (Yakın dövüş için de mesafe 1 olanları gösterelim)
+                                // Menzilini göster (Sadece birimin gerçek menzilini gösterir)
                                 this.state.rangeHighlightedNodes.clear();
-                                const dist = Math.max(1, udata.range || 0);
+                                const dist = udata.range || 0;
                                 this.state.grid.nodes.forEach(n => {
                                     const d = this.state.grid.getDistance(clickedNode.id, n.id);
                                     if (d >= 0 && d <= dist) this.state.rangeHighlightedNodes.add(n.id);
