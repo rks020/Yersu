@@ -335,6 +335,60 @@ class UI {
             this.update();
         }
 
+        // ── ASKER SEÇİMİ (HAREKET/SALDIRI İÇİN) ──
+        else if (mode === 'selectUnitForMove' && clickedNode) {
+            const hasMyUnit = clickedNode.army && clickedNode.army.units.some(u => {
+                const ownerId = u.playerId !== undefined ? u.playerId : clickedNode.army.playerId;
+                return String(ownerId) === String(current.id);
+            });
+
+            if (hasMyUnit) {
+                const selectUnit = (unit) => {
+                    const udata = UNIT_DATA[unit.type];
+                    
+                    let canAct = false;
+                    if (this.state.subPhase === 'move') {
+                        canAct = unit.movesLeft > 0;
+                    } else if (this.state.subPhase === 'attack') {
+                        canAct = !unit.hasAttacked; 
+                    }
+
+                    if (!canAct) {
+                        this.showNotice("Bu birim bu tur yapabileceği her şeyi yaptı!", "warning");
+                        return;
+                    }
+
+                    this.state.selectedUnit = unit;
+                    this.state.selectedUnitNode = clickedNode.id;
+                    this.state.actionMode = 'moveOrAttack';
+                    
+                    if (this.state.subPhase === 'move') {
+                        this._updateMovementHighlights(clickedNode.id, unit);
+                        this.showNotice("Hareket etmek için HEDEF DÜĞME'ye tıklayın.", "info");
+                    } else if (this.state.subPhase === 'attack') {
+                        this.state.highlightedNodes.clear();
+                        this.state.rangeHighlightedNodes.clear();
+                        const dist = Math.max(1, udata.range || 0); 
+                        this.state.grid.nodes.forEach(n => {
+                            const d = this.state.grid.getDistance(clickedNode.id, n.id);
+                            if (d >= 0 && d <= dist) this.state.rangeHighlightedNodes.add(n.id);
+                        });
+                        this.showNotice("Saldırmak için menzilindeki bir DÜŞMAN'a tıklayın.", "info");
+                    }
+                    this.update();
+                };
+
+                const myUnits = clickedNode.army.units.filter(u => String(u.playerId !== undefined ? u.playerId : clickedNode.army.playerId) === String(current.id));
+                if (myUnits.length > 1) {
+                    this.showUnitSelectionModal(clickedNode, selectUnit, clientX, clientY);
+                } else {
+                    selectUnit(myUnits[0]);
+                }
+            } else {
+                this.state.clearSelection();
+                this.update();
+            }
+        }
         // ── HAREKET VEYA SALDIRI UYGULAMA ──
         else if (mode === 'moveOrAttack' && clickedNode) {
             const unit = this.state.selectedUnit;
