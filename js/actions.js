@@ -305,7 +305,7 @@ class Actions {
 
         const dist = this.state.grid.getDistance(unit.nodeId, targetNodeId);
         if (dist > actualRange) {
-            this.state.addLog("❌ Hedef çok uzakta!", "warning");
+            this.state.addLog(`❌ Hedef çok uzakta! (Menzil: ${actualRange}, Mesafe: ${dist})`, "warning");
             return false;
         }
 
@@ -349,13 +349,16 @@ class Actions {
         const dist = this.state.grid.getDistance(unit.nodeId, targetNodeId);
         const udata = UNIT_DATA[unit.type];
 
-        // 1. Menzilli Saldırı
-        if (dist > 1) {
+        if (dist > udata.range) {
+            this.state.addLog(`❌ ${udata.name} bu mesafeden saldıramaz! (Menzil: ${udata.range}, Mesafe: ${dist})`, 'warning');
+            return false;
+        }
+
+        if (dist > 0) {
             return this.rangeAttack(playerId, unitUid, targetNodeId, targetUnitUid);
         }
 
-        // 2. Yakın Dövüş (Menzil <= 1)
-        if (dist <= 1) {
+        if (dist === 0) {
             if (udata.special === 'no_attack') {
                 this.state.addLog(`⚠️ ${udata.name} saldıramaz!`, 'warning');
                 return false;
