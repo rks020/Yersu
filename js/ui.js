@@ -334,60 +334,7 @@ class UI {
             }
             this.update();
         }
-        // ── ASKER SEÇİMİ (HAREKET/SALDIRI İÇİN) ──
-        else if (mode === 'selectUnitForMove' && clickedNode) {
-            const hasMyUnit = clickedNode.army && clickedNode.army.units.some(u => {
-                const ownerId = u.playerId !== undefined ? u.playerId : clickedNode.army.playerId;
-                return ownerId === current.id;
-            });
 
-            if (hasMyUnit) {
-                const selectUnit = (unit) => {
-                    const udata = UNIT_DATA[unit.type];
-                    
-                    let canAct = false;
-                    if (this.state.subPhase === 'move') {
-                        canAct = unit.movesLeft > 0;
-                    } else if (this.state.subPhase === 'attack') {
-                        canAct = !unit.hasAttacked; 
-                    }
-
-                    if (!canAct) {
-                        this.showNotice("Bu birim bu tur yapabileceği her şeyi yaptı!", "warning");
-                        return;
-                    }
-
-                    this.state.selectedUnit = unit;
-                    this.state.selectedUnitNode = clickedNode.id;
-                    this.state.actionMode = 'moveOrAttack';
-                    
-                    if (this.state.subPhase === 'move') {
-                        this._updateMovementHighlights(clickedNode.id, unit);
-                        this.showNotice("Hareket etmek için HEDEF DÜĞME'ye tıklayın.", "info");
-                    } else if (this.state.subPhase === 'attack') {
-                        this.state.highlightedNodes.clear();
-                        this.state.rangeHighlightedNodes.clear();
-                        const dist = Math.max(1, udata.range || 0); 
-                        this.state.grid.nodes.forEach(n => {
-                            const d = this.state.grid.getDistance(clickedNode.id, n.id);
-                            if (d >= 0 && d <= dist) this.state.rangeHighlightedNodes.add(n.id);
-                        });
-                        this.showNotice("Saldırmak için menzilindeki bir DÜŞMAN'a tıklayın.", "info");
-                    }
-                    this.update();
-                };
-
-                const myUnits = clickedNode.army.units.filter(u => (u.playerId !== undefined ? u.playerId : clickedNode.army.playerId) === current.id);
-                if (myUnits.length > 1) {
-                    this.showUnitSelectionModal(clickedNode, selectUnit, clientX, clientY);
-                } else {
-                    selectUnit(myUnits[0]);
-                }
-            } else {
-                this.state.clearSelection();
-                this.update();
-            }
-        }
         // ── HAREKET VEYA SALDIRI UYGULAMA ──
         else if (mode === 'moveOrAttack' && clickedNode) {
             const unit = this.state.selectedUnit;
@@ -405,7 +352,7 @@ class UI {
                 if (this.state.subPhase === 'attack') {
                     const hasEnemy = clickedNode.army && clickedNode.army.units.some(u => {
                         const ownerId = u.playerId !== undefined ? u.playerId : clickedNode.army.playerId;
-                        return ownerId !== current.id;
+                        return String(ownerId) !== String(current.id);
                     });
 
                     if (hasEnemy) {
@@ -454,7 +401,7 @@ class UI {
             };
 
             // Eğer hedefte birden fazla DÜŞMAN birimi varsa seçtir
-            if (clickedNode.army && clickedNode.army.playerId !== current.id && clickedNode.army.units.length > 1) {
+            if (clickedNode.army && String(clickedNode.army.playerId) !== String(current.id) && clickedNode.army.units.length > 1) {
                 this.showUnitSelectionModal(clickedNode, (targetUnit) => {
                     executeAction(targetUnit.uid);
                 }, clientX, clientY, "Saldırılacak Hedefi Seçin", true);
@@ -590,7 +537,6 @@ class UI {
             this.hideNodeTooltip();
         }
 
-        // 2. Hex Kontrolü (Biyom Detayı için)
         const hex = this.state.grid.pixelToNearestHex(gx, gy);
         if (hex) {
             const dist = Math.sqrt((gx - hex.center.x) ** 2 + (gy - hex.center.y) ** 2);
@@ -2146,7 +2092,7 @@ class UI {
         if (actualRange > 0) {
             this.state.grid.nodes.forEach(n => {
                 const dist = this.state.grid.getDistance(nodeId, n.id);
-                if (dist > 0 && dist <= actualRange && n.army && n.army.playerId !== this.state.currentPlayer.id) {
+                if (dist > 0 && dist <= actualRange && n.army && String(n.army.playerId) !== String(this.state.currentPlayer.id)) {
                     this.state.rangeHighlightedNodes.add(n.id);
                 }
             });

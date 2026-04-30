@@ -259,7 +259,7 @@ class Actions {
             }
         }
 
-        const isCombat = targetNode.army && targetNode.army.playerId !== playerId;
+        const isCombat = targetNode.army && String(targetNode.army.playerId) !== String(playerId);
         if (!isCombat && unitDef.movesLeft < cost - 0.001) return false;
 
         // Mevcut node'dan çıkar

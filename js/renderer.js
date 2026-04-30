@@ -444,12 +444,12 @@ class Renderer {
             const n = this.state.grid.nodes.get(nid);
             if (!n) return;
             ctx.beginPath();
-            ctx.arc(n.x, n.y, 14 + pulse * 6, 0, Math.PI * 2);
+            ctx.arc(n.x, n.y, 30 + pulse * 8, 0, Math.PI * 2); // Daha büyük halka
             ctx.fillStyle = pColor;
-            ctx.globalAlpha = 0.3 + pulse * 0.4;
+            ctx.globalAlpha = 0.35 + pulse * 0.45;
             ctx.fill();
             ctx.strokeStyle = '#fff';
-            ctx.lineWidth   = 2.5;
+            ctx.lineWidth   = 3;
             ctx.stroke();
             ctx.globalAlpha = 1.0;
         });
