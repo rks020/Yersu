@@ -513,9 +513,6 @@ class Renderer {
             ctx.stroke();
         });
     }
-
-    // ── Node'lar (köşe noktaları) ─────────────────────────────────
-
     _drawNodes() {
         const ctx = this.ctx;
         this.state.grid.nodes.forEach(node => {
@@ -536,44 +533,107 @@ class Renderer {
         const ctx = this.ctx;
         this.state.grid.nodes.forEach(node => {
             if (!node.army || node.army.units.length === 0) return;
-            const player = this.state.players.find(p => p.id === node.army.playerId);
-            if (!player) return;
 
-            const isSelected = this.state.selectedUnitNode === node.id;
-            
-            // Orduyu çiz (Tersten çizerek üst üste binme sırasını ayarla)
-            const units = node.army.units;
-            units.forEach((unit, idx) => {
-                const offset = idx * 12; // Daha belirgin yan yana duruş için offset'i artırdık
+            // 1. Gruplama: "playerId_unitType" bazlı sayım
+            const groupedData = {}; // key -> { count, unit, pid, type }
+
+            node.army.units.forEach(u => {
+                const pid = u.playerId || node.army.playerId;
+                const type = u.type;
+                const key = `${pid}_${type}`;
                 
-                // Birimin kendi sahibini bul (yeni sistem), yoksa ordunun sahibini kullan (eski sistem)
-                const uid = unit.playerId !== undefined ? unit.playerId : node.army.playerId;
-                const unitPlayer = this.state.players.find(p => p.id === uid);
+                if (!groupedData[key]) {
+                    groupedData[key] = { count: 0, unit: u, pid, type };
+                }
+                groupedData[key].count++;
+            });
+
+            // 2. Oyuncu bazlı grupları ayır (offset hesaplamak için)
+            const playerGroups = {}; // pid -> [{count, unit, type}]
+            Object.values(groupedData).forEach(g => {
+                if (!playerGroups[g.pid]) playerGroups[g.pid] = [];
+                playerGroups[g.pid].push(g);
+            });
+
+            const pIds = Object.keys(playerGroups);
+            const isContested = pIds.length > 1;
+
+            pIds.forEach((pid, pIdx) => {
+                const player = this.state.players.find(p => p.id === pid);
+                if (!player) return;
+
+                const pGroup = playerGroups[pid];
                 
-                if (unitPlayer) {
-                    this._drawUnitIcon(node.x + offset, node.y - offset, unit, unitPlayer, isSelected);
+                // Oyuncu bazlı ana ofset (Eğer düşman varsa birbirinden uzaklaşırlar)
+                const pBaseX = isContested ? (pIdx === 0 ? -22 : 22) : 0;
+                const pBaseY = isContested ? (pIdx === 0 ? -12 : 12) : 0;
+
+                pGroup.forEach((g, gIdx) => {
+                    // Aynı oyuncunun FARKLI tür birimleri çok hafif üst üste biner (stacking)
+                    const gOffset = gIdx * 5; 
+                    
+                    const drawX = node.x + pBaseX + gOffset;
+                    const drawY = node.y + pBaseY - gOffset;
+                    
+                    // Seçim kontrolü
+                    let isSelected = false;
+                    if (this.state.selectedUnitNode === node.id && this.state.selectedUnit) {
+                        const selPid = this.state.selectedUnit.playerId || this.state.currentPlayer.id;
+                        if (this.state.selectedUnit.type === g.type && selPid === pid) {
+                            isSelected = true;
+                        }
+                    }
+
+                    this._drawUnitIcon(drawX, drawY, g.unit, player, isSelected);
+
+                    // Sayı Rozeti (Eğer aynı türden birden fazla varsa)
+                    if (g.count > 1) {
+                        this._drawCountBadge(drawX + 13, drawY - 13, g.count);
+                    }
+                });
+
+                // MP Göstergesi (Sadece aktif oyuncunun grubu üzerinde)
+                if (pid === this.state.currentPlayer.id) {
+                    const firstUnit = pGroup[0].unit;
+                    if (firstUnit && firstUnit.movesLeft !== undefined) {
+                        ctx.font = 'bold 10px sans-serif';
+                        ctx.fillStyle = '#ffeb3b';
+                        ctx.textAlign = 'center';
+                        ctx.shadowColor = 'black';
+                        ctx.shadowBlur = 4;
+                        ctx.fillText(`MP:${firstUnit.movesLeft}`, node.x + pBaseX, node.y + pBaseY + 25);
+                        ctx.shadowBlur = 0;
+                    }
                 }
             });
 
-            // Hareket puanı (İlk birim üzerinden göster)
-            const firstUnit = units[0];
-            if (firstUnit && firstUnit.movesLeft !== undefined && player.id === this.state.currentPlayer.id) {
-                ctx.font = 'bold 10px sans-serif';
-                ctx.fillStyle = '#ffeb3b';
-                ctx.textAlign = 'center';
-                ctx.shadowColor = 'black';
-                ctx.shadowBlur = 4;
-                ctx.fillText(`MP:${firstUnit.movesLeft}`, node.x, node.y + 25);
-                ctx.shadowBlur = 0;
-            }
-
             // Kuşatma göstergesi
-            const hasSiege = units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma');
+            const hasSiege = node.army.units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma');
             if (hasSiege) {
                 ctx.font = `14px serif`;
-                ctx.fillText('💥', node.x + 18, node.y - 18);
+                ctx.textAlign = 'center';
+                ctx.fillText('💥', node.x, node.y - 30);
             }
         });
+    }
+
+    _drawCountBadge(x, y, count) {
+        const ctx = this.ctx;
+        const r = 9;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffeb3b'; // Altın sarısı
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillStyle = '#000';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(count.toString(), x, y);
     }
 
     _drawUnitIcon(x, y, unit, player, isSelected) {
