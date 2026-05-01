@@ -110,8 +110,8 @@ body {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 6px;
-    padding: 3px 8px;
-    min-width: 56px;
+    padding: 2px 5px; /* Küçültüldü */
+    min-width: 48px; /* Daraltıldı */
     transition: background 0.2s;
 }
 
@@ -155,9 +155,10 @@ body {
 .header-right {
     display: flex;
     align-items: center;
-    gap: 8px;
-    min-width: 300px;
+    gap: 5px; /* Daraltıldı */
+    min-width: auto; /* Kısıtlama kaldırıldı */
     justify-content: flex-end;
+    padding-right: 5px;
 }
 
 .header-pop {
@@ -822,13 +823,13 @@ body {
 }
 
 .bonus-tab {
-    padding: 3px 10px;
+    padding: 2px 8px; /* Daraltıldı */
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.04);
     color: #aaa;
     cursor: pointer;
-    font-size: 0.7rem;
+    font-size: 0.65rem; /* Küçültüldü */
     transition: all 0.15s;
     white-space: nowrap;
 }
@@ -872,12 +873,12 @@ body {
 }
 
 .bonus-card {
-    min-width: 160px;
-    max-width: 180px;
+    min-width: 140px; /* Daraltıldı */
+    max-width: 160px;
     background: rgba(20, 20, 35, 0.9);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    padding: 8px;
+    padding: 6px;
     flex-shrink: 0;
     transition: border-color 0.2s;
 }
@@ -909,14 +910,14 @@ body {
 .bonus-option {
     display: flex;
     align-items: flex-start;
-    gap: 5px;
-    font-size: 0.68rem;
+    gap: 4px;
+    font-size: 0.62rem; /* Küçültüldü */
     color: #bbb;
-    padding: 4px 6px;
+    padding: 3px 5px;
     background: rgba(255, 255, 255, 0.04);
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.06);
-    line-height: 1.3;
+    line-height: 1.2;
 }
 
 .bonus-option-badge {
