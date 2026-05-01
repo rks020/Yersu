@@ -127,6 +127,15 @@ body {
 .hres-icon {
     font-size: 1rem;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hres-icon img {
+    width: 22px; /* PNG olduğu için biraz büyütüldü */
+    height: 22px;
+    object-fit: contain;
 }
 
 .hres-amount {
