@@ -371,47 +371,61 @@ class UI {
                 return;
             }
 
+            // İnşa işlemini gerçekleştiren yardımcı fonksiyon
+            const finalizeBuild = (discountRes = null) => {
+                if (this.actions.buildBuilding(p.id, clickedHex.id, bType, discountRes)) {
+                    this.showNotice(`${BUILDING_NAMES[bType]} inşa edildi!`, "success");
+                } else {
+                    this.showNotice("Bu yapıyı buraya inşa edemezsiniz!", "danger");
+                }
+                this.state.clearSelection();
+                this.update();
+            };
+
             // Bu inşa bir seçim/bonus tetikleyecek mi?
             const currentCount = p.buildings[bType] || 0;
             const getLv = (c) => (c >= 4 ? 3 : (c >= 2 ? 2 : (c >= 1 ? 1 : 0)));
             const oldLv = getLv(currentCount);
             const newLv = getLv(currentCount + 1);
 
-            if (newLv > oldLv) {
-                const bonusInfo = BUILDING_BONUSES[bType][newLv];
-                if (Array.isArray(bonusInfo) && bonusInfo.length > 1) {
-                    const alreadyChosen = p.chosenBonuses && p.chosenBonuses[bType] && p.chosenBonuses[bType][newLv];
-                    if (!alreadyChosen) {
-                        // Seçim yapılması gerekiyor - İnşa etmeden önce sor
-                        this.showChoiceModal(bType, newLv, (choice) => {
-                            // Bonus seçildi -> İnşayı tamamla
-                            if (this.actions.buildBuilding(p.id, clickedHex.id, bType)) {
-                                this.actions.chooseBonus(p.id, bType, newLv, choice);
-                                // recalcBuildings tarafından eklenen pendingChoice varsa temizle
-                                p.pendingChoices = p.pendingChoices.filter(c => !(c.type === bType && c.level === newLv));
-                                this.showNotice(`${BUILDING_NAMES[bType]} inşa edildi!`, "success");
-                            }
-                            this.state.clearSelection();
-                            this.update();
-                        }, () => {
-                            // Kapat'a basıldı -> İptal et
-                            this.showNotice("Yapı kurulumu iptal edildi", "warning");
-                            this.state.clearSelection();
-                            this.update();
-                        });
-                        return;
+            const hasTheaterDiscount = clickedHex.settlement.buildings.has('tiyatro');
+
+            const startBuildFlow = (discountRes = null) => {
+                if (newLv > oldLv) {
+                    const bonusInfo = BUILDING_BONUSES[bType][newLv];
+                    if (Array.isArray(bonusInfo) && bonusInfo.length > 1) {
+                        const alreadyChosen = p.chosenBonuses && p.chosenBonuses[bType] && p.chosenBonuses[bType][newLv];
+                        if (!alreadyChosen) {
+                            // Seçim yapılması gerekiyor - İnşa etmeden önce sor
+                            this.showChoiceModal(bType, newLv, (choice) => {
+                                // Bonus seçildi -> İnşayı tamamla
+                                if (this.actions.buildBuilding(p.id, clickedHex.id, bType, discountRes)) {
+                                    this.actions.chooseBonus(p.id, bType, newLv, choice);
+                                    p.pendingChoices = p.pendingChoices.filter(c => !(c.type === bType && c.level === newLv));
+                                    this.showNotice(`${BUILDING_NAMES[bType]} inşa edildi!`, "success");
+                                }
+                                this.state.clearSelection();
+                                this.update();
+                            }, () => {
+                                this.showNotice("Yapı kurulumu iptal edildi", "warning");
+                                this.state.clearSelection();
+                                this.update();
+                            });
+                            return;
+                        }
                     }
                 }
-            }
+                finalizeBuild(discountRes);
+            };
 
-            // Normal inşa
-            if (this.actions.buildBuilding(p.id, clickedHex.id, bType)) {
-                this.showNotice(`${BUILDING_NAMES[bType]} inşa edildi!`, "success");
+            // Tiyatro Bonusu Kontrolü
+            if (hasTheaterDiscount) {
+                this.showTheaterDiscountModal(bType, (selectedRes) => {
+                    startBuildFlow(selectedRes);
+                });
             } else {
-                this.showNotice("Bu yapıyı buraya inşa edemezsiniz!", "danger");
+                startBuildFlow();
             }
-            this.state.clearSelection();
-            this.update();
         }
         // ── ASKER EĞİTİMİ ──
         else if (mode === 'trainUnit' && clickedNode) {
@@ -2138,6 +2152,32 @@ class UI {
             triggerAnim(attackerEl, 'swordSlash', 450).then(onHit);
             meleeFlash('⚔️');
         }
+    }
+
+    showTheaterDiscountModal(buildingType, onSelected) {
+        const cost = BUILD_COSTS[buildingType];
+        if (!cost) return onSelected(null);
+
+        const resIcons = { besin: '🌾', odun: '🪵', tas: '🪨', kil: '🧱', maden: '⚙️' };
+        
+        const items = Object.entries(cost)
+            .filter(([r, v]) => v > 0)
+            .map(([r, v]) => {
+                return {
+                    id: r,
+                    name: RESOURCE_INFO[r].name,
+                    icon: resIcons[r] || '❓',
+                    enabled: true,
+                    costStr: `Maliyet: ${v} → ${v - 1}`,
+                    desc: '🎭 Tiyatro Bonusu: Seçilen temel kaynak maliyeti 1 azalır.'
+                };
+            });
+
+        if (items.length === 0) return onSelected(null);
+
+        this.showChoiceModalWithDesc("🎭 Tiyatro Bonusu: İndirim Seçin", items, (selectedRes) => {
+            onSelected(selectedRes);
+        });
     }
 
     showTradeModal() {
