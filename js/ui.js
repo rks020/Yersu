@@ -781,23 +781,27 @@ class UI {
 
             const pIds = Object.keys(groups);
             const hasEnemy = pIds.some(pid => String(pid) !== String(currentP.id));
-            const hasMine = pIds.some(pid => String(pid) === String(currentP.id));
+            const myUnitsOnNode = groups[currentP.id] || [];
+            const hasMineAtAll = myUnitsOnNode.length > 0;
+            const hasMineAvailable = myUnitsOnNode.some(u => !u.hasAttacked);
 
-            // Eğer hem benim hem düşmanın birimi varsa KALICI buton koy
-            if (hasEnemy && hasMine) {
+            // Eğer hem benim hem düşmanın birimi varsa buton koy
+            if (hasEnemy && hasMineAtAll) {
                 const canvasPos = this.renderer.gameToCanvas(node.x, node.y);
                 const wrap = document.createElement('div');
                 wrap.className = 'node-action-wrap';
                 
-                // Tam merkeze oturt (Buton 50px olduğu için -25px)
                 let left = canvasPos.x + rect.left - 25;
                 let top = canvasPos.y + rect.top - 25;
 
                 wrap.style.left = `${left}px`;
                 wrap.style.top = `${top}px`;
 
+                const isDisabled = !hasMineAvailable;
                 wrap.innerHTML = `
-                    <button class="btn-attack-node" onclick="window.gameUI.handleTooltipAttack('${node.id}')">
+                    <button class="btn-attack-node ${isDisabled ? 'disabled' : ''}" 
+                            ${isDisabled ? 'disabled' : ''}
+                            onclick="window.gameUI.handleTooltipAttack('${node.id}')">
                         <span class="icon">⚔️</span>
                         <span>SALDIRI</span>
                     </button>

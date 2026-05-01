@@ -603,6 +603,19 @@ body {
     margin-bottom: 0px;
 }
 
+.btn-attack-node.disabled {
+    background: linear-gradient(135deg, #444 0%, #222 100%) !important;
+    border-color: #666 !important;
+    box-shadow: none !important;
+    cursor: default !important;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.btn-attack-node.disabled:hover {
+    transform: none !important;
+}
+
 .hex-biome-header {
     display: flex;
     align-items: center;
