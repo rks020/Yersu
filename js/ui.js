@@ -165,6 +165,7 @@ class UI {
             const dy = e.clientY - lastY;
             if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
             this.renderer.pan(dx, dy);
+            this._updateNodeActionButtons(); // Panning sırasında butonları güncelle
             lastX = e.clientX;
             lastY = e.clientY;
         });
@@ -176,6 +177,7 @@ class UI {
                 const dy = pos.rawY - lastY;
                 if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
                 this.renderer.pan(dx, dy);
+                this._updateNodeActionButtons(); // Dokunmatik kaydırmada güncelle
                 lastX = pos.rawX;
                 lastY = pos.rawY;
                 e.preventDefault();
@@ -186,6 +188,7 @@ class UI {
                 const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
                 const rect = canvas.getBoundingClientRect();
                 this.renderer.zoom(factor, midX - rect.left, midY - rect.top);
+                this._updateNodeActionButtons(); // Zoom sırasında güncelle
                 lastTouchDist = dist;
                 e.preventDefault();
             }
@@ -213,6 +216,7 @@ class UI {
             const factor = e.deltaY < 0 ? 1.1 : 0.9;
             const rect = canvas.getBoundingClientRect();
             this.renderer.zoom(factor, e.clientX - rect.left, e.clientY - rect.top);
+            this._updateNodeActionButtons(); // Fare tekerleğiyle zoomda güncelle
         });
 
         if (this.els.rollDiceBtn) this.els.rollDiceBtn.addEventListener('click', () => this.handleRollDice());
