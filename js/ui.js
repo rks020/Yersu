@@ -792,7 +792,7 @@ class UI {
                 wrap.className = 'node-action-wrap';
                 
                 let left = canvasPos.x + rect.left - 25;
-                let top = canvasPos.y + rect.top - 25;
+                let top = canvasPos.y + rect.top - 65; // Birimleri kapatmaması için yukarı kaydırdık
 
                 wrap.style.left = `${left}px`;
                 wrap.style.top = `${top}px`;
