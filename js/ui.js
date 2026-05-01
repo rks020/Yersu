@@ -760,18 +760,22 @@ class UI {
     _updateNodeActionButtons() {
         const container = this.els.nodeActionsContainer;
         if (!container) return;
-        container.innerHTML = '';
 
         // Sadece SALDIRI aşamasında butonları göster
-        if (this.state.subPhase !== 'attack') return;
+        if (this.state.subPhase !== 'attack') {
+            container.innerHTML = '';
+            this._nodeActionButtons = {};
+            return;
+        }
 
+        if (!this._nodeActionButtons) this._nodeActionButtons = {};
         const currentP = this.state.currentPlayer;
         const rect = this.renderer.canvas.getBoundingClientRect();
+        const activeNodeIds = new Set();
 
         this.state.grid.nodes.forEach(node => {
             if (!node.army) return;
 
-            // Oyuncu bazlı grupla
             const groups = {};
             node.army.units.forEach(u => {
                 const pid = u.playerId !== undefined ? u.playerId : node.army.playerId;
@@ -785,20 +789,28 @@ class UI {
             const hasMineAtAll = myUnitsOnNode.length > 0;
             const hasMineAvailable = myUnitsOnNode.some(u => !u.hasAttacked);
 
-            // Eğer hem benim hem düşmanın birimi varsa buton koy
             if (hasEnemy && hasMineAtAll) {
+                activeNodeIds.add(node.id);
                 const canvasPos = this.renderer.gameToCanvas(node.x, node.y);
-                const wrap = document.createElement('div');
-                wrap.className = 'node-action-wrap';
-                
-                let left = canvasPos.x + rect.left - 25;
-                let top = canvasPos.y + rect.top - 65; // Birimleri kapatmaması için yukarı kaydırdık
+                let btnWrap = this._nodeActionButtons[node.id];
 
-                wrap.style.left = `${left}px`;
-                wrap.style.top = `${top}px`;
+                if (!btnWrap) {
+                    btnWrap = document.createElement('div');
+                    btnWrap.className = 'node-action-wrap';
+                    container.appendChild(btnWrap);
+                    this._nodeActionButtons[node.id] = btnWrap;
+                }
+
+                // Pozisyon güncelleme (Daha akıcı olması için transform kullanıyoruz)
+                const left = canvasPos.x + rect.left - 25;
+                const top = canvasPos.y + rect.top - 75; // Askerlerin üzerine binmemesi için biraz daha yukarı çektik
+                btnWrap.style.transform = `translate(${left}px, ${top}px)`;
+                btnWrap.style.left = '0';
+                btnWrap.style.top = '0';
 
                 const isDisabled = !hasMineAvailable;
-                wrap.innerHTML = `
+                // İçeriği sadece durum değiştiğinde güncelle
+                const contentHtml = `
                     <button class="btn-attack-node ${isDisabled ? 'disabled' : ''}" 
                             ${isDisabled ? 'disabled' : ''}
                             onclick="window.gameUI.handleTooltipAttack('${node.id}')">
@@ -806,7 +818,18 @@ class UI {
                         <span>SALDIRI</span>
                     </button>
                 `;
-                container.appendChild(wrap);
+                if (btnWrap.dataset.state !== String(isDisabled)) {
+                    btnWrap.innerHTML = contentHtml;
+                    btnWrap.dataset.state = String(isDisabled);
+                }
+            }
+        });
+
+        // Artık gerekmeyen butonları temizle
+        Object.keys(this._nodeActionButtons).forEach(nid => {
+            if (!activeNodeIds.has(nid)) {
+                this._nodeActionButtons[nid].remove();
+                delete this._nodeActionButtons[nid];
             }
         });
     }
