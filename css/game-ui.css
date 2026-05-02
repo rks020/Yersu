@@ -4,7 +4,7 @@
 
 /* ─── ROOT ─── */
 :root {
-    --hdr-h: 58px;
+    --hdr-h: 70px;
     --bot-h: 210px;
     --left-w: 230px;
     --right-w: 250px;
@@ -138,12 +138,13 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     margin-bottom: 4px;
+    overflow: hidden; /* Clipping yap */
 }
 
 .hres-icon img {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .hres-amount {
@@ -167,7 +168,7 @@ body {
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: 1px;
+    margin-top: 3px; /* Daha aşağı al */
 }
 
 /* ─── HEADER SAĞ ─── */
