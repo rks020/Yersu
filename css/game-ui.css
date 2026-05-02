@@ -108,47 +108,50 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 1px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    padding: 2px 8px;
-    min-width: 58px;
-    height: 54px;
+    justify-content: flex-start;
+    gap: 2px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    min-width: 45px;
+    height: auto;
     transition: all 0.2s;
-    overflow: hidden; /* Taşmayı önle */
+    overflow: visible; 
 }
 
-.hres-item:hover {
-    background: rgba(255, 255, 255, 0.1);
+.hres-item:hover .hres-icon {
+    background: rgba(255, 255, 255, 0.15);
 }
 
-.hres-gold {
-    border-color: rgba(201, 162, 39, 0.4);
-    background: rgba(201, 162, 39, 0.08);
+.hres-gold .hres-icon {
+    border-color: rgba(201, 162, 39, 0.6);
+    background: rgba(201, 162, 39, 0.15);
 }
 
 .hres-icon {
-    font-size: 1rem;
-    line-height: 1;
+    width: 35px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    margin-bottom: 4px;
 }
 
 .hres-icon img {
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
-    transform: translateY(5px); /* İkonları 5px aşağı kaydır */
 }
 
 .hres-amount {
-    font-size: 0.65rem;
+    font-size: 0.55rem;
     font-weight: 700;
     color: #fff;
     line-height: 1;
+    margin-top: 2px;
 }
 
 .hres-prod {
@@ -164,7 +167,7 @@ body {
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: -6px; /* Textleri 1px daha yukarı kaydır */
+    margin-top: 1px;
 }
 
 /* ─── HEADER SAĞ ─── */
