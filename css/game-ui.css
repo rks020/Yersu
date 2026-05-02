@@ -115,7 +115,7 @@ body {
     border-radius: 6px;
     padding: 2px 8px;
     min-width: 58px;
-    height: 48px;
+    height: 54px;
     transition: all 0.2s;
     overflow: hidden; /* Taşmayı önle */
 }
@@ -138,14 +138,14 @@ body {
 }
 
 .hres-icon img {
-    width: 25px;
-    height: 25px;
+    width: 30px;
+    height: 30px;
     object-fit: contain;
-    transform: translateY(3px); /* İkonları 3px aşağı kaydır */
+    transform: translateY(5px); /* İkonları 5px aşağı kaydır */
 }
 
 .hres-amount {
-    font-size: 0.85rem; /* 0.95 -> 0.85 */
+    font-size: 0.65rem;
     font-weight: 700;
     color: #fff;
     line-height: 1;
@@ -164,7 +164,7 @@ body {
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: -5px; /* Textleri 5px yukarı kaydır */
+    margin-top: -6px; /* Textleri 1px daha yukarı kaydır */
 }
 
 /* ─── HEADER SAĞ ─── */
