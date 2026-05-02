@@ -109,7 +109,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 2px;
+    gap: 0px;
     background: transparent;
     border: none;
     padding: 0;
@@ -137,7 +137,8 @@ body {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
-    margin-bottom: 4px;
+    margin-top: 5px; /* İkonları aşağı indir */
+    margin-bottom: 2px;
     overflow: hidden; /* Clipping yap */
 }
 
@@ -168,7 +169,7 @@ body {
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: 3px; /* Daha aşağı al */
+    margin-top: -3px; /* Yukarı kaydır */
 }
 
 /* ─── HEADER SAĞ ─── */
