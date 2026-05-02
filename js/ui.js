@@ -1201,7 +1201,7 @@ class UI {
             let tas = BUILD_COSTS.yol.tas;
             if (p.bonusState.roadDiscountRes === 'odun') odun = Math.max(0, odun - 1);
             if (p.bonusState.roadDiscountRes === 'tas') tas = Math.max(0, tas - 1);
-            roadEl.innerHTML = `<span>🪵${odun}</span><span>🪨${tas}</span>`;
+            roadEl.innerHTML = `<span>${this._getResIconHtml('odun', 14)}${odun}</span><span>${this._getResIconHtml('tas', 14)}${tas}</span>`;
         }
 
         // Genel Yapı Maliyetleri (Statik)
@@ -1214,13 +1214,13 @@ class UI {
                 }
 
                 let text = "";
-                if (cost.besin) text += `🌾${cost.besin} `;
-                if (cost.odun) text += `🪵${cost.odun} `;
-                if (cost.tas) text += `🪨${cost.tas} `;
-                if (cost.kil) text += `🧱${cost.kil} `;
-                if (cost.maden) text += `⚙️${cost.maden} `;
-                if (cost.gold) text += `💰${cost.gold} `;
-                el.textContent = text.trim();
+                if (cost.besin) text += `<span>${this._getResIconHtml('besin', 14)}${cost.besin}</span> `;
+                if (cost.odun) text += `<span>${this._getResIconHtml('odun', 14)}${cost.odun}</span> `;
+                if (cost.tas) text += `<span>${this._getResIconHtml('tas', 14)}${cost.tas}</span> `;
+                if (cost.kil) text += `<span>${this._getResIconHtml('kil', 14)}${cost.kil}</span> `;
+                if (cost.maden) text += `<span>${this._getResIconHtml('maden', 14)}${cost.maden}</span> `;
+                if (cost.gold) text += `<span>💰${cost.gold}</span> `;
+                el.innerHTML = text.trim();
             }
         });
 
@@ -1878,7 +1878,7 @@ class UI {
                 id: bType,
                 name: BUILDING_NAMES[bType] + (level > 0 ? ` (Sv.${level}→${nextLevel})` : ' (Yeni)'),
                 icon: BUILDING_ICONS[bType] || '🏗️',
-                costStr: Object.entries(cost).map(([r, a]) => `${RESOURCE_INFO[r]?.emoji || ''}${a}`).join(' '),
+                costStr: Object.entries(cost).map(([r, a]) => `${this._getResIconHtml(r, 18)} ${a}`).join(' '),
                 enabled: canAfford,
                 desc: nextBonuses.join(' | '),
                 error: canAfford ? "" : `Eksik: ${missing.join(", ")}`
@@ -2157,8 +2157,6 @@ class UI {
     showTheaterDiscountModal(buildingType, onSelected) {
         const cost = BUILD_COSTS[buildingType];
         if (!cost) return onSelected(null);
-
-        const resIcons = { besin: '🌾', odun: '🪵', tas: '🪨', kil: '🧱', maden: '⚙️' };
         
         const items = Object.entries(cost)
             .filter(([r, v]) => v > 0)
@@ -2166,7 +2164,7 @@ class UI {
                 return {
                     id: r,
                     name: RESOURCE_INFO[r].name,
-                    icon: resIcons[r] || '❓',
+                    icon: RESOURCE_INFO[r].icon,
                     enabled: true,
                     costStr: `Maliyet: ${v} → ${v - 1}`,
                     desc: '🎭 Tiyatro Bonusu: Seçilen temel kaynak maliyeti 1 azalır.'
@@ -2178,6 +2176,12 @@ class UI {
         this.showChoiceModalWithDesc("🎭 Tiyatro Bonusu: İndirim Seçin", items, (selectedRes) => {
             onSelected(selectedRes);
         });
+    }
+
+    _getResIconHtml(resId, size = 16) {
+        const info = RESOURCE_INFO[resId];
+        if (!info) return '';
+        return `<img src="${info.icon}" style="width:${size}px; height:${size}px; vertical-align:middle; margin-right:2px;" alt="${info.name}">`;
     }
 
     showTradeModal() {
@@ -2212,20 +2216,21 @@ class UI {
         });
 
         const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden', 'gold'];
-        const resIcons = { besin: '🌾', odun: '🪵', tas: '🪨', kil: '🧱', maden: '⚙️', gold: '💰' };
+        // ResIcons artık helper tarafından render edilecek
 
         offerGrid.innerHTML = '';
         requestGrid.innerHTML = '';
 
         resKeys.forEach(r => {
+            const iconHtml = r === 'gold' ? '💰' : this._getResIconHtml(r, 18);
             offerGrid.innerHTML += `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                    <span style="font-size:0.8rem;">${resIcons[r]} ${r.toUpperCase()}</span>
+                    <span style="font-size:0.8rem;">${iconHtml} ${r.toUpperCase()}</span>
                     <input type="number" id="ptOffer_${r}" class="input-style" value="0" min="0" style="width:50px; padding:2px; height:24px;">
                 </div>`;
             requestGrid.innerHTML += `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                    <span style="font-size:0.8rem;">${resIcons[r]} ${r.toUpperCase()}</span>
+                    <span style="font-size:0.8rem;">${iconHtml} ${r.toUpperCase()}</span>
                     <input type="number" id="ptReq_${r}" class="input-style" value="0" min="0" style="width:50px; padding:2px; height:24px;">
                 </div>`;
         });

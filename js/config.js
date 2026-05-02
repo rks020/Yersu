@@ -4,11 +4,11 @@
 const RESOURCES = ['besin', 'odun', 'tas', 'kil', 'maden'];
 
 const RESOURCE_INFO = {
-    besin:  { name: 'Besin',  color: '#7CB342', emoji: '🌾', icon: '🌾' },
-    odun:   { name: 'Odun',   color: '#8D6E63', emoji: '🪵', icon: '🪵' },
-    tas:    { name: 'Taş',    color: '#90A4AE', emoji: '🪨', icon: '🪨' },
-    kil:    { name: 'Kil',    color: '#EF6C00', emoji: '🧱', icon: '🧱' },
-    maden:  { name: 'Maden',  color: '#455A64', emoji: '⚙️', icon: '⚙️' },
+    besin:  { name: 'Besin',  color: '#7CB342', emoji: '🌾', icon: 'besin.png' },
+    odun:   { name: 'Odun',   color: '#8D6E63', emoji: '🪵', icon: 'odun.png' },
+    tas:    { name: 'Taş',    color: '#90A4AE', emoji: '🪨', icon: 'tas.png' },
+    kil:    { name: 'Kil',    color: '#EF6C00', emoji: '🧱', icon: 'kil.png' },
+    maden:  { name: 'Maden',  color: '#455A64', emoji: '⚙️', icon: 'maden.png' },
 };
 
 // ==================== BİYOMLAR ====================

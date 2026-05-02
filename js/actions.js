@@ -137,11 +137,12 @@ class Actions {
         if (!cost) return false;
 
         let actualCost = { ...cost };
+        // Tiyatro Seviye 1 Bonusu: Eğer manuel bir indirim seçilmemişse, canBuild kontrolü için en pahalıyı düşelim
         if (hex.settlement.buildings.has('tiyatro')) {
             let maxRes = null;
             let maxVal = -1;
             for (const [r, v] of Object.entries(actualCost)) {
-                if (v > maxVal) { maxVal = v; maxRes = r; }
+                if (v > maxVal && v > 0) { maxVal = v; maxRes = r; }
             }
             if (maxRes) actualCost[maxRes] = Math.max(0, actualCost[maxRes] - 1);
         }
@@ -149,7 +150,7 @@ class Actions {
         return p.canAfford(actualCost);
     }
 
-    buildBuilding(playerId, hexId, buildingType) {
+    buildBuilding(playerId, hexId, buildingType, discountResource = null) {
         const p = this.state.players.find(pl => pl.id === playerId);
         const hex = this.state.grid.hexes.get(hexId);
         if (!p || !hex || !hex.settlement || hex.settlement.playerId !== playerId) return false;
@@ -165,14 +166,21 @@ class Actions {
             actualCost = { besin: 6 };
         }
 
-        // Tiyatro Seviye 1 Bonusu: Maliyet -1 azalır (En pahalı kaynaktan düşelim)
+        // Tiyatro Seviye 1 Bonusu: Maliyet -1 azalır
         if (hex.settlement.buildings.has('tiyatro')) {
-            let maxRes = null;
-            let maxVal = -1;
-            for (const [r, v] of Object.entries(actualCost)) {
-                if (v > maxVal) { maxVal = v; maxRes = r; }
+            let resToDiscount = discountResource;
+            
+            // Eğer oyuncu bir seçim yapmadıysa (veya geçersizse), otomatik olarak en pahalıyı seç (fallback)
+            if (!resToDiscount || !actualCost[resToDiscount]) {
+                let maxVal = -1;
+                for (const [r, v] of Object.entries(actualCost)) {
+                    if (v > maxVal && v > 0) { maxVal = v; resToDiscount = r; }
+                }
             }
-            if (maxRes) actualCost[maxRes] = Math.max(0, actualCost[maxRes] - 1);
+            
+            if (resToDiscount && actualCost[resToDiscount] > 0) {
+                actualCost[resToDiscount] -= 1;
+            }
         }
 
         if (!p.canAfford(actualCost)) return false;
