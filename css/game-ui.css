@@ -166,7 +166,7 @@ body {
 
 .hres-label {
     font-size: 0.6rem;
-    color: var(--muted);
+    color: #fff;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-top: -5px; /* 2px daha yukarı kaydırıldı */
