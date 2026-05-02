@@ -169,7 +169,7 @@ body {
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: -3px; /* Yukarı kaydır */
+    margin-top: -5px; /* 2px daha yukarı kaydırıldı */
 }
 
 /* ─── HEADER SAĞ ─── */
