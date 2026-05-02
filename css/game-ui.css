@@ -109,13 +109,13 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 1px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
-    padding: 4px 8px;
-    min-width: 62px;
-    height: 58px;
+    padding: 2px 8px;
+    min-width: 58px;
+    height: 48px;
     transition: all 0.2s;
     overflow: hidden; /* Taşmayı önle */
 }
@@ -138,13 +138,14 @@ body {
 }
 
 .hres-icon img {
-    width: 26px; 
-    height: 26px;
+    width: 25px;
+    height: 25px;
     object-fit: contain;
+    transform: translateY(3px); /* İkonları 3px aşağı kaydır */
 }
 
 .hres-amount {
-    font-size: 0.75rem;
+    font-size: 0.85rem; /* 0.95 -> 0.85 */
     font-weight: 700;
     color: #fff;
     line-height: 1;
