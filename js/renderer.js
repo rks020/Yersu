@@ -6,9 +6,9 @@
 
 class Renderer {
     constructor(canvas, state) {
-        this.canvas  = canvas;
-        this.ctx     = canvas.getContext('2d');
-        this.state   = state;
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.state = state;
         this.offsetX = 0;
         this.offsetY = 0;
         this.scale = 1;
@@ -51,18 +51,18 @@ class Renderer {
     }
 
     _initCamera() {
-        this.offsetX = this.canvas.width  / 2;
+        this.offsetX = this.canvas.width / 2;
         this.offsetY = this.canvas.height / 2;
     }
 
     resize(w, h) {
-        this.canvas.width  = w;
+        this.canvas.width = w;
         this.canvas.height = h;
         this._initCamera();
     }
 
     render() {
-        const ctx  = this.ctx;
+        const ctx = this.ctx;
         const { width: W, height: H } = this.canvas;
 
         ctx.clearRect(0, 0, W, H);
@@ -86,7 +86,7 @@ class Renderer {
         this.animations = this.animations.filter(anim => {
             const elapsed = now - anim.start;
             const progress = Math.min(1, elapsed / anim.duration);
-            
+
             if (anim.type === 'melee_swing') {
                 this._drawMeleeSwing(anim, progress);
             } else if (anim.type === 'melee_spear') {
@@ -95,8 +95,10 @@ class Renderer {
                 this._drawProjectile(anim, progress);
             } else if (anim.type === 'combat_dice') {
                 this._drawCombatDice(anim, progress);
+            } else if (anim.type === 'siege_dice') {
+                this._drawSiegeDice(anim, progress);
             }
-            
+
             return progress < 1;
         });
     }
@@ -104,19 +106,19 @@ class Renderer {
     _drawMeleeSwing(anim, progress) {
         const ctx = this.ctx;
         const { from, to } = anim;
-        
+
         // Saldıran birimin hafifçe ileri gidip gelmesi (Bounce)
         const bounce = Math.sin(progress * Math.PI);
         const dist = 15;
         const dx = (to.x - from.x) * (bounce * 0.5);
         const dy = (to.y - from.y) * (bounce * 0.5);
-        
+
         // Kılıç savurma çizgisi
         if (progress > 0.2 && progress < 0.8) {
             const p2 = (progress - 0.2) / 0.6;
             const angle = Math.atan2(to.y - from.y, to.x - from.x);
-            const swingAngle = angle - Math.PI/3 + (Math.PI * 2/3 * p2);
-            
+            const swingAngle = angle - Math.PI / 3 + (Math.PI * 2 / 3 * p2);
+
             ctx.save();
             ctx.beginPath();
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
@@ -124,11 +126,11 @@ class Renderer {
             ctx.lineCap = 'round';
             ctx.arc(from.x + dx, from.y + dy, 30, swingAngle - 0.5, swingAngle + 0.5);
             ctx.stroke();
-            
+
             // Kılıç emojisi
             ctx.font = '20px serif';
             ctx.translate(from.x + dx + Math.cos(swingAngle) * 30, from.y + dy + Math.sin(swingAngle) * 30);
-            ctx.rotate(swingAngle + Math.PI/2);
+            ctx.rotate(swingAngle + Math.PI / 2);
             ctx.fillText('⚔️', 0, 0);
             ctx.restore();
         }
@@ -137,7 +139,7 @@ class Renderer {
     _drawMeleeSpear(anim, progress) {
         const ctx = this.ctx;
         const { from, to } = anim;
-        
+
         // Mızrak saldırısı: İleri doğru güçlü bir dürtme hareketi (Thrust)
         // 0.0 -> 0.4: Geri çekilme
         // 0.4 -> 0.6: İleri fırlama
@@ -152,11 +154,11 @@ class Renderer {
             const p = (progress - 0.6) / 0.4;
             thrust = 1.0 - p * 1.0; // Eski konuma dönüş
         }
-        
+
         const dx = (to.x - from.x) * thrust;
         const dy = (to.y - from.y) * thrust;
         const angle = Math.atan2(to.y - from.y, to.x - from.x);
-        
+
         if (progress > 0.4 && progress < 0.8) {
             // Mızrak ucu efekti (Çizgi şeklinde parlama)
             ctx.save();
@@ -169,12 +171,12 @@ class Renderer {
             ctx.shadowColor = 'white';
             ctx.shadowBlur = 10;
             ctx.stroke();
-            
+
             // Mızrak emojisi
             ctx.fillStyle = '#000000'; // Emojinin sönük kalmaması için opak renk
             ctx.font = '24px serif';
             ctx.translate(from.x + dx + Math.cos(angle) * 35, from.y + dy + Math.sin(angle) * 35);
-            ctx.rotate(angle + Math.PI/4); // Emojiyi hedefe doğru döndür
+            ctx.rotate(angle + Math.PI / 4); // Emojiyi hedefe doğru döndür
             ctx.fillText('🔱', 0, 0); // Mızrak olarak zıpkın veya standart silah (Pike/Trident) kullanıyoruz
             ctx.restore();
         }
@@ -186,9 +188,9 @@ class Renderer {
         const x = from.x + (to.x - from.x) * progress;
         const y = from.y + (to.y - from.y) * progress;
         const angle = Math.atan2(to.y - from.y, to.x - from.x);
-        
+
         ctx.save();
-        
+
         // Daha belirgin bir ok izi (Trail)
         if (progress > 0.1) {
             ctx.beginPath();
@@ -197,11 +199,11 @@ class Renderer {
             const startY = from.y + (to.y - from.y) * (progress - trailLength);
             ctx.moveTo(startX, startY);
             ctx.lineTo(x, y);
-            
+
             const gradient = ctx.createLinearGradient(startX, startY, x, y);
             gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
             gradient.addColorStop(1, 'rgba(255, 255, 255, 0.8)');
-            
+
             ctx.strokeStyle = gradient;
             ctx.lineWidth = 4;
             ctx.lineCap = 'round';
@@ -211,7 +213,7 @@ class Renderer {
         // Okun kendisi (Daha büyük ve gölgeli)
         ctx.fillStyle = '#000000'; // Emojinin sönük kalmaması için opak renk
         ctx.translate(x, y);
-        ctx.rotate(angle + Math.PI/4);
+        ctx.rotate(angle + Math.PI / 4);
         ctx.font = '28px serif'; // Daha büyük font
         ctx.shadowColor = 'black';
         ctx.shadowBlur = 5;
@@ -223,25 +225,25 @@ class Renderer {
         const ctx = this.ctx;
         const { x, y, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal } = anim;
         const opacity = progress < 0.8 ? 1 : 1 - (progress - 0.8) / 0.2;
-        
+
         ctx.save();
         ctx.globalAlpha = opacity;
-        
+
         const drawDie = (dx, dy, val, isRolling, color = 'white') => {
             const size = 20;
             ctx.fillStyle = color;
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 1.5;
-            
+
             ctx.save();
             ctx.translate(dx, dy);
             if (isRolling) ctx.rotate(Math.sin(progress * 25) * 0.4);
-            
+
             ctx.beginPath();
-            ctx.roundRect(-size/2, -size/2, size, size, 4);
+            ctx.roundRect(-size / 2, -size / 2, size, size, 4);
             ctx.fill();
             ctx.stroke();
-            
+
             ctx.fillStyle = color === 'white' ? 'black' : 'white';
             ctx.font = 'bold 13px Inter, sans-serif';
             ctx.textAlign = 'center';
@@ -252,11 +254,11 @@ class Renderer {
 
         const isRolling = progress < 0.5;
         const offsetY = -45;
-        
+
         // Saldıran Zarları
         drawDie(x - 45, y + offsetY, aRolls[0], isRolling, '#ff4444');
         drawDie(x - 22, y + offsetY, aRolls[1], isRolling, '#ff4444');
-        
+
         // Savunan Zarları
         drawDie(x + 22, y + offsetY, dRolls[0], isRolling, '#4444ff');
         drawDie(x + 45, y + offsetY, dRolls[1], isRolling, '#4444ff');
@@ -274,31 +276,31 @@ class Renderer {
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 3;
             ctx.lineJoin = 'round';
-            
+
             // Attacker Total
             ctx.strokeText(aTotal, x - 33, y + offsetY + 25);
             ctx.fillStyle = '#ff4444';
             ctx.fillText(aTotal, x - 33, y + offsetY + 25);
-            
+
             // Defender Total
             ctx.strokeText(dTotal, x + 33, y + offsetY + 25);
             ctx.fillStyle = '#4444ff';
             ctx.fillText(dTotal, x + 33, y + offsetY + 25);
         }
-        
+
         // VS yazısı
         ctx.fillStyle = 'white';
         ctx.font = 'bold 12px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText('VS', x, y + offsetY + 5);
-        
+
         ctx.restore();
     }
 
     triggerCombatAnimation(attackerNode, defenderNode, type, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal, unitType) {
         const from = { x: attackerNode.x, y: attackerNode.y };
         const to = { x: defenderNode.x, y: defenderNode.y };
-        
+
         if (type === 'melee') {
             if (unitType === 'mizrakci') {
                 this.animations.push({ type: 'melee_spear', from, to, start: Date.now(), duration: 600 });
@@ -320,6 +322,96 @@ class Renderer {
         }, 300);
     }
 
+    triggerSiegeAnimation(hex, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal) {
+        this.animations.push({
+            type: 'siege_dice',
+            x: hex.center.x, y: hex.center.y,
+            aRolls, dRolls, aBonus, dBonus, aTotal, dTotal,
+            start: Date.now(),
+            duration: 2500
+        });
+    }
+
+    _drawSiegeDice(anim, progress) {
+        const ctx = this.ctx;
+        const { x, y, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal } = anim;
+        const opacity = progress < 0.8 ? 1 : 1 - (progress - 0.8) / 0.2;
+        
+        ctx.save();
+        ctx.globalAlpha = opacity;
+        
+        const drawDie = (dx, dy, val, isRolling, color = 'white') => {
+            const size = 22;
+            ctx.fillStyle = color;
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1.5;
+            
+            ctx.save();
+            ctx.translate(dx, dy);
+            if (isRolling) ctx.rotate(Math.sin(progress * 25) * 0.4);
+            
+            ctx.beginPath();
+            ctx.roundRect(-size/2, -size/2, size, size, 4);
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = color === 'white' ? 'black' : 'white';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(isRolling ? '?' : val, 0, 0);
+            ctx.restore();
+        };
+
+        const isRolling = progress < 0.5;
+        const offsetY = -110; // Panelin biraz daha üstünde
+        
+        // Saldıran Zarları (Kırmızı/Turuncu - Kuşatma aletleri rengi)
+        drawDie(x - 50, y + offsetY, aRolls[0], isRolling, '#ff5722');
+        drawDie(x - 25, y + offsetY, aRolls[1], isRolling, '#ff5722');
+        
+        // Savunan Zarları (Mavi - Şehir koruması)
+        drawDie(x + 25, y + offsetY, dRolls[0], isRolling, '#2196f3');
+        drawDie(x + 50, y + offsetY, dRolls[1], isRolling, '#2196f3');
+
+        if (!isRolling) {
+            // Bonuslar
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillStyle = '#4caf50';
+            ctx.textAlign = 'center';
+            if (aBonus > 0) ctx.fillText(`+${aBonus}`, x - 37, y + offsetY - 18);
+            
+            // Skorlar
+            ctx.font = 'bold 20px Inter, sans-serif';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            ctx.lineJoin = 'round';
+            
+            ctx.strokeText(aTotal, x - 37, y + offsetY + 35);
+            ctx.fillStyle = '#ff5722';
+            ctx.fillText(aTotal, x - 37, y + offsetY + 35);
+            
+            ctx.strokeText(dTotal, x + 37, y + offsetY + 35);
+            ctx.fillStyle = '#2196f3';
+            ctx.fillText(dTotal, x + 37, y + offsetY + 35);
+
+            // Sonuç Yazısı
+            ctx.font = 'bold 14px Georgia, serif';
+            ctx.fillStyle = aTotal > dTotal ? '#ff5722' : '#2196f3';
+            const resultText = aTotal > dTotal ? 'HASAR! 💥' : 'SAVUNULDU! 🛡️';
+            ctx.strokeText(resultText, x, y + offsetY + 60);
+            ctx.fillText(resultText, x, y + offsetY + 60);
+        }
+        
+        // VS / Simge
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 16px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚡', x, y + offsetY + 5);
+        
+        ctx.restore();
+    }
+
     startAnimationLoop() {
         const loop = () => {
             this.render();
@@ -335,11 +427,11 @@ class Renderer {
     }
 
     _drawHex(hex) {
-        const ctx   = this.ctx;
+        const ctx = this.ctx;
         const verts = this.state.grid.getVertexPositions(hex.q, hex.r);
-        const info  = BIOME_INFO[hex.biome] || { color: '#555', dark: '#333', name: '?' };
-        const cx    = hex.center.x;
-        const cy    = hex.center.y;
+        const info = BIOME_INFO[hex.biome] || { color: '#555', dark: '#333', name: '?' };
+        const cx = hex.center.x;
+        const cy = hex.center.y;
 
         // ─ Hex dolgu ─
         ctx.beginPath();
@@ -353,14 +445,14 @@ class Renderer {
 
         // Altın kenarlık
         ctx.strokeStyle = '#c8a84e';
-        ctx.lineWidth   = 2.5;
+        ctx.lineWidth = 2.5;
         ctx.stroke();
 
         // ─ Biyom adı (en üstte) ─
         if (info.name) {
-            ctx.fillStyle    = 'rgba(0,0,0,0.7)';
-            ctx.font         = 'bold 11px Georgia, serif';
-            ctx.textAlign    = 'center';
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.font = 'bold 11px Georgia, serif';
+            ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(info.name, cx, cy - 35);
 
@@ -378,13 +470,13 @@ class Renderer {
             ctx.fillStyle = '#1a1a1a';
             ctx.fill();
             ctx.strokeStyle = isHot ? '#ff1744' : '#c8a84e';
-            ctx.lineWidth   = 2;
+            ctx.lineWidth = 2;
             ctx.stroke();
 
             // Numara yazısı
-            ctx.fillStyle    = isHot ? '#ff5252' : '#f5e8c1';
-            ctx.font         = 'bold 14px Inter, sans-serif';
-            ctx.textAlign    = 'center';
+            ctx.fillStyle = isHot ? '#ff5252' : '#f5e8c1';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(hex.number.toString(), cx, cy + 30);
         }
@@ -393,9 +485,9 @@ class Renderer {
     // ── Highlight çizimi ──────────────────────────────────────────
 
     _drawHighlights() {
-        const ctx   = this.ctx;
+        const ctx = this.ctx;
         const pulse = (Math.sin(Date.now() / 200) + 1) / 2;
-        
+
         // Aktif oyuncunun rengini al (Yoksayılmaması için garantiye alıyoruz)
         const activePlayer = this.state.currentPlayer;
         const pColor = activePlayer ? activePlayer.color : '#ffd700';
@@ -409,18 +501,18 @@ class Renderer {
             ctx.moveTo(verts[0].x, verts[0].y);
             for (let i = 1; i < 6; i++) ctx.lineTo(verts[i].x, verts[i].y);
             ctx.closePath();
-            ctx.fillStyle   = pColor;
+            ctx.fillStyle = pColor;
             ctx.globalAlpha = 0.18;
             ctx.fill();
             ctx.globalAlpha = 1.0;
             ctx.strokeStyle = pColor;
-            ctx.lineWidth   = 2.5;
+            ctx.lineWidth = 2.5;
             ctx.stroke();
         });
 
         // Edge highlights
         this.state.highlightedEdges.forEach(eid => {
-            const e  = this.state.grid.edges.get(eid);
+            const e = this.state.grid.edges.get(eid);
             if (!e) return;
             const n1 = this.state.grid.nodes.get(e.node1);
             const n2 = this.state.grid.nodes.get(e.node2);
@@ -430,12 +522,12 @@ class Renderer {
             ctx.lineTo(n2.x, n2.y);
             ctx.strokeStyle = pColor;
             ctx.globalAlpha = 0.6 + pulse * 0.4;
-            ctx.lineWidth   = 8 + pulse * 6;
-            ctx.lineCap     = 'round';
+            ctx.lineWidth = 8 + pulse * 6;
+            ctx.lineCap = 'round';
             ctx.shadowColor = pColor;
-            ctx.shadowBlur  = 12 + pulse * 10;
+            ctx.shadowBlur = 12 + pulse * 10;
             ctx.stroke();
-            ctx.shadowBlur  = 0;
+            ctx.shadowBlur = 0;
             ctx.globalAlpha = 1.0;
         });
 
@@ -449,7 +541,7 @@ class Renderer {
             ctx.globalAlpha = 0.3 + pulse * 0.4;
             ctx.fill();
             ctx.strokeStyle = '#fff';
-            ctx.lineWidth   = 2.5;
+            ctx.lineWidth = 2.5;
             ctx.stroke();
             ctx.globalAlpha = 1.0;
         });
@@ -461,8 +553,8 @@ class Renderer {
                 if (!n) return;
                 ctx.beginPath();
                 ctx.arc(n.x, n.y, 16 + pulse * 4, 0, Math.PI * 2);
-                ctx.strokeStyle = '#ff1744'; 
-                ctx.lineWidth   = 3 + pulse * 2;
+                ctx.strokeStyle = '#ff1744';
+                ctx.lineWidth = 3 + pulse * 2;
                 ctx.setLineDash([5, 5]);
                 ctx.stroke();
                 ctx.setLineDash([]);
@@ -488,8 +580,8 @@ class Renderer {
             ctx.moveTo(n1.x, n1.y);
             ctx.lineTo(n2.x, n2.y);
             ctx.strokeStyle = '#1a1a1a';
-            ctx.lineWidth   = 10;
-            ctx.lineCap     = 'round';
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
             ctx.stroke();
 
             // Ana renk (oyuncu rengi)
@@ -497,19 +589,19 @@ class Renderer {
             ctx.moveTo(n1.x, n1.y);
             ctx.lineTo(n2.x, n2.y);
             ctx.strokeStyle = player.color;
-            ctx.lineWidth   = 6;
-            ctx.lineCap     = 'round';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
             ctx.shadowColor = player.color;
-            ctx.shadowBlur  = 8;
+            ctx.shadowBlur = 8;
             ctx.stroke();
-            ctx.shadowBlur  = 0;
+            ctx.shadowBlur = 0;
 
             // Ortadaki parlak çizgi
             ctx.beginPath();
             ctx.moveTo(n1.x, n1.y);
             ctx.lineTo(n2.x, n2.y);
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.lineWidth   = 2;
+            ctx.lineWidth = 2;
             ctx.stroke();
         });
     }
@@ -549,16 +641,16 @@ class Renderer {
                 const player = this.state.players.find(p => p.id === pid);
                 if (!player) return;
 
-                const isSelected = (this.state.selectedUnitNode === node.id && 
-                                    this.state.selectedUnit && 
-                                    this.state.selectedUnit.uid === unit.uid);
+                const isSelected = (this.state.selectedUnitNode === node.id &&
+                    this.state.selectedUnit &&
+                    this.state.selectedUnit.uid === unit.uid);
 
                 const pIdx = pIds.indexOf(pid);
                 const pBaseX = isContested ? (pIdx === 0 ? -8 : 8) : 0;
                 const pBaseY = isContested ? (pIdx === 0 ? -4 : 4) : 0;
 
                 const uIdx = units.filter((u, i) => i < idx && (u.playerId !== undefined ? u.playerId : node.army.playerId) === pid).length;
-                const stackOffset = uIdx * 2; 
+                const stackOffset = uIdx * 2;
 
                 const drawX = node.x + pBaseX + stackOffset;
                 const drawY = node.y + pBaseY - stackOffset;
@@ -605,7 +697,7 @@ class Renderer {
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fillStyle = player.color; // Takım rengi (Kırmızı/Mavi vb.)
         ctx.fill();
-        
+
         // İç Beyaz Kontur (Daha şık durması için)
         ctx.strokeStyle = 'rgba(255,255,255,0.8)';
         ctx.lineWidth = 2;
@@ -624,10 +716,10 @@ class Renderer {
             ctx.save();
             ctx.beginPath();
             ctx.arc(x, y, r - 4, 0, Math.PI * 2);
-            ctx.clip(); 
-            
+            ctx.clip();
+
             const size = (r - 4) * 2;
-            ctx.drawImage(img, x - size/2, y - size/2, size, size);
+            ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
             ctx.restore();
         } else {
             ctx.fillStyle = '#fff';
@@ -644,18 +736,18 @@ class Renderer {
         const ctx = this.ctx;
         this.state.grid.hexes.forEach(hex => {
             if (!hex.settlement) return;
-            const st    = hex.settlement;
-            const p     = this.state.players.find(x => x.id === st.playerId);
+            const st = hex.settlement;
+            const p = this.state.players.find(x => x.id === st.playerId);
             const color = p ? p.color : '#fff';
 
             // Kuşatma Barı ve Göstergesi
             const siege = this.state.sieges[hex.id];
             if (siege) {
                 const req = this.state.calculateSiegeRequirement(hex.id, siege.attackerId);
-                
+
                 // Dış halka (Kırmızı kesikli)
                 ctx.strokeStyle = '#ff3300';
-                ctx.lineWidth   = 3;
+                ctx.lineWidth = 3;
                 ctx.setLineDash([5, 3]);
                 ctx.beginPath();
                 ctx.arc(hex.x, hex.y, 40, 0, Math.PI * 2);
@@ -665,17 +757,17 @@ class Renderer {
                 // Progress Bar (Arka plan)
                 const barW = 40;
                 const barH = 6;
-                const bx = hex.x - barW/2;
+                const bx = hex.x - barW / 2;
                 const by = hex.y + 35;
-                
+
                 ctx.fillStyle = 'rgba(0,0,0,0.6)';
                 ctx.fillRect(bx, by, barW, barH);
-                
+
                 // Progress Bar (Doluluk)
                 const progress = Math.min(1, siege.points / req);
                 ctx.fillStyle = '#ff3300';
                 ctx.fillRect(bx, by, barW * progress, barH);
-                
+
                 // Metin (Puan)
                 ctx.fillStyle = '#fff';
                 ctx.strokeStyle = '#000';
@@ -688,17 +780,17 @@ class Renderer {
 
             // Yerleşim ikonu ve Arka plan halkası
             const baseSize = st.type === 'metropol' ? 28 : (st.type === 'sehir' ? 22 : 16);
-            const icon     = st.type === 'metropol' ? '🏯' : (st.type === 'sehir' ? '🏰' : '🏘️');
+            const icon = st.type === 'metropol' ? '🏯' : (st.type === 'sehir' ? '🏰' : '🏘️');
 
             // 1. Arka plan halkası (Badge)
             ctx.beginPath();
             ctx.arc(hex.x, hex.y, baseSize * 1.3, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(0,0,0,0.5)'; // Daha koyu arka plan
             ctx.fill();
-            
+
             ctx.save();
             ctx.strokeStyle = color;
-            ctx.lineWidth   = 5; // Daha kalın halka
+            ctx.lineWidth = 5; // Daha kalın halka
             ctx.shadowColor = color;
             ctx.shadowBlur = 15; // Parlama efekti
             ctx.stroke();
@@ -713,7 +805,7 @@ class Renderer {
                 ctx.beginPath();
                 ctx.arc(hex.x, hex.y, size / 2, 0, Math.PI * 2);
                 ctx.clip(); // Kare kısımları kaldırıp yuvarlak kırp
-                
+
                 ctx.shadowColor = color;
                 ctx.shadowBlur = 10;
                 ctx.drawImage(img, hex.x - size / 2, hex.y - size / 2, size, size);
@@ -732,14 +824,14 @@ class Renderer {
 
             // Bina ikonları (Geniş halka)
             if (st.buildings && st.buildings.size > 0) {
-                const bArr  = [...st.buildings];
-                const icons = { ciftlik:'🌾', kisla:'⚔️', kervansaray:'🛒', tapinak:'⛪', muhendishane:'⚙️', tiyatro:'🎭' };
+                const bArr = [...st.buildings];
+                const icons = { ciftlik: '🌾', kisla: '⚔️', kervansaray: '🛒', tapinak: '⛪', muhendishane: '⚙️', tiyatro: '🎭' };
                 bArr.forEach((b, i) => {
                     const angle = (Math.PI * 2 / 6) * i - Math.PI / 2;
                     const bx = hex.x + Math.cos(angle) * 38;
                     const by = hex.y + Math.sin(angle) * 38;
                     ctx.fillStyle = '#000000'; // Bina ikonları için opaklık
-                    
+
                     const bImg = this.buildingImages[b];
                     if (bImg && bImg.complete) {
                         ctx.save();
@@ -749,7 +841,7 @@ class Renderer {
                         ctx.drawImage(bImg, bx - 10, by - 10, 20, 20);
                         ctx.restore();
                     } else {
-                        const icons = { ciftlik:'🌾', kisla:'⚔️', kervansaray:'🛒', tapinak:'⛪', muhendishane:'⚙️', tiyatro:'🎭' };
+                        const icons = { ciftlik: '🌾', kisla: '⚔️', kervansaray: '🛒', tapinak: '⛪', muhendishane: '⚙️', tiyatro: '🎭' };
                         ctx.font = '14px serif';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
@@ -768,7 +860,7 @@ class Renderer {
     }
 
     zoom(factor, cx, cy) {
-        this.scale   = Math.max(0.4, Math.min(3, this.scale * factor));
+        this.scale = Math.max(0.4, Math.min(3, this.scale * factor));
         this.offsetX = cx - (cx - this.offsetX) * factor;
         this.offsetY = cy - (cy - this.offsetY) * factor;
     }
