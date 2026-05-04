@@ -294,7 +294,14 @@ class Actions {
         if (!unit || unit.hasAttacked) return false;
 
         const udata = UNIT_DATA[unit.type];
-        if (!udata || !udata.range) return false;
+        if (!udata) return false;
+
+        let actualRange = udata.range || 0;
+        if (unit.type === 'topcu' && p.bonusState && p.bonusState.topcuRangeBonus) {
+            actualRange += p.bonusState.topcuRangeBonus;
+        }
+
+        if (actualRange <= 0) return false;
 
         const targetNode = this.state.grid.nodes.get(targetNodeId);
         if (!targetNode || !targetNode.army) return false;
@@ -305,11 +312,6 @@ class Actions {
             return ownerId !== playerId;
         });
         if (!hasEnemy) return false;
-
-        let actualRange = udata.range;
-        if (unit.type === 'topcu' && p.bonusState && p.bonusState.topcuRangeBonus) {
-            actualRange += p.bonusState.topcuRangeBonus;
-        }
 
         const dist = this.state.grid.getDistance(unit.nodeId, targetNodeId);
         if (dist > actualRange) {

@@ -215,8 +215,13 @@ class AIEngine {
                     if (hasEnemy) targetNode = n;
                 });
 
+                let actualRange = udata.range || 0;
+                if (unit.type === 'topcu' && player.bonusState && player.bonusState.topcuRangeBonus) {
+                    actualRange += player.bonusState.topcuRangeBonus;
+                }
+
                 // 2. Menzilli Dövüş Kontrolü (dist > 1)
-                if (!targetNode && udata.range > 0) {
+                if (!targetNode && actualRange > 0) {
                     this.state.grid.nodes.forEach(n => {
                         if (targetNode) return;
                         const hasEnemy = n.army && n.army.units.some(u => {
@@ -225,7 +230,7 @@ class AIEngine {
                         });
                         if (hasEnemy) {
                             const dist = this.state.grid.getDistance(unit.nodeId, n.id);
-                            if (dist > 1 && dist <= udata.range) targetNode = n;
+                            if (dist > 1 && dist <= actualRange) targetNode = n;
                         }
                     });
                 }
