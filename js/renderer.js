@@ -322,11 +322,12 @@ class Renderer {
         }, 300);
     }
 
-    triggerSiegeAnimation(hex, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal) {
+    triggerSiegeAnimation(hex, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal, attackerName) {
         this.animations.push({
             type: 'siege_dice',
             x: hex.center.x, y: hex.center.y,
             aRolls, dRolls, aBonus, dBonus, aTotal, dTotal,
+            attackerName,
             start: Date.now(),
             duration: 2500
         });
@@ -334,80 +335,95 @@ class Renderer {
 
     _drawSiegeDice(anim, progress) {
         const ctx = this.ctx;
-        const { x, y, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal } = anim;
+        const { x, y, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal, attackerName } = anim;
         const opacity = progress < 0.8 ? 1 : 1 - (progress - 0.8) / 0.2;
         
         ctx.save();
         ctx.globalAlpha = opacity;
         
         const drawDie = (dx, dy, val, isRolling, color = 'white') => {
-            const size = 22;
-            ctx.fillStyle = color;
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 1.5;
-            
+            const size = 26;
             ctx.save();
             ctx.translate(dx, dy);
-            if (isRolling) ctx.rotate(Math.sin(progress * 25) * 0.4);
+            
+            // Düşme efekti
+            if (isRolling) {
+                const bounce = Math.abs(Math.sin(progress * 15)) * 10;
+                ctx.translate(0, -bounce);
+                ctx.rotate(progress * 20);
+            }
+
+            ctx.fillStyle = color;
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
             
             ctx.beginPath();
-            ctx.roundRect(-size/2, -size/2, size, size, 4);
+            ctx.roundRect(-size/2, -size/2, size, size, 5);
             ctx.fill();
             ctx.stroke();
             
-            ctx.fillStyle = color === 'white' ? 'black' : 'white';
-            ctx.font = 'bold 14px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(isRolling ? '?' : val, 0, 0);
+            if (!isRolling) {
+                ctx.fillStyle = color === 'white' ? 'black' : 'white';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, 0, 0);
+            } else {
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.font = 'bold 12px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('?', 0, 0);
+            }
             ctx.restore();
         };
 
         const isRolling = progress < 0.5;
-        const offsetY = -110; // Panelin biraz daha üstünde
+        const offsetY = -130; 
         
-        // Saldıran Zarları (Kırmızı/Turuncu - Kuşatma aletleri rengi)
-        drawDie(x - 50, y + offsetY, aRolls[0], isRolling, '#ff5722');
+        // Saldıran İsmi
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 14px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(attackerName || 'Saldıran', x, y + offsetY - 50);
+        
+        // Saldıran Zarları (Kırmızı/Turuncu)
+        drawDie(x - 55, y + offsetY, aRolls[0], isRolling, '#ff5722');
         drawDie(x - 25, y + offsetY, aRolls[1], isRolling, '#ff5722');
         
-        // Savunan Zarları (Mavi - Şehir koruması)
+        // Savunan Zarları (Mavi)
         drawDie(x + 25, y + offsetY, dRolls[0], isRolling, '#2196f3');
-        drawDie(x + 50, y + offsetY, dRolls[1], isRolling, '#2196f3');
+        drawDie(x + 55, y + offsetY, dRolls[1], isRolling, '#2196f3');
 
         if (!isRolling) {
             // Bonuslar
-            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.font = 'bold 12px Inter, sans-serif';
             ctx.fillStyle = '#4caf50';
             ctx.textAlign = 'center';
-            if (aBonus > 0) ctx.fillText(`+${aBonus}`, x - 37, y + offsetY - 18);
+            if (aBonus > 0) ctx.fillText(`+${aBonus} Güç`, x - 40, y + offsetY - 25);
             
             // Skorlar
-            ctx.font = 'bold 20px Inter, sans-serif';
+            ctx.font = 'bold 24px Inter, sans-serif';
             ctx.strokeStyle = 'black';
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 5;
             ctx.lineJoin = 'round';
             
-            ctx.strokeText(aTotal, x - 37, y + offsetY + 35);
+            ctx.strokeText(aTotal, x - 40, y + offsetY + 45);
             ctx.fillStyle = '#ff5722';
-            ctx.fillText(aTotal, x - 37, y + offsetY + 35);
+            ctx.fillText(aTotal, x - 40, y + offsetY + 45);
             
-            ctx.strokeText(dTotal, x + 37, y + offsetY + 35);
+            ctx.strokeText(dTotal, x + 40, y + offsetY + 45);
             ctx.fillStyle = '#2196f3';
-            ctx.fillText(dTotal, x + 37, y + offsetY + 35);
+            ctx.fillText(dTotal, x + 40, y + offsetY + 45);
 
-            // Sonuç Yazısı
-            ctx.font = 'bold 14px Georgia, serif';
-            ctx.fillStyle = aTotal > dTotal ? '#ff5722' : '#2196f3';
-            const resultText = aTotal > dTotal ? 'HASAR! 💥' : 'SAVUNULDU! 🛡️';
-            ctx.strokeText(resultText, x, y + offsetY + 60);
-            ctx.fillText(resultText, x, y + offsetY + 60);
+            // Sonuç Yazısı (Vurgulu)
+            ctx.font = 'bold 18px Inter, sans-serif';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            const resultText = aTotal > dTotal ? 'HASAR VERİLDİ! 💥' : 'SAVUNMA BAŞARILI! 🛡️';
+            ctx.fillStyle = aTotal > dTotal ? '#ffeb3b' : '#90a4ae';
+            ctx.strokeText(resultText, x, y + offsetY + 80);
+            ctx.fillText(resultText, x, y + offsetY + 80);
         }
-        
-        // VS / Simge
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 16px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('⚡', x, y + offsetY + 5);
         
         ctx.restore();
     }
@@ -740,42 +756,59 @@ class Renderer {
             const p = this.state.players.find(x => x.id === st.playerId);
             const color = p ? p.color : '#fff';
 
-            // Kuşatma Barı ve Göstergesi
+            // Kuşatma Tablosu (Sabit Panel)
             const siege = this.state.sieges[hex.id];
             if (siege) {
                 const req = this.state.calculateSiegeRequirement(hex.id, siege.attackerId);
-
-                // Dış halka (Kırmızı kesikli)
-                ctx.strokeStyle = '#ff3300';
-                ctx.lineWidth = 3;
-                ctx.setLineDash([5, 3]);
-                ctx.beginPath();
-                ctx.arc(hex.x, hex.y, 40, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                // Progress Bar (Arka plan)
-                const barW = 40;
-                const barH = 6;
-                const bx = hex.x - barW / 2;
-                const by = hex.y + 35;
-
-                ctx.fillStyle = 'rgba(0,0,0,0.6)';
-                ctx.fillRect(bx, by, barW, barH);
-
-                // Progress Bar (Doluluk)
+                const attacker = this.state.players.find(p => p.id === siege.attackerId);
                 const progress = Math.min(1, siege.points / req);
-                ctx.fillStyle = '#ff3300';
-                ctx.fillRect(bx, by, barW * progress, barH);
+                
+                const panelW = 85;
+                const panelH = 45;
+                const px = hex.x - panelW / 2;
+                const py = hex.y - 85; 
 
-                // Metin (Puan)
-                ctx.fillStyle = '#fff';
-                ctx.strokeStyle = '#000';
+                // Panel Arka Planı (Glassmorphism Effect)
+                ctx.save();
+                ctx.fillStyle = 'rgba(15, 15, 15, 0.9)';
+                ctx.strokeStyle = attacker ? attacker.color : '#ff3300';
                 ctx.lineWidth = 2;
-                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.shadowColor = (attacker ? attacker.color : '#ff3300') + '88';
+                ctx.shadowBlur = 12;
+                
+                ctx.beginPath();
+                ctx.roundRect(px, py, panelW, panelH, 6);
+                ctx.fill();
+                ctx.stroke();
+
+                // Başlık (Saldıran Oyuncu İsmi)
+                ctx.fillStyle = attacker ? attacker.color : '#ff3300';
+                ctx.font = 'bold 10px Inter, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.strokeText(`${siege.points}/${req} KUŞATMA`, hex.x, by + 18);
-                ctx.fillText(`${siege.points}/${req} KUŞATMA`, hex.x, by + 18);
+                ctx.fillText(attacker ? attacker.name.toUpperCase() : 'KUŞATMA', hex.x, py + 14);
+
+                // İlerleme Metni ve Simge
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 14px Inter, sans-serif';
+                ctx.fillText(`⚔️ ${siege.points} / ${req}`, hex.x, py + 30);
+
+                // Küçük ilerleme çizgisi
+                ctx.fillStyle = '#333';
+                ctx.fillRect(px + 8, py + panelH - 6, panelW - 16, 3);
+                ctx.fillStyle = attacker ? attacker.color : '#ff3300';
+                ctx.fillRect(px + 8, py + panelH - 6, (panelW - 16) * progress, 3);
+                
+                ctx.restore();
+
+                // Kırmızı/Oyuncu rengi halka uyarısı
+                ctx.save();
+                ctx.strokeStyle = attacker ? attacker.color : '#ff3300';
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([8, 5]);
+                ctx.beginPath();
+                ctx.arc(hex.x, hex.y, 44, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
             }
 
             // Yerleşim ikonu ve Arka plan halkası

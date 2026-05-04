@@ -521,55 +521,8 @@ class GameState {
         p._deadThisTurn = [];
         p.rerollUsedThisTurn = false;
 
-        // Kuşatma ilerlemeleri
-        Object.entries(this.sieges).forEach(([hexId, s]) => {
-            const hex = this.grid.hexes.get(hexId);
-            if (hex && hex.settlement) {
-                const p = this.players.find(pl => pl.id === s.attackerId);
-                if (p) {
-                    let siegePower = 1;
-                    // Ordu kontrolü (yerleşimin düğmelerinden birinde ordu var mı?)
-                    hex.nodeIds.forEach(nid => {
-                        const node = this.grid.nodes.get(nid);
-                        if (node.army && node.army.playerId === s.attackerId) {
-                            node.army.units.forEach(u => {
-                                const udata = UNIT_DATA[u.type];
-                                if (udata.siege) siegePower += udata.siege;
-                            });
-                        }
-                    });
+        // Kuşatma ilerlemeleri kaldırıldı (transitionToAttack içine taşındı)
 
-                    // Bonuslar
-                    if (p.bonusState.muhendishaneSiegeBonus) siegePower += 1;
-                    if (p.bonusState.ciftlikSiegeBonus) siegePower += 1;
-
-                    // Zar Atışı
-                    const aRoll = this._roll2d6();
-                    const dRoll = this._roll2d6();
-                    const aTotal = aRoll + (siegePower - 1);
-                    const dTotal = dRoll; // Savunan şimdilik sadece zar atıyor (Tapınak bonusu hariç)
-
-                    this.addLog(`🏰 ${p.name} Kuşatma Atışı: [${aRoll}] + Güç(${siegePower - 1}) = ${aTotal} vs Savunma: [${dRoll}]`, 'info');
-
-                    if (aTotal > dTotal) {
-                        s.points += 1;
-                        this.addLog(`⚔️ Kuşatma ilerliyor! (${s.points} Puan)`, 'warning');
-                    } else {
-                        this.addLog(`🛡️ Savunma hattı aşılamadı.`, 'info');
-                    }
-
-                    const req = this.calculateSiegeRequirement(hexId, p.id);
-                    if (s.points >= req) {
-                        if (window.appMain && window.appMain.actions) {
-                            window.appMain.actions.resolveSiege(hexId);
-                        }
-                    }
-                }
-            } else {
-                delete this.sieges[hexId];
-                this.addLog(`🏰 ${hexId} kuşatması kırıldı!`, 'info');
-            }
-        });
 
         // Tur sonu eylemleri
         this.checkVictory();
@@ -618,6 +571,74 @@ class GameState {
     transitionToAttack() {
         this.subPhase = 'attack';
         this.addLog("🏹 Saldırı aşaması başladı.", "info");
+        this.processSiegesForPlayer(this.currentPlayer.id);
+    }
+
+    processSiegesForPlayer(playerId) {
+        Object.entries(this.sieges).forEach(([hexId, s]) => {
+            if (s.attackerId !== playerId) return;
+
+            const hex = this.grid.hexes.get(hexId);
+            if (hex && hex.settlement) {
+                const p = this.players.find(pl => pl.id === s.attackerId);
+                if (p) {
+                    let siegePower = 1;
+                    hex.nodeIds.forEach(nid => {
+                        const node = this.grid.nodes.get(nid);
+                        if (node.army && node.army.playerId === s.attackerId) {
+                            node.army.units.forEach(u => {
+                                const udata = UNIT_DATA[u.type];
+                                if (udata.siege) siegePower += udata.siege;
+                            });
+                        }
+                    });
+
+                    if (p.bonusState.muhendishaneSiegeBonus) siegePower += 1;
+                    if (p.bonusState.ciftlikSiegeBonus) siegePower += 1;
+
+                    // Zar Atışı
+                    const a1 = Math.floor(Math.random() * 6) + 1;
+                    const a2 = Math.floor(Math.random() * 6) + 1;
+                    const d1 = Math.floor(Math.random() * 6) + 1;
+                    const d2 = Math.floor(Math.random() * 6) + 1;
+
+                    const aTotal = (a1 + a2) + (siegePower - 1);
+                    const dTotal = (d1 + d2);
+
+                    this.addLog(`🏰 ${p.name} Kuşatma Atışı: [${a1},${a2}] + Güç(${siegePower - 1}) = ${aTotal} vs Savunma: [${d1},${d2}] = ${dTotal}`, 'info');
+
+                    // Animasyon Tetikle
+                    if (window.appMain && window.appMain.ui && window.appMain.ui.renderer) {
+                        window.appMain.ui.renderer.triggerSiegeAnimation(
+                            hex,
+                            [a1, a2], [d1, d2],
+                            siegePower - 1, 0,
+                            aTotal, dTotal,
+                            p.name
+                        );
+                    }
+
+                    if (aTotal > dTotal) {
+                        s.points += 1;
+                        this.addLog(`⚔️ Kuşatma ilerliyor! (${s.points} Puan)`, 'warning');
+                    } else {
+                        this.addLog(`🛡️ Savunma hattı aşılamadı.`, 'info');
+                    }
+
+                    const req = this.calculateSiegeRequirement(hexId, p.id);
+                    if (s.points >= req) {
+                        setTimeout(() => {
+                            if (window.appMain && window.appMain.actions) {
+                                window.appMain.actions.resolveSiege(hexId);
+                            }
+                        }, 2600); // Animasyon sonrası çözümle
+                    }
+                }
+            } else {
+                delete this.sieges[hexId];
+                this.addLog(`🏰 ${hexId} kuşatması kırıldı!`, 'info');
+            }
+        });
     }
 
     resetTurnActions() {
