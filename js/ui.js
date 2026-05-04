@@ -472,7 +472,11 @@ class UI {
                     } else if (this.state.subPhase === 'attack') {
                         this.state.highlightedNodes.clear();
                         this.state.rangeHighlightedNodes.clear();
-                        const dist = Math.max(1, udata.range || 0); 
+                        let actualRange = udata.range || 0;
+                        if (unit.type === 'topcu' && this.state.currentPlayer.bonusState && this.state.currentPlayer.bonusState.topcuRangeBonus) {
+                            actualRange += this.state.currentPlayer.bonusState.topcuRangeBonus;
+                        }
+                        const dist = Math.max(1, actualRange); 
                         this.state.grid.nodes.forEach(n => {
                             const d = this.state.grid.getDistance(clickedNode.id, n.id);
                             if (d >= 0 && d <= dist) this.state.rangeHighlightedNodes.add(n.id);
@@ -633,7 +637,11 @@ class UI {
                                 
                                 // Menzilini göster (Sadece birimin gerçek menzilini gösterir)
                                 this.state.rangeHighlightedNodes.clear();
-                                const dist = udata.range || 0;
+                                let actualRange = udata.range || 0;
+                                if (unit.type === 'topcu' && this.state.currentPlayer.bonusState && this.state.currentPlayer.bonusState.topcuRangeBonus) {
+                                    actualRange += this.state.currentPlayer.bonusState.topcuRangeBonus;
+                                }
+                                const dist = actualRange || 0;
                                 this.state.grid.nodes.forEach(n => {
                                     const d = this.state.grid.getDistance(clickedNode.id, n.id);
                                     if (d >= 0 && d <= dist) this.state.rangeHighlightedNodes.add(n.id);
@@ -1364,13 +1372,14 @@ class UI {
             if (tapinak) bldParts.push('Tapınak: +1 (Kuşatmada)');
 
             const hasRangeBonus = p.bonusState && p.bonusState.topcuRangeBonus;
-            if (hasRangeBonus && data.range > 0) bldParts.push('Mühendishane: Menzil +1');
+            const isTopcu = type === 'topcu';
+            if (hasRangeBonus && isTopcu) bldParts.push('Mühendishane: Menzil +1');
 
             // Toplam değerler
             const muhCount = p.buildings?.['muhendishane'] || 0;
             const muhLv = muhCount >= 4 ? 3 : muhCount >= 2 ? 2 : muhCount >= 1 ? 1 : 0;
             
-            const totalRange = data.range > 0 ? (data.range + (hasRangeBonus ? 1 : 0)) : 0;
+            const totalRange = data.range + (isTopcu && hasRangeBonus ? 1 : 0);
             
             let speedBonus = 0;
             if (kislaLv >= 2 && p.chosenBonuses?.kisla?.[2] === 'A') {

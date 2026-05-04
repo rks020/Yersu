@@ -307,8 +307,8 @@ class Actions {
         if (!hasEnemy) return false;
 
         let actualRange = udata.range;
-        if (unit.type === 'mancinik' && p.bonusState && p.bonusState.mancinikRangeBonus) {
-            actualRange += p.bonusState.mancinikRangeBonus;
+        if (unit.type === 'topcu' && p.bonusState && p.bonusState.topcuRangeBonus) {
+            actualRange += p.bonusState.topcuRangeBonus;
         }
 
         const dist = this.state.grid.getDistance(unit.nodeId, targetNodeId);
@@ -357,8 +357,13 @@ class Actions {
         const dist = this.state.grid.getDistance(unit.nodeId, targetNodeId);
         const udata = UNIT_DATA[unit.type];
 
-        if (dist > udata.range) {
-            this.state.addLog(`❌ ${udata.name} bu mesafeden saldıramaz! (Menzil: ${udata.range}, Mesafe: ${dist})`, 'warning');
+        let actualRange = udata.range;
+        if (unit.type === 'topcu' && p.bonusState && p.bonusState.topcuRangeBonus) {
+            actualRange += p.bonusState.topcuRangeBonus;
+        }
+
+        if (dist > actualRange) {
+            this.state.addLog(`❌ ${udata.name} bu mesafeden saldıramaz! (Menzil: ${actualRange}, Mesafe: ${dist})`, 'warning');
             return false;
         }
 

@@ -141,7 +141,7 @@ const BUILDING_BONUSES = {
     },
     muhendishane: {
         1: ['Oyuncu artık kuşatma birimleri üretebilir'],
-        2: ['(A) Mancınık birimi menzili +1 artar', '(B) Üretim zarı atmadan önce yerleşim kurduğu biyomlara atanan kaynağı değiştirebilir'],
+        2: ['(A) Topçu menzili +1 olur', '(B) Üretim zarı atmadan önce yerleşim kurduğu biyomlara atanan kaynağı değiştirebilir'],
         3: ['(A) Mühendishane bulunan her yerleşim için kuşatma puanı +1 artar', '(B) Kuşatma altındaki yerleşim yerindeki mancınık ve topçu rakip şehri ele geçirene kadar yok edilemez'],
     },
     tiyatro: {
