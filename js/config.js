@@ -151,7 +151,7 @@ const BUILDING_BONUSES = {
     },
     kisla: {
         1: ['(A) Mızrakçı Düello Zarına +1', '(B) Kılıçlı Düello Zarına +1', '(C) Okçu Düello Zarına +1'],
-        2: ['(A) Hafif Süvari ve Atlı Okçu patikalarda +1 Hız alır', '(B) Şövalye Düello Zarına +1'],
+        2: ['(A) Hafif Süvari ve Atlı Okçu hem patikada hem de yolda 3 Hız kazanır', '(B) Şövalye Düello Zarına +1'],
         3: ['(A) Bir önceki turda ölen asker birimleri -1 altın maliyetiyle diriltilebilir', '(B) Turda bir defa düello sırasında oyuncu tekrar zar atabilir'],
     },
     tapinak: {

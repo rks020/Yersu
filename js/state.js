@@ -295,7 +295,7 @@ class GameState {
                 player.bonusState.kislaLv1Choice = choice; // A, B, veya C
             } else if (level === 2) {
                 player.bonusState.kislaLv2Choice = choice;
-                if (choice === 'A') player.bonusState.suvariSpeedBonus = 1;
+                if (choice === 'A') player.bonusState.suvariSpeedBonus = true;
                 else player.bonusState.knightDuelBonus = 1;
             } else if (level === 3) {
                 player.bonusState.kislaLv3Choice = choice;
@@ -398,8 +398,9 @@ class GameState {
             this.currentPlayer.units.forEach(u => {
                 const data = UNIT_DATA[u.type];
                 let speed = data ? (data.speed || 1) : 1;
+                // Kışla Sv.2 A Bonusu
                 if (this.currentPlayer.bonusState.suvariSpeedBonus && (u.type === 'hafif_suvari' || u.type === 'atli_okcu')) {
-                    speed += this.currentPlayer.bonusState.suvariSpeedBonus;
+                    speed = 3;
                 }
                 u.movesLeft = speed;
             });
@@ -478,36 +479,7 @@ class GameState {
         return gained;
     }
 
-    resetTurnActions() {
-        this.actionsDone = {
-            movedUnits: [],
-            attacked: false,
-            builtRoad: false,
-            builtVillage: false,
-            builtBuilding: false,
-            trainedUnit: false,
-            traded: false,
-            sieged: false,
-        };
 
-        const nextPlayer = this.players[this.currentPlayerIdx];
-        if (nextPlayer) {
-            nextPlayer.units.forEach(u => {
-                const data = UNIT_DATA[u.type];
-                let speed = data.speed || 1;
-
-                // Kışla Sv.2 A Bonusu: Hafif Süvari ve Atlı Okçu +1 Hız
-                if (nextPlayer.chosenBonuses?.kisla?.[2] === 'A') {
-                    if (u.type === 'hafif_suvari' || u.type === 'atli_okcu') {
-                        speed += 1;
-                    }
-                }
-
-                u.movesLeft = speed;
-                u.hasAttacked = false;
-            });
-        }
-    }
 
     nextTurn() {
         const p = this.currentPlayer;
@@ -647,7 +619,16 @@ class GameState {
             p.bonusState.kislaLv3BUsedThisTurn = false;
             p.units.forEach(u => {
                 u.hasAttacked = false;
-                // movesLeft resets in rollProductionDice
+                if (this.phase === 'setup') {
+                    const data = UNIT_DATA[u.type];
+                    let speed = data ? (data.speed || 1) : 1;
+                    if (p.bonusState.suvariSpeedBonus && (u.type === 'hafif_suvari' || u.type === 'atli_okcu')) {
+                        speed = 3;
+                    }
+                    u.movesLeft = speed;
+                } else {
+                    u.movesLeft = 0; // Hareket puanları zar atılınca (rollProductionDice) verilir
+                }
             });
         });
     }

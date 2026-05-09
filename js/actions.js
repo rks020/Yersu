@@ -261,9 +261,14 @@ class Actions {
                 }
             }
 
+            let effectiveSpeed = udata.speed;
+            if (p.bonusState.suvariSpeedBonus && (unitDef.type === 'hafif_suvari' || unitDef.type === 'atli_okcu')) {
+                effectiveSpeed = 3;
+            }
+
             // Yol hız bonusu: Sadece kendi yolumuzsa ve kuşatma birimi değilse bonus al
             if (udata.cls !== 'kusatma' && edge.road === playerId) {
-                cost = udata.speed / (udata.speed + 1);
+                cost = effectiveSpeed / (effectiveSpeed + 1);
             }
         }
 
