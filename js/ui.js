@@ -1941,11 +1941,35 @@ class UI {
             this.state.selectedUnitType = uType;
             this.showNotice("Askeri yerleştirmek için bir YERLEŞİM düğmesine tıklayın.", "info");
             p.settlements.forEach(hid => {
-                const hex = this.state.grid.hexes.get(hid);
+                const hex = this.grid.hexes.get(hid);
                 if (hex) hex.nodeIds.forEach(nid => this.state.highlightedNodes.add(nid));
             });
             this.update();
         });
+    }
+
+    showSiegeDefectionModal(hexId, attacker, defender, potentialUnits) {
+        const items = potentialUnits.map(p => {
+            const u = p.unit;
+            const data = UNIT_DATA[u.type];
+            return {
+                id: u.uid,
+                name: data.name,
+                icon: data.img ? `<img src="${data.img}" style="width:32px;height:32px;object-fit:contain;">` : (data.emoji || '👤'),
+                desc: `Konum: ${p.nodeId} | ⚔️ ${data.duel || 0} | 🛡️ ${data.siege || 0} | 🎯 ${data.range || 0}`,
+                enabled: true,
+                costStr: ''
+            };
+        });
+
+        this.showChoiceModalWithDesc(
+            `🎭 TARAF DEĞİŞTİRME (${defender.name})`,
+            items,
+            (chosenUid) => {
+                this.actions.executeSiegeDefection(chosenUid, hexId);
+            },
+            `${attacker.name} kuşatmasında 5 tur dayandınız! Safınıza katılması için bir düşman birimi seçin.`
+        );
     }
 
     showCombatVS(combat, targetNode = null) {

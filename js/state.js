@@ -593,35 +593,9 @@ class GameState {
                         });
 
                         if (potentialUnits.length > 0) {
-                            const choice = potentialUnits[Math.floor(Math.random() * potentialUnits.length)];
-                            const unitToTransfer = choice.unit;
-                            
-                            // Attacker'dan çıkar
-                            attacker.units = attacker.units.filter(u => u.uid !== unitToTransfer.uid);
-                            const targetNode = this.grid.nodes.get(choice.nodeId);
-                            if (targetNode.army) {
-                                targetNode.army.units = targetNode.army.units.filter(u => u.uid !== unitToTransfer.uid);
-                                if (targetNode.army.units.length === 0) targetNode.army = null;
+                            if (window.appMain && window.appMain.ui) {
+                                window.appMain.ui.showSiegeDefectionModal(hexId, attacker, defender, potentialUnits);
                             }
-                            
-                            // Defender'a ekle (Defender'ın bir yerleşimi varsa oraya "ışınlayalım" ki haritada kalsın)
-                            const defHomeId = defender.settlements[0];
-                            const homeHex = this.grid.hexes.get(defHomeId);
-                            if (homeHex) {
-                                const homeNode = this.grid.nodes.get(homeHex.nodeIds[0]);
-                                unitToTransfer.playerId = defender.id;
-                                unitToTransfer.nodeId = homeNode.id;
-                                defender.units.push(unitToTransfer);
-                                if (!homeNode.army) homeNode.army = { playerId: defender.id, units: [] };
-                                homeNode.army.units.push(unitToTransfer);
-                            } else {
-                                // Fallback: Sadece listeye ekle (Haritadan silinir ama envanterde kalır - tercih edilmez)
-                                unitToTransfer.playerId = defender.id;
-                                defender.units.push(unitToTransfer);
-                            }
-                            
-                            this.addLog(`🎭 Tiyatro Bonusu: ${attacker.name}'ın bir birimi (${UNIT_DATA[unitToTransfer.type].name}) taraf değiştirerek ${defender.name}'a katıldı!`, 'success');
-                            s.turnCount = 0; 
                         }
                     }
 
