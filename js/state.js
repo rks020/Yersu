@@ -938,6 +938,18 @@ class GameState {
             req = Math.max(1, req - (attacker.bonusState.siegeReqReduction || 0));
         }
 
+        // Kuşatma Birimi Bonusu: Kuşatma birimi katıldığında gereksinim -1 düşer
+        let hasSiegeUnit = false;
+        hex.nodeIds.forEach(nid => {
+            const node = this.grid.nodes.get(nid);
+            if (node.army && node.army.playerId === attackerId) {
+                if (node.army.units.some(u => UNIT_DATA[u.type]?.cls === 'kusatma')) {
+                    hasSiegeUnit = true;
+                }
+            }
+        });
+        if (hasSiegeUnit) req = Math.max(1, req - 1);
+
         return req;
     }
 
