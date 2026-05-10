@@ -542,30 +542,39 @@ class UI {
                 // HAREKET AŞAMASI: Sadece hareket eylemi
                 // Artık düşman nodunun içine girmek serbest olduğu için kontrolü kaldırıyoruz.
 
-
-                const res = this.actions.moveUnit(current.id, unit.uid, clickedNode.id, targetUnitUid);
-                if (res) {
-                    if (res.type === 'move') {
-                        this.showNotice("Birim hareket etti.", "info");
-                    } else {
-                        const sourceNode = this.state.grid.nodes.get(sourceNodeId);
-                        this.showCombatAnimation(sourceNode, clickedNode, res);
-                        this.showCombatVS(res, clickedNode);
+                const performMove = (taxRes = null) => {
+                    const res = this.actions.moveUnit(current.id, unit.uid, clickedNode.id, targetUnitUid, taxRes);
+                    if (res && res.type === 'need_tax_selection') {
+                        this.showRoadTaxModal(res, (selectedRes) => {
+                            performMove(selectedRes);
+                        });
+                        return;
                     }
+                    if (res) {
+                        if (res.type === 'move') {
+                            this.showNotice("Birim hareket etti.", "info");
+                        } else {
+                            const sourceNode = this.state.grid.nodes.get(sourceNodeId);
+                            this.showCombatAnimation(sourceNode, clickedNode, res);
+                            this.showCombatVS(res, clickedNode);
+                        }
 
-                    // Hala hareket puanı var mı?
-                    const unitDef = current.units.find(u => u.uid === unit.uid);
-                    if (unitDef && unitDef.movesLeft > 0) {
-                        this.state.selectedUnitNode = unitDef.nodeId;
-                        this._updateMovementHighlights(unitDef.nodeId, unitDef);
+                        // Hala hareket puanı var mı?
+                        const unitDef = current.units.find(u => u.uid === unit.uid);
+                        if (unitDef && unitDef.movesLeft > 0) {
+                            this.state.selectedUnitNode = unitDef.nodeId;
+                            this._updateMovementHighlights(unitDef.nodeId, unitDef);
+                        } else {
+                            this.state.clearSelection();
+                        }
                     } else {
+                        this.showNotice("Geçersiz hareket!", "danger");
                         this.state.clearSelection();
                     }
-                } else {
-                    this.showNotice("Geçersiz hareket!", "danger");
-                    this.state.clearSelection();
-                }
-                this.update();
+                    this.update();
+                };
+                
+                performMove();
             };
 
             // Eğer SALDIRI aşamasındaysak ve hedefte birden fazla DÜŞMAN birimi varsa seçtir
@@ -1107,6 +1116,40 @@ class UI {
                 this.update();
             }
         }
+    }
+
+    showRoadTaxModal(resData, callback) {
+        const modal = document.getElementById('roadTaxModal');
+        if (!modal) return;
+        
+        document.getElementById('roadTaxDesc').textContent = `${resData.roadOwner.name} oyuncusunun yolundan geçmek için 1 kaynak ödemelisiniz.`;
+        
+        const btnContainer = document.getElementById('roadTaxButtons');
+        btnContainer.innerHTML = '';
+        
+        resData.availableRes.forEach(r => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-secondary';
+            btn.innerHTML = `${RESOURCE_INFO[r].emoji} ${RESOURCE_INFO[r].name}`;
+            btn.onclick = () => {
+                modal.classList.remove('active');
+                if (callback) callback(r);
+            };
+            btnContainer.appendChild(btn);
+        });
+        
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn-secondary btn-premium-close';
+        cancelBtn.innerHTML = 'Vazgeç';
+        cancelBtn.style.gridColumn = '1 / -1';
+        cancelBtn.onclick = () => {
+            modal.classList.remove('active');
+            this.state.clearSelection();
+            this.update();
+        };
+        btnContainer.appendChild(cancelBtn);
+
+        modal.classList.add('active');
     }
 
     showChangeResourceModal(hexId) {

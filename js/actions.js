@@ -225,7 +225,7 @@ class Actions {
         return true;
     }
 
-    moveUnit(playerId, unitUid, targetNodeId, targetUnitUid = null) {
+    moveUnit(playerId, unitUid, targetNodeId, targetUnitUid = null, taxPaymentResource = null) {
         const p = this.state.players.find(pl => pl.id === playerId);
         const unitDef = p?.units.find(u => u.uid === unitUid);
         if (!unitDef || unitDef.movesLeft <= 0) return false;
@@ -254,10 +254,16 @@ class Actions {
                 const availableRes = basicRes.filter(r => p.resources[r] > 0);
                 
                 if (availableRes.length > 0) {
-                    const stolen = availableRes[Math.floor(Math.random() * availableRes.length)];
-                    p.resources[stolen] -= 1;
-                    roadOwner.gain(stolen, 1);
-                    this.state.addLog(`💰 ${roadOwner.name}, ${p.name} oyuncusunun yolundan geçtiği için 1 ${RESOURCE_INFO[stolen].name} vergi aldı.`, 'info');
+                    if (!p.isAI && !taxPaymentResource) {
+                        return { type: 'need_tax_selection', availableRes, roadOwner };
+                    }
+                    
+                    const chosenRes = taxPaymentResource || availableRes[Math.floor(Math.random() * availableRes.length)];
+                    if (!availableRes.includes(chosenRes)) return false; // Hile kontrolü
+
+                    p.resources[chosenRes] -= 1;
+                    roadOwner.gain(chosenRes, 1);
+                    this.state.addLog(`💰 ${roadOwner.name}, ${p.name} oyuncusunun yolundan geçtiği için 1 ${RESOURCE_INFO[chosenRes].name} vergi aldı.`, 'info');
                 }
             }
 
