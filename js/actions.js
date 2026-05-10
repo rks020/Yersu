@@ -199,9 +199,9 @@ class Actions {
         const udata = UNIT_DATA[unitType];
         if (!p || !node || !udata) return false;
 
-        // 16 birim limiti
-        if (p.units.length >= 16) {
-            this.state.addLog(`⚠️ ${p.name} maksimum birim limitine (16) ulaştı!`, 'warning');
+        // MAX_POPULATION birim limiti
+        if (p.units.length >= MAX_POPULATION) {
+            this.state.addLog(`⚠️ ${p.name} maksimum birim limitine (${MAX_POPULATION}) ulaştı!`, 'warning');
             return false;
         }
         if (p.units.length >= p.maxPopulation) return false;

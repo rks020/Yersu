@@ -101,7 +101,7 @@ const MAP_SIZES = {
 };
 
 // ==================== OYUN SABİTLERİ ====================
-const MAX_POPULATION = 16;
+const MAX_POPULATION = 13;
 const SIEGE_NORMAL = 3;
 const SIEGE_DESERT_BONUS = 2;
 const VP_GOAL = 10;
@@ -132,7 +132,7 @@ const BUILDING_BONUSES = {
     ciftlik: {
         1: ['Üretim zarı sonucu bu yerleşim yerine denk geldiyse +1 besin kazanılır (Biyomda besin olmasına gerek yoktur)'],
         2: ['(A) Oyuncu her turunda 1 besin kazanır', '(B) Gelecek çiftlik inşaları için maliyet artık sadece 6 besindir'],
-        3: ['(A) Asker popülasyonu +2 artar (Maks 16)', '(B) çiftlik bulunan yerleşim yerlerinde kuşatma puanı +1 artar.'],
+        3: ['(A) Asker popülasyonu +2 artar (Maks 13)', '(B) çiftlik bulunan yerleşim yerlerinde kuşatma puanı +1 artar.'],
     },
     kervansaray: {
         1: ['(A) Yol maliyetinde -1 Odun', '(B) Yol maliyetinde -1 Taş'],

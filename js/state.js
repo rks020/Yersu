@@ -200,7 +200,7 @@ class GameState {
         let bonusPop = 0;
         if (player.buildingCounts.ciftlik >= 4) bonusPop = 2; // Basitleştirme: Eğer 3. seviye ise +2
 
-        player.maxPopulation = Math.min(16, player._basePopFromSettlements + bonusPop);
+        player.maxPopulation = Math.min(MAX_POPULATION, player._basePopFromSettlements + bonusPop);
     }
 
     recalcBuildings(player) {
