@@ -1941,7 +1941,7 @@ class UI {
             this.state.selectedUnitType = uType;
             this.showNotice("Askeri yerleştirmek için bir YERLEŞİM düğmesine tıklayın.", "info");
             p.settlements.forEach(hid => {
-                const hex = this.grid.hexes.get(hid);
+                const hex = this.state.grid.hexes.get(hid);
                 if (hex) hex.nodeIds.forEach(nid => this.state.highlightedNodes.add(nid));
             });
             this.update();
