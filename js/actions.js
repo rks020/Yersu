@@ -564,6 +564,7 @@ class Actions {
         this.state.sieges[hexId] = {
             attackerId: playerId,
             points: 0,
+            turnCount: 0,
             startTime: Date.now()
         };
 

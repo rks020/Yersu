@@ -577,8 +577,54 @@ class GameState {
                     return;
                 }
 
-                const p = this.players.find(pl => pl.id === s.attackerId);
-                if (p) {
+                const attacker = this.players.find(pl => pl.id === s.attackerId);
+                const defender = this.players.find(pl => pl.id === hex.settlement.playerId);
+
+                if (attacker) {
+                    // Tiyatro Seviye 2-A: Taraf Değiştirme (5 turda bir)
+                    s.turnCount = (s.turnCount || 0) + 1;
+                    if (defender && defender.bonusState.siegeDefection && s.turnCount >= 5) {
+                        let potentialUnits = [];
+                        hex.nodeIds.forEach(nid => {
+                            const node = this.grid.nodes.get(nid);
+                            if (node.army && node.army.playerId === attacker.id) {
+                                node.army.units.forEach(u => potentialUnits.push({ unit: u, nodeId: nid }));
+                            }
+                        });
+
+                        if (potentialUnits.length > 0) {
+                            const choice = potentialUnits[Math.floor(Math.random() * potentialUnits.length)];
+                            const unitToTransfer = choice.unit;
+                            
+                            // Attacker'dan çıkar
+                            attacker.units = attacker.units.filter(u => u.uid !== unitToTransfer.uid);
+                            const targetNode = this.grid.nodes.get(choice.nodeId);
+                            if (targetNode.army) {
+                                targetNode.army.units = targetNode.army.units.filter(u => u.uid !== unitToTransfer.uid);
+                                if (targetNode.army.units.length === 0) targetNode.army = null;
+                            }
+                            
+                            // Defender'a ekle (Defender'ın bir yerleşimi varsa oraya "ışınlayalım" ki haritada kalsın)
+                            const defHomeId = defender.settlements[0];
+                            const homeHex = this.grid.hexes.get(defHomeId);
+                            if (homeHex) {
+                                const homeNode = this.grid.nodes.get(homeHex.nodeIds[0]);
+                                unitToTransfer.playerId = defender.id;
+                                unitToTransfer.nodeId = homeNode.id;
+                                defender.units.push(unitToTransfer);
+                                if (!homeNode.army) homeNode.army = { playerId: defender.id, units: [] };
+                                homeNode.army.units.push(unitToTransfer);
+                            } else {
+                                // Fallback: Sadece listeye ekle (Haritadan silinir ama envanterde kalır - tercih edilmez)
+                                unitToTransfer.playerId = defender.id;
+                                defender.units.push(unitToTransfer);
+                            }
+                            
+                            this.addLog(`🎭 Tiyatro Bonusu: ${attacker.name}'ın bir birimi (${UNIT_DATA[unitToTransfer.type].name}) taraf değiştirerek ${defender.name}'a katıldı!`, 'success');
+                            s.turnCount = 0; 
+                        }
+                    }
+
                     let siegePower = 1;
                     hex.nodeIds.forEach(nid => {
                         const node = this.grid.nodes.get(nid);
@@ -590,8 +636,8 @@ class GameState {
                         }
                     });
 
-                    if (p.bonusState.muhendishaneSiegeBonus) siegePower += 1;
-                    if (p.bonusState.ciftlikSiegeBonus) siegePower += 1;
+                    if (attacker.bonusState.muhendishaneSiegeBonus) siegePower += 1;
+                    if (attacker.bonusState.ciftlikSiegeBonus) siegePower += 1;
 
                     // Zar Atışı
                     const a1 = Math.floor(Math.random() * 6) + 1;
@@ -600,7 +646,6 @@ class GameState {
                     const d2 = Math.floor(Math.random() * 6) + 1;
 
                     // Savunma bonusu (Tapınak Sv.2 A)
-                    const defender = this.players.find(pl => pl.id === hex.settlement.playerId);
                     let dBonus = 0;
                     if (defender && defender.bonusState.enemySiegePenalty && hex.settlement.buildings.has('tapinak')) {
                         dBonus = defender.bonusState.enemySiegePenalty;
