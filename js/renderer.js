@@ -476,6 +476,22 @@ class Renderer {
             ctx.fillText(info.name, cx - 0.5, cy - 35.5);
         }
 
+        // ─ Vaha için kaynak ikonu (ortada) ─
+        if (hex.biome === 'vaha' && hex.resources && hex.resources.length > 0) {
+            const resKey = hex.resources[0];
+            const rInfo = RESOURCE_INFO[resKey];
+            if (rInfo) {
+                ctx.font = '24px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                // Yazıya siyah dış kontur ekle ki belirgin olsun
+                ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                ctx.shadowBlur = 4;
+                ctx.fillText(rInfo.emoji, cx, cy - 5);
+                ctx.shadowBlur = 0; // Gölgeyi sıfırla
+            }
+        }
+
         // ─ Numara dairesi (en altta) ─
         if (hex.number) {
             const isHot = (hex.number === 6 || hex.number === 8);

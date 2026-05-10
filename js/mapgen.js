@@ -9,15 +9,15 @@ class MapGen {
      */
     static generate(grid) {
         const hexList = [...grid.hexes.values()];
-        const total   = hexList.length;
-        const R       = grid.radius;
+        const total = hexList.length;
+        const R = grid.radius;
 
         // ── 1. Biyom dağılımı ────────────────────────────────────
         // Zorunlu: 2 Vaha, 2 Bataklık
         // Geriye kalan: production biyomlar — her 5 kaynak türü eşit sayıda
 
-        const specialSlots   = MapGen._pickSpecialHexes(grid, hexList);
-        
+        const specialSlots = MapGen._pickSpecialHexes(grid, hexList);
+
         // Bataklıklar kaynak üretmez, Vahalar üretir.
         const bataklikIds = [];
         const vahaIds = [];
@@ -54,35 +54,32 @@ class MapGen {
     // ── Özel hex seçimi (Çöl, Bataklık) ──────────────────────────
 
     static _pickSpecialHexes(grid, hexList) {
-        // Köşe ve kenar hexlerden özel olanları seç
+        // Tüm hexlerden özel olanları seç (Vaha ve Bataklık rastgele dağılsın)
         const result = new Map(); // hexId → isBataklik(bool)
 
-        // Iç hexleri atla, kenar hexlerden seçmeye çalış
-        const borderHexes = hexList.filter(h =>
-            Math.abs(h.q) === grid.radius ||
-            Math.abs(h.r) === grid.radius ||
-            Math.abs(h.q + h.r) === grid.radius
-        );
-        const pool = [...borderHexes];
+        const pool = [...hexList];
         MapGen._shuffle(pool);
 
-        // 2 Bataklık: birbirinden en az 2 hex uzakta
+        // 2 Bataklık + 2 Vaha: birbirinden en az 2 hex uzakta
         let bataklikCount = 0;
         const chosen = [];
         for (const hex of pool) {
             if (chosen.every(ch => Math.abs(ch.q - hex.q) + Math.abs(ch.r - hex.r) >= 2)) {
                 chosen.push(hex);
-                result.set(hex.id, bataklikCount < 2);
-                bataklikCount++;
+                const isBataklik = bataklikCount < 2;
+                result.set(hex.id, isBataklik);
+                if (isBataklik) bataklikCount++;
                 if (result.size === 4) break; // 2 Bataklık + 2 Vaha
             }
         }
 
-        // Yeterli kenar hex yoksa iç hexlerden tamamla
+        // Yeterli hex yoksa iç hexlerden tamamla
         if (result.size < 4) {
             for (const hex of hexList) {
                 if (!result.has(hex.id)) {
-                    result.set(hex.id, result.size % 2 === 0);
+                    const isBataklik = bataklikCount < 2;
+                    result.set(hex.id, isBataklik);
+                    if (isBataklik) bataklikCount++;
                     if (result.size === 4) break;
                 }
             }
@@ -99,10 +96,10 @@ class MapGen {
         //           cayir(besin+odun), kumsal(tas+kil), vaha(besin+maden)
 
         // Her biyom eşit oranda olsun
-        const biomes  = PRODUCTION_BIOMES;
-        const result  = [];
+        const biomes = PRODUCTION_BIOMES;
+        const result = [];
         const perBiome = Math.floor(count / biomes.length);
-        const extra    = count % biomes.length;
+        const extra = count % biomes.length;
 
         biomes.forEach((b, i) => {
             const cnt = perBiome + (i < extra ? 1 : 0);
@@ -156,7 +153,7 @@ class MapGen {
             const info = BIOME_INFO[hex.biome];
             hex.resources = [...info.fixedRes, variablePool[i]];
         });
-        
+
         // Kaynak üretmeyen hex'leri temizle
         grid.hexes.forEach(hex => {
             if (!PRODUCTION_BIOMES.includes(hex.biome)) {
@@ -174,8 +171,8 @@ class MapGen {
         MapGen._shuffle(numbers);
 
         // Önce 6, 7 ve 8'leri yerleştir, ardından geri kalanı
-        const hot   = numbers.filter(n => n === 6 || n === 7 || n === 8);
-        const rest  = numbers.filter(n => n !== 6 && n !== 7 && n !== 8);
+        const hot = numbers.filter(n => n === 6 || n === 7 || n === 8);
+        const rest = numbers.filter(n => n !== 6 && n !== 7 && n !== 8);
 
         const assigned = new Map(); // hexId → number
 
@@ -195,7 +192,7 @@ class MapGen {
     }
 
     static _placeHotNumbers(grid, hexIds, hot) {
-        const result  = [];
+        const result = [];
         const usedIds = new Set();
 
         for (const num of hot) {
@@ -233,12 +230,12 @@ class MapGen {
         // Diğerlerinden (3,4,5,6,7,8,9,10,11) eşit dağıtılmalı.
         const mustInclude = [2, 12];
         const others = [3, 4, 5, 6, 7, 8, 9, 10, 11];
-        
+
         const result = [...mustInclude];
-        
+
         // Önce her rakamdan birer tane daha ekle (eşitlik için)
         others.forEach(n => result.push(n));
-        
+
         // Kalan boşlukları others ile doldur
         while (result.length < count) {
             MapGen._shuffle(others);
@@ -247,7 +244,7 @@ class MapGen {
                 result.push(n);
             }
         }
-        
+
         return result.slice(0, count);
     }
 
