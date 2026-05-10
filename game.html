@@ -300,49 +300,59 @@
         </div>
     </div>
 
-    <!-- BANKA TİCARET MODALI -->
     <div id="tradeModal" class="modal-overlay">
-        <div class="modal-content" style="max-width:500px;">
+        <div class="modal-content" style="max-width:550px;">
             <h2>🏦 Banka Ticareti</h2>
-            <p style="font-size:0.85rem;margin-bottom:20px;color:#ccc;">6 Aynı Kaynak = 1 Altın &nbsp;|&nbsp; 1 Altın =
-                2 Seçili Kaynak &nbsp;|&nbsp; 3 Aynı = 1 Seçili</p>
-            <div style="display:flex;flex-direction:column;gap:15px;">
-                <div><label>Satılacak:</label>
-                    <select id="tradeSellType" class="input-style" style="width:100%;">
-                        <option value="besin">🌾 Besin</option>
-                        <option value="odun">🪵 Odun</option>
-                        <option value="tas">🪨 Taş</option>
-                        <option value="kil">🧱 Kil</option>
-                        <option value="maden">⚙️ Maden</option>
-                        <option value="gold">💰 Altın</option>
-                    </select>
+            <p style="font-size:0.85rem;margin-bottom:20px;color:#ccc;">
+                6 Temel Kaynak = 1 Altın &nbsp;|&nbsp; 1 Altın = 2 Seçili (Kervansaray varsa 3) &nbsp;|&nbsp; 3 Aynı = 1 Seçili
+            </p>
+            
+            <div class="trade-section" style="background: rgba(0,0,0,0.2); padding:15px; border-radius:8px;">
+                <h3 style="font-size:0.9rem; color:var(--gold); margin-bottom:12px; display:flex; align-items:center;">
+                    <span style="margin-right:8px;">📤</span> Verilecek Kaynaklar
+                </h3>
+                <div id="bankTradeSellGrid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:10px;">
+                    <!-- JS: besin, odun, tas, kil, maden, gold girişleri -->
                 </div>
-                <div><label>Alınacak 1:</label>
-                    <select id="tradeBuyType" class="input-style" style="width:100%;">
-                        <option value="gold">💰 Altın</option>
-                        <option value="besin">🌾 Besin</option>
-                        <option value="odun">🪵 Odun</option>
-                        <option value="tas">🪨 Taş</option>
-                        <option value="kil">🧱 Kil</option>
-                        <option value="maden">⚙️ Maden</option>
-                    </select>
-                </div>
-                <div id="tradeBuyType2Row" style="display:none;"><label>Alınacak 2 (Altın için):</label>
-                    <select id="tradeBuyType2" class="input-style" style="width:100%;">
-                        <option value="besin">🌾 Besin</option>
-                        <option value="odun">🪵 Odun</option>
-                        <option value="tas">🪨 Taş</option>
-                        <option value="kil">🧱 Kil</option>
-                        <option value="maden">⚙️ Maden</option>
-                    </select>
-                </div>
-                <div><label>Miktar:</label>
-                    <input type="number" id="tradeAmount" class="input-style" value="6" min="1" style="width:100%;">
+                <div style="text-align:right; font-size:0.85rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top:8px;">
+                    <span id="bankTradeSellTotalLabel">Toplam Temel:</span> 
+                    <span id="bankTradeSellTotal" style="color:white; font-weight:bold; font-size:1.1rem;">0</span> 
+                    <span id="bankTradeReqTotal" style="color:#aaa;">/ 6</span>
                 </div>
             </div>
-            <div class="modal-footer" style="gap: 12px;">
-                <button id="btnConfirmTrade" class="btn-primary" style="flex:1.5;">Takas Et</button>
-                <button class="btn-secondary btn-premium-close" style="flex:1;"
+
+            <div style="text-align:center; margin:10px 0; font-size:1.2rem;">⬇️</div>
+
+            <div class="trade-section" style="background: rgba(0,0,0,0.2); padding:15px; border-radius:8px;">
+                <h3 style="font-size:0.9rem; color:#4caf50; margin-bottom:12px; display:flex; align-items:center;">
+                    <span style="margin-right:8px;">📥</span> Alınacak Kaynak
+                </h3>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <select id="tradeBuyType" class="input-style" style="width:100%;">
+                        <option value="gold">💰 Altın (Her 6 temel için 1)</option>
+                        <option value="besin">🌾 Besin</option>
+                        <option value="odun">🪵 Odun</option>
+                        <option value="tas">🪨 Taş</option>
+                        <option value="kil">🧱 Kil</option>
+                        <option value="maden">⚙️ Maden</option>
+                    </select>
+                    <div id="tradeBuyType2Row" style="display:none;">
+                        <label style="font-size:0.8rem; color:#aaa; margin-bottom:4px; display:block;">Altın bozdururken 2. kaynak tipi (Opsiyonel):</label>
+                        <select id="tradeBuyType2" class="input-style" style="width:100%;">
+                            <option value="">(Aynısından devam)</option>
+                            <option value="besin">🌾 Besin</option>
+                            <option value="odun">🪵 Odun</option>
+                            <option value="tas">🪨 Taş</option>
+                            <option value="kil">🧱 Kil</option>
+                            <option value="maden">⚙️ Maden</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="margin-top:20px; gap: 12px;">
+                <button id="btnConfirmTrade" class="btn-primary" style="flex:1.5; height:45px; font-weight:bold;">Takas Et</button>
+                <button class="btn-secondary btn-premium-close" style="flex:1; height:45px;"
                     onclick="document.getElementById('tradeModal').classList.remove('active')">İptal</button>
             </div>
         </div>

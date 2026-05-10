@@ -46,11 +46,12 @@ class UI {
 
             // Ticaret
             tradeModal: document.getElementById('tradeModal'),
-            tradeSellType: document.getElementById('tradeSellType'),
             tradeBuyType: document.getElementById('tradeBuyType'),
             tradeBuyType2: document.getElementById('tradeBuyType2'),
             tradeBuyType2Row: document.getElementById('tradeBuyType2Row'),
-            tradeAmount: document.getElementById('tradeAmount'),
+            bankTradeSellGrid: document.getElementById('bankTradeSellGrid'),
+            bankTradeSellTotal: document.getElementById('bankTradeSellTotal'),
+            bankTradeReqTotal: document.getElementById('bankTradeReqTotal'),
             btnConfirmTrade: document.getElementById('btnConfirmTrade'),
 
             // Biyom
@@ -2195,15 +2196,74 @@ class UI {
 
     showTradeModal() {
         this.showChoiceModalWithDesc("Ticaret Türü", [
-            { id: 'bank', name: 'Banka Ticareti', icon: '🏦', enabled: true, costStr: '', desc: 'Sistemle takas yap (6:1 vs)' },
+            { id: 'bank', name: 'Banka Ticareti', icon: '🏦', enabled: true, costStr: '', desc: 'Sistemle takas yap (Karma kaynak 6:1 vs)' },
             { id: 'player', name: 'Oyuncu Ticareti', icon: '🤝', enabled: true, costStr: '', desc: 'Diğer oyunculara teklif sun' }
         ], (choice) => {
             if (choice === 'bank') {
-                if (this.els.tradeModal) this.els.tradeModal.classList.add('active');
+                if (this.els.tradeModal) {
+                    this._initBankTradeUI();
+                    this.els.tradeModal.classList.add('active');
+                }
             } else {
                 this.showPlayerTradeModal();
             }
         });
+    }
+
+    _initBankTradeUI() {
+        const grid = this.els.bankTradeSellGrid;
+        if (!grid) return;
+
+        const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden', 'gold'];
+        grid.innerHTML = '';
+        
+        resKeys.forEach(r => {
+            const iconHtml = r === 'gold' ? '💰' : this._getResIconHtml(r, 18);
+            const div = document.createElement('div');
+            div.style.display = 'flex';
+            div.style.flexDirection = 'column';
+            div.style.gap = '4px';
+            div.innerHTML = `
+                <div style="font-size:0.75rem; color:#ccc; display:flex; align-items:center; gap:4px;">
+                    ${iconHtml} ${r.toUpperCase()}
+                </div>
+                <input type="number" id="btSell_${r}" class="input-style bt-sell-input" value="0" min="0" style="width:100%; height:30px; padding:4px;">
+            `;
+            grid.appendChild(div);
+        });
+
+        // Event listeners for real-time calculation
+        grid.querySelectorAll('.bt-sell-input').forEach(input => {
+            input.oninput = () => this._refreshBankTradeUI();
+        });
+
+        this.els.tradeBuyType.onchange = () => this._refreshBankTradeUI();
+        
+        this._refreshBankTradeUI();
+    }
+
+    _refreshBankTradeUI() {
+        const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden'];
+        let totalBasic = 0;
+        resKeys.forEach(r => {
+            const val = parseInt(document.getElementById(`btSell_${r}`)?.value) || 0;
+            totalBasic += val;
+        });
+
+        const goldVal = parseInt(document.getElementById('btSell_gold')?.value) || 0;
+        const buyType = this.els.tradeBuyType.value;
+
+        this.els.bankTradeSellTotal.textContent = totalBasic;
+        
+        // Gereksinim metnini güncelle
+        if (goldVal > 0) {
+            this.els.bankTradeReqTotal.textContent = " (Altın Satılıyor)";
+            this.els.bankTradeBuyType2Row.style.display = 'block';
+        } else {
+            const req = (buyType === 'gold') ? 6 : 3;
+            this.els.bankTradeReqTotal.textContent = `/ ${req}`;
+            this.els.bankTradeBuyType2Row.style.display = 'none';
+        }
     }
 
     showPlayerTradeModal() {
@@ -2300,17 +2360,49 @@ class UI {
 
     handleConfirmTrade() {
         const p = this.state.currentPlayer;
-        const sellType = this.els.tradeSellType?.value;
         const buyType = this.els.tradeBuyType?.value;
         const buyType2 = this.els.tradeBuyType2?.value;
-        const amount = parseInt(this.els.tradeAmount?.value);
-        if (!sellType || !buyType || isNaN(amount) || amount <= 0) return;
+        
+        const sellMap = {};
+        const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden', 'gold'];
+        let totalBasic = 0;
+        let totalGold = 0;
 
-        const ok = this.actions.tradeWithBank(p.id, sellType, buyType, (sellType === 'gold' ? buyType2 : null), amount);
+        resKeys.forEach(r => {
+            const val = parseInt(document.getElementById(`btSell_${r}`)?.value) || 0;
+            if (val > 0) {
+                sellMap[r] = val;
+                if (r === 'gold') totalGold += val;
+                else totalBasic += val;
+            }
+        });
+
+        if (totalGold > 0 && totalBasic > 0) {
+            this.showNotice("Altın ve temel kaynakları aynı anda satamazsınız!", "warning");
+            return;
+        }
+
+        let tradeCount = 0;
+        let finalSellType = null;
+
+        if (totalGold > 0) {
+            tradeCount = totalGold;
+            finalSellType = 'gold';
+        } else {
+            const req = (buyType === 'gold') ? 6 : 3;
+            if (totalBasic % req !== 0 || totalBasic === 0) {
+                this.showNotice(`Hatalı miktar! ${req}'in katı olmalı.`, "warning");
+                return;
+            }
+            tradeCount = totalBasic / req;
+            finalSellType = sellMap; // Object passed to handle multi-res
+        }
+
+        const ok = this.actions.tradeWithBank(p.id, finalSellType, buyType, buyType2, tradeCount);
 
         if (ok) {
             this.els.tradeModal.classList.remove('active');
-            this.showNotice(`${amount} adet takas başarılı!`, "success");
+            this.showNotice(`Takas başarılı! ${tradeCount} adet ${buyType} alındı.`, "success");
             this.update();
         } else {
             this.showNotice("Takas gerçekleştirilemedi! (Yetersiz kaynak)", "danger");
