@@ -545,8 +545,16 @@ class GameState {
     transitionToAttack() {
         this.subPhase = 'attack';
         this.addLog("🏹 Saldırı aşaması başladı.", "info");
+        this.checkAllSiegesValidity();
         this.processSiegesForPlayer(this.currentPlayer.id);
     }
+
+    transitionToProduction() {
+        this.checkAllSiegesValidity();
+        this.processSiegesForPlayer(this.currentPlayer.id);
+    }
+
+
 
     processSiegesForPlayer(playerId) {
         Object.entries(this.sieges).forEach(([hexId, s]) => {
@@ -554,6 +562,21 @@ class GameState {
 
             const hex = this.grid.hexes.get(hexId);
             if (hex && hex.settlement) {
+                // Kuşatma geçerliliğini kontrol et (Bitişik node'larda asker var mı?)
+                let hasAttacker = false;
+                hex.nodeIds.forEach(nid => {
+                    const node = this.grid.nodes.get(nid);
+                    if (node.army && node.army.playerId === s.attackerId && node.army.units.length > 0) {
+                        hasAttacker = true;
+                    }
+                });
+
+                if (!hasAttacker) {
+                    delete this.sieges[hexId];
+                    this.addLog(`🏰 ${hexId} kuşatması kuşatan tarafın askeri kalmadığı için sona erdi!`, 'info');
+                    return;
+                }
+
                 const p = this.players.find(pl => pl.id === s.attackerId);
                 if (p) {
                     let siegePower = 1;
@@ -993,7 +1016,26 @@ class GameState {
         return true;
     }
 
-    _roll2d6() {
-        return (Math.floor(Math.random() * 6) + 1) + (Math.floor(Math.random() * 6) + 1);
+    checkAllSiegesValidity() {
+        Object.entries(this.sieges).forEach(([hexId, s]) => {
+            const hex = this.grid.hexes.get(hexId);
+            if (!hex || !hex.settlement) {
+                delete this.sieges[hexId];
+                return;
+            }
+
+            let hasAttacker = false;
+            hex.nodeIds.forEach(nid => {
+                const node = this.grid.nodes.get(nid);
+                if (node.army && node.army.playerId === s.attackerId && node.army.units.length > 0) {
+                    hasAttacker = true;
+                }
+            });
+
+            if (!hasAttacker) {
+                delete this.sieges[hexId];
+                this.addLog(`🏰 ${hexId} kuşatması birlik kalmadığı için sona erdi!`, 'info');
+            }
+        });
     }
 }

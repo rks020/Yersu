@@ -290,6 +290,7 @@ class Actions {
         }
         targetNode.army.units.push(movingUnit);
         
+        this.state.checkAllSiegesValidity();
         return { type: 'move' };
     }
 
@@ -343,6 +344,7 @@ class Actions {
         }
 
         this.state.checkVictory();
+        this.state.checkAllSiegesValidity();
         return combat;
     }
 
@@ -414,6 +416,7 @@ class Actions {
             }
 
             this.state.checkVictory();
+            this.state.checkAllSiegesValidity();
             return combat;
         }
 
