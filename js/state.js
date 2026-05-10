@@ -44,7 +44,9 @@ class Player {
             spawnUnitXp: 0,
             sovGoldReduction: 0,
             canBuildSiege: false,
-            tiyatroLv3SiegeReduction: false,
+            tiyatroLv3SiegeReduction: false, // Legacy, kept for compatibility if needed elsewhere
+            siegeReqReduction: 0,
+            enemySiegePenalty: 0,
             theatreCostReduction: 0,
             muhendishaneSiegeBonus: false,
             topcuRangeBonus: 0,
@@ -574,17 +576,24 @@ class GameState {
                     const d1 = Math.floor(Math.random() * 6) + 1;
                     const d2 = Math.floor(Math.random() * 6) + 1;
 
-                    const aTotal = (a1 + a2) + (siegePower - 1);
-                    const dTotal = (d1 + d2);
+                    // Savunma bonusu (Tapınak Sv.2 A)
+                    const defender = this.players.find(pl => pl.id === hex.settlement.playerId);
+                    let dBonus = 0;
+                    if (defender && defender.bonusState.enemySiegePenalty && hex.settlement.buildings.has('tapinak')) {
+                        dBonus = defender.bonusState.enemySiegePenalty;
+                    }
 
-                    this.addLog(`🏰 ${p.name} Kuşatma Atışı: [${a1},${a2}] + Güç(${siegePower - 1}) = ${aTotal} vs Savunma: [${d1},${d2}] = ${dTotal}`, 'info');
+                    const aTotal = (a1 + a2) + (siegePower - 1);
+                    const dTotal = (d1 + d2) + dBonus;
+
+                    this.addLog(`🏰 ${p.name} Kuşatma Atışı: [${a1},${a2}] + Güç(${siegePower - 1}) = ${aTotal} vs Savunma: [${d1},${d2}] + Bonus(${dBonus}) = ${dTotal}`, 'info');
 
                     // Animasyon Tetikle
                     if (window.appMain && window.appMain.ui && window.appMain.ui.renderer) {
                         window.appMain.ui.renderer.triggerSiegeAnimation(
                             hex,
                             [a1, a2], [d1, d2],
-                            siegePower - 1, 0,
+                            siegePower - 1, dBonus,
                             aTotal, dTotal,
                             p.name
                         );
@@ -908,18 +917,24 @@ class GameState {
         const hex = this.grid.hexes.get(hexId);
         if (!hex || !hex.settlement) return 3;
 
-        let req = 0;
-        const type = hex.settlement.type;
-        if (type === 'koy') req = SIEGE_REQ.Koy;
-        else if (type === 'sehir') req = SIEGE_REQ.Sehir;
-        else if (type === 'metropol') req = SIEGE_REQ.Metropol;
+        let req = SIEGE_REQ.Koy || 3;
+        const type = String(hex.settlement.type).toLowerCase();
+
+        if (type === 'sehir') req = SIEGE_REQ.Sehir || 5;
+        else if (type === 'metropol') req = SIEGE_REQ.Metropol || 8;
 
         const owner = this.players.find(p => p.id === hex.settlement.playerId);
-        if (owner && hex.settlement.buildings.has('muhendishane')) req++;
-        if (owner && hex.settlement.buildings.has('ciftlik')) req++;
+        if (owner) {
+            // Çiftlik Sv.3 B: Kuşatma puanı +1 artar
+            if (hex.settlement.buildings.has('ciftlik') && owner.bonusState.ciftlikSiegeBonus) req++;
+            // Mühendishane Sv.3 A: Kuşatma puanı +1 artar
+            if (hex.settlement.buildings.has('muhendishane') && owner.bonusState.muhendishaneSiegeBonus) req++;
+        }
 
         const attacker = this.players.find(p => p.id === attackerId);
-        if (attacker && attacker.bonusState.tiyatroLv3SiegeReduction) req = Math.max(1, req - 1);
+        if (attacker && attacker.bonusState && attacker.bonusState.siegeReqReduction) {
+            req = Math.max(1, req - (attacker.bonusState.siegeReqReduction || 0));
+        }
 
         return req;
     }
