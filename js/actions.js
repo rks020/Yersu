@@ -656,47 +656,15 @@ class Actions {
         unitToTransfer = attacker.units.find(u => u.uid === unitUid);
         if (!unitToTransfer) return;
         
-        const nodeId = unitToTransfer.nodeId;
-        const node = this.state.grid.nodes.get(nodeId);
-        
         // Attacker'dan çıkar
         attacker.units = attacker.units.filter(u => u.uid !== unitUid);
-        
-        // Node'daki orduyu düzenle (Daha önce orada olan diğer saldırgan birimleri)
-        const otherUnits = node.army.units.filter(u => u.uid !== unitUid);
         
         // Taraf değiştiren birimi defender'a ekle
         unitToTransfer.playerId = defender.id;
         defender.units.push(unitToTransfer);
         
-        // Node'daki orduyu defender'ın ordusu yap
-        node.army.playerId = defender.id;
-        node.army.units = [unitToTransfer];
-        
-        // Kalan (attacker) birimleri kaydır
-        if (otherUnits.length > 0) {
-            const adjNodes = node.adjacentNodes.filter(anid => {
-                const an = this.state.grid.nodes.get(anid);
-                return !an.army || an.army.playerId === attacker.id;
-            });
-            
-            if (adjNodes.length > 0) {
-                const targetAnid = adjNodes[0];
-                const targetAn = this.state.grid.nodes.get(targetAnid);
-                if (!targetAn.army) targetAn.army = { playerId: attacker.id, units: [] };
-                otherUnits.forEach(ou => {
-                    ou.nodeId = targetAnid;
-                    targetAn.army.units.push(ou);
-                });
-                this.state.addLog(`💨 ${attacker.name}'ın kalan birimleri komşu bölgeye çekildi.`, 'info');
-            } else {
-                // Yer yoksa sil (flee)
-                otherUnits.forEach(ou => {
-                    attacker.units = attacker.units.filter(u => u.uid !== ou.uid);
-                });
-                this.state.addLog(`🏳️ ${attacker.name}'ın kalan birimleri kaçacak yer bulamadığı için dağıldı!`, 'warning');
-            }
-        }
+        // Birim bulunduğu node'da kalmaya devam eder. 
+        // Renderer artık aynı node'da farklı oyuncu birimlerini gösterebildiği için ek işlem gerekmez.
         
         this.state.addLog(`🎭 Tiyatro Bonusu: ${attacker.name}'ın bir birimi (${UNIT_DATA[unitToTransfer.type].name}) taraf değiştirerek ${defender.name}'a katıldı!`, 'success');
         s.turnCount = 0;
