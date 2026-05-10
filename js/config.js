@@ -103,7 +103,7 @@ const MAP_SIZES = {
 // ==================== OYUN SABİTLERİ ====================
 const MAX_POPULATION = 16;
 const SIEGE_NORMAL = 3;
-const SIEGE_DESERT = 5;
+const SIEGE_DESERT_BONUS = 2;
 const VP_GOAL = 10;
 const MAX_TURNS = 100;
 const GAME_END_CITIES = 5; // player needs 5 city-level settlements
@@ -113,8 +113,8 @@ const KERVANSARAY_LV2_RATE = 3; // with kervansaray lv2: 1 gold → 3 basic reso
 
 const SIEGE_REQ = {
     Koy: 3,
-    Sehir: 5,
-    Metropol: 8
+    Sehir: 3,
+    Metropol: 3
 };
 
 // ==================== ZAFER PUANLARI ====================
@@ -147,7 +147,7 @@ const BUILDING_BONUSES = {
     tiyatro: {
         1: ['Tiyatro bulunan şehirlere yapılacak diğer yapılar için gerekli temel kaynak maliyeti -1 azalır (Oyuncu seçer)'],
         2: ['(A) Kuşatma altındaki şehir 5 tur dayanırsa rakip birimlerden biri taraf değiştirir', '(B) Diğer oyuncularla yapılan her ticaret için kasadan seçilen 1 temel kaynak kazanılır'],
-        3: ['(A) Ele geçirilmek istenen yerleşim yeri için gereken kuşatma puanı -1 azalır', '(B) Savaşta turda bir kere düello kazanıldığında rakip asker birimi ölmek yerine taraf değiştirir'],
+        3: ['(A) tiyatro 3. seviye a bonusu kuşatılan yerleşim yerinin kuşatma puanını -1 eksiltir.', '(B) Savaşta turda bir kere düello kazanıldığında rakip asker birimi ölmek yerine taraf değiştirir'],
     },
     kisla: {
         1: ['(A) Mızrakçı Düello Zarına +1', '(B) Kılıçlı Düello Zarına +1', '(C) Okçu Düello Zarına +1'],

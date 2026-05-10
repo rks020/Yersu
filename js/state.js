@@ -917,17 +917,19 @@ class GameState {
         const hex = this.grid.hexes.get(hexId);
         if (!hex || !hex.settlement) return 3;
 
-        let req = SIEGE_REQ.Koy || 3;
-        const type = String(hex.settlement.type).toLowerCase();
+        // Baz kuşatma puanı 3 (Tüm yerleşim tipleri için)
+        let req = 3; 
 
-        if (type === 'sehir') req = SIEGE_REQ.Sehir || 5;
-        else if (type === 'metropol') req = SIEGE_REQ.Metropol || 8;
+        // Çöl biyomu bonusu +2
+        if (hex.biome === 'col') {
+            req += 2;
+        }
 
         const owner = this.players.find(p => p.id === hex.settlement.playerId);
         if (owner) {
-            // Çiftlik Sv.3 B: Kuşatma puanı +1 artar
+            // Çiftlik Sv.3 B: +1
             if (hex.settlement.buildings.has('ciftlik') && owner.bonusState.ciftlikSiegeBonus) req++;
-            // Mühendishane Sv.3 A: Kuşatma puanı +1 artar
+            // Mühendishane Sv.3 A: +1
             if (hex.settlement.buildings.has('muhendishane') && owner.bonusState.muhendishaneSiegeBonus) req++;
         }
 
