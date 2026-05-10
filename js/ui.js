@@ -2246,23 +2246,24 @@ class UI {
         const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden'];
         let totalBasic = 0;
         resKeys.forEach(r => {
-            const val = parseInt(document.getElementById(`btSell_${r}`)?.value) || 0;
-            totalBasic += val;
+            const input = document.getElementById(`btSell_${r}`);
+            const val = input ? parseInt(input.value) : 0;
+            totalBasic += (isNaN(val) || val < 0) ? 0 : val;
         });
 
-        const goldVal = parseInt(document.getElementById('btSell_gold')?.value) || 0;
-        const buyType = this.els.tradeBuyType.value;
+        const goldInput = document.getElementById('btSell_gold');
+        const goldVal = goldInput ? parseInt(goldInput.value) : 0;
+        const buyType = this.els.tradeBuyType ? this.els.tradeBuyType.value : 'gold';
 
-        this.els.bankTradeSellTotal.textContent = totalBasic;
+        if (this.els.bankTradeSellTotal) this.els.bankTradeSellTotal.textContent = totalBasic;
         
-        // Gereksinim metnini güncelle
         if (goldVal > 0) {
-            this.els.bankTradeReqTotal.textContent = " (Altın Satılıyor)";
-            this.els.bankTradeBuyType2Row.style.display = 'block';
+            if (this.els.bankTradeReqTotal) this.els.bankTradeReqTotal.textContent = " (Altın Satılıyor)";
+            if (this.els.tradeBuyType2Row) this.els.tradeBuyType2Row.style.display = 'block';
         } else {
             const req = (buyType === 'gold') ? 6 : 3;
-            this.els.bankTradeReqTotal.textContent = `/ ${req}`;
-            this.els.bankTradeBuyType2Row.style.display = 'none';
+            if (this.els.bankTradeReqTotal) this.els.bankTradeReqTotal.textContent = `/ ${req}`;
+            if (this.els.tradeBuyType2Row) this.els.tradeBuyType2Row.style.display = 'none';
         }
     }
 

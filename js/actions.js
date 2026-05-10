@@ -424,37 +424,35 @@ class Actions {
         const p = this.state.players.find(pl => pl.id === playerId);
         if (!p) return false;
 
-        // EĞER SELLRES BİR NESNEYSE (Çoklu Kaynak Takası)
+        console.log(`Bank Trade Request: ${p.name}, Sell:`, sellRes, `Buy: ${buyRes}, Count: ${tradeCount}`);
+
+        // EĞER SELLRES BİR NESNEYSE (Karma Kaynak Takası)
         if (typeof sellRes === 'object' && sellRes !== null) {
-            // Önce kaynakların yeterli olup olmadığını kontrol et
             for (const [res, amount] of Object.entries(sellRes)) {
-                if ((p.resources[res] || 0) < amount) return false;
+                if ((p.resources[res] || 0) < amount) {
+                    console.warn(`Insufficient ${res}: have ${p.resources[res]}, need ${amount}`);
+                    return false;
+                }
             }
 
-            // Kaynakları düş
-            let totalBasicSold = 0;
             for (const [res, amount] of Object.entries(sellRes)) {
                 p.resources[res] -= amount;
-                if (res !== 'gold') totalBasicSold += amount;
             }
 
-            // Alınacak kaynağı ekle (Her 6 kaynak için 1 altın veya 3 kaynak için 1 seçili)
             p.gain(buyRes, tradeCount);
-            
             this.state.addLog(`${p.name} banka ticareti: Karma kaynaklar → ${tradeCount} ${buyRes}`, 'info');
             this._triggerKervansarayTradeBonus([playerId]);
             return true;
         }
 
+        // TEKLİ KAYNAK VEYA ALTIN TAKASI
         if (sellRes === 'gold') {
             if (p.resources.gold < tradeCount) return false;
 
             let buyAmount = p.bonusState.bankSellRate || 2;
-            // Kervansaray Lv2-A Bonusu: 1 Altın → 3 Kaynak
             if (p.bonusState.bankSellRate === 3) buyAmount = 3; 
 
             const totalBuy = buyAmount * tradeCount;
-
             p.resources.gold -= tradeCount;
 
             if (buyRes2 && buyRes2 !== buyRes && buyRes2 !== '') {
