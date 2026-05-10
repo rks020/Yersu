@@ -325,7 +325,7 @@ class Renderer {
     triggerSiegeAnimation(hex, aRolls, dRolls, aBonus, dBonus, aTotal, dTotal, attackerName) {
         this.animations.push({
             type: 'siege_dice',
-            x: hex.center.x, y: hex.center.y,
+            x: hex.x, y: hex.y,
             aRolls, dRolls, aBonus, dBonus, aTotal, dTotal,
             attackerName,
             start: Date.now(),
