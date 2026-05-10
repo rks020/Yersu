@@ -4,61 +4,61 @@
 const RESOURCES = ['besin', 'odun', 'tas', 'kil', 'maden'];
 
 const RESOURCE_INFO = {
-    besin:  { name: 'Besin',  color: '#7CB342', emoji: '🌾', icon: 'besin.png' },
-    odun:   { name: 'Odun',   color: '#8D6E63', emoji: '🪵', icon: 'odun.png' },
-    tas:    { name: 'Taş',    color: '#90A4AE', emoji: '🪨', icon: 'tas.png' },
-    kil:    { name: 'Kil',    color: '#EF6C00', emoji: '🧱', icon: 'kil.png' },
-    maden:  { name: 'Maden',  color: '#455A64', emoji: '⚙️', icon: 'maden.png' },
+    besin: { name: 'Besin', color: '#7CB342', emoji: '🌾', icon: 'besin.png' },
+    odun: { name: 'Odun', color: '#8D6E63', emoji: '🪵', icon: 'odun.png' },
+    tas: { name: 'Taş', color: '#90A4AE', emoji: '🪨', icon: 'tas.png' },
+    kil: { name: 'Kil', color: '#EF6C00', emoji: '🧱', icon: 'kil.png' },
+    maden: { name: 'Maden', color: '#455A64', emoji: '⚙️', icon: 'maden.png' },
 };
 
 // ==================== BİYOMLAR ====================
 const BIOME_INFO = {
-    ova:      { name: 'Ova',      fixedRes: ['besin', 'kil'],  resName: 'Besin & Kil',   color: '#8BC34A', dark: '#558B2F', emoji: '🌿', canSettle: true  },
-    koruluk:  { name: 'Koruluk',  fixedRes: ['besin', 'odun'], resName: 'Besin & Odun',  color: '#388E3C', dark: '#1B5E20', emoji: '🌲', canSettle: true  },
-    daglik:   { name: 'Dağlık',   fixedRes: ['tas', 'maden'],  resName: 'Taş & Maden',   color: '#8D6E63', dark: '#4E342E', emoji: '⛰️', canSettle: true  },
-    cayir:    { name: 'Çayır',    fixedRes: ['besin', 'odun'], resName: 'Besin & Odun',  color: '#AED581', dark: '#689F38', emoji: '🌱', canSettle: true  },
-    kumsal:   { name: 'Kumsal',   fixedRes: ['tas', 'kil'],    resName: 'Taş & Kil',    color: '#FFD54F', dark: '#F9A825', emoji: '🏖️', canSettle: true  },
-    vaha:     { name: 'Vaha',     fixedRes: ['besin', 'maden'],resName: 'Besin & Maden', color: '#26C6DA', dark: '#00838F', emoji: '🌴', canSettle: true  },
-    col:      { name: 'Çöl',      fixedRes: [],                resName: 'Yok',           color: '#FFA726', dark: '#E65100', emoji: '🏜️', canSettle: false },
-    bataklik: { name: 'Bataklık', fixedRes: [],                resName: 'Yok',           color: '#546E7A', dark: '#263238', emoji: '🌫️', canSettle: false },
+    ova: { name: 'Ova', fixedRes: ['besin', 'kil'], resName: 'Besin & Kil', color: '#8BC34A', dark: '#558B2F', emoji: '🌿', canSettle: true },
+    koruluk: { name: 'Koruluk', fixedRes: ['besin', 'odun'], resName: 'Besin & Odun', color: '#388E3C', dark: '#1B5E20', emoji: '🌲', canSettle: true },
+    daglik: { name: 'Dağlık', fixedRes: ['tas', 'maden'], resName: 'Taş & Maden', color: '#8D6E63', dark: '#4E342E', emoji: '⛰️', canSettle: true },
+    cayir: { name: 'Çayır', fixedRes: ['besin', 'odun'], resName: 'Besin & Odun', color: '#AED581', dark: '#689F38', emoji: '🌱', canSettle: true },
+    kumsal: { name: 'Kumsal', fixedRes: ['tas', 'kil'], resName: 'Taş & Kil', color: '#FFD54F', dark: '#F9A825', emoji: '🏖️', canSettle: true },
+    vaha: { name: 'Vaha', fixedRes: ['besin', 'maden'], resName: 'Besin & Maden', color: '#26C6DA', dark: '#00838F', emoji: '🌴', canSettle: true },
+    col: { name: 'Çöl', fixedRes: [], resName: 'Yok', color: '#FFA726', dark: '#E65100', emoji: '🏜️', canSettle: false },
+    bataklik: { name: 'Bataklık', fixedRes: [], resName: 'Yok', color: '#546E7A', dark: '#263238', emoji: '🌫️', canSettle: false },
 };
 
 const PRODUCTION_BIOMES = ['ova', 'koruluk', 'daglik', 'cayir', 'kumsal', 'vaha'];
 
 // ==================== İNŞAAT MALİYETLERİ ====================
 const BUILD_COSTS = {
-    yol:          { odun: 1, tas: 2 },
-    koy:          { odun: 1, kil: 1, tas: 1, besin: 1 },
-    ciftlik:      { besin: 7, odun: 1, kil: 1 },
-    kisla:        { maden: 5, tas: 2, odun: 2 },
-    kervansaray:  { odun: 4, kil: 3, tas: 2 },
-    tapinak:      { tas: 5, odun: 2, kil: 2 },
+    yol: { odun: 1, tas: 2 },
+    koy: { odun: 1, kil: 1, tas: 1, besin: 1 },
+    ciftlik: { besin: 7, odun: 1, kil: 1 },
+    kisla: { maden: 5, tas: 2, odun: 2 },
+    kervansaray: { odun: 4, kil: 3, tas: 2 },
+    tapinak: { tas: 5, odun: 2, kil: 2 },
     muhendishane: { maden: 5, tas: 2, kil: 2 },
-    tiyatro:      { besin: 3, kil: 3, odun: 3 },
+    tiyatro: { besin: 3, kil: 3, odun: 3 },
 };
 
 const BUILDING_NAMES = {
-    ciftlik:      'Çiftlik',
-    kisla:        'Kışla',
-    kervansaray:  'Kervansaray',
-    tapinak:      'Tapınak',
+    ciftlik: 'Çiftlik',
+    kisla: 'Kışla',
+    kervansaray: 'Kervansaray',
+    tapinak: 'Tapınak',
     muhendishane: 'Mühendishane',
-    tiyatro:      'Tiyatro',
+    tiyatro: 'Tiyatro',
 };
 
 const BUILDING_ICONS = {
-    ciftlik:      'ciftlik.png',
-    kisla:        'kisla.png',
-    kervansaray:  'kervansaray.png',
-    tapinak:      'tapinak.png',
+    ciftlik: 'ciftlik.png',
+    kisla: 'kisla.png',
+    kervansaray: 'kervansaray.png',
+    tapinak: 'tapinak.png',
     muhendishane: 'muhendishane.png',
-    tiyatro:      'tiyatro.png',
+    tiyatro: 'tiyatro.png',
 };
 
 const SETTLEMENT_ICONS = {
-    yol:      'yol.png',
-    koy:      'koy.png',
-    sehir:    'sehir.png',
+    yol: 'yol.png',
+    koy: 'koy.png',
+    sehir: 'sehir.png',
     metropol: 'metropol.png'
 };
 
@@ -66,38 +66,38 @@ const ALL_BUILDINGS = ['ciftlik', 'kisla', 'kervansaray', 'tapinak', 'muhendisha
 
 // ==================== ASKERİ BİRİMLER ====================
 const UNIT_DATA = {
-    mizrakci:     { name: 'Mızrakçı',    cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 1, siege: 0, special: 'anti_cavalry',  duelBonusVs: 'suvari', img: 'mizrakci.png' },
-    kilicli:      { name: 'Kılıçlı',     cls: 'piyade',  gold: 2, duel: 0,  range: 0, speed: 1, siege: 0, special: 'anti_infantry', duelBonusVs: 'piyade', img: 'kilicli.png' },
-    okcu:         { name: 'Okçu',         cls: 'piyade',  gold: 2, duel: -1, range: 1, speed: 1, siege: 0, special: null,                                   img: 'okcu.png'    },
-    sovalye:      { name: 'Şövalye',      cls: 'suvari',  gold: 4, duel: 2,  range: 0, speed: 1, siege: 0, special: null,                                   img: 'sovalye.png' },
-    hafif_suvari: { name: 'Hafif Süvari', cls: 'suvari',  gold: 3, duel: 0,  range: 0, speed: 2, siege: 0, special: null,                                   img: 'hafifsuvari.png' },
-    atli_okcu:    { name: 'Atlı Okçu',    cls: 'suvari',  gold: 3, duel: -1, range: 1, speed: 2, siege: 0, special: null,                                   img: 'atliokcu.png' },
+    mizrakci: { name: 'Mızrakçı', cls: 'piyade', gold: 2, duel: 0, range: 0, speed: 1, siege: 0, special: 'anti_cavalry', duelBonusVs: 'suvari', img: 'mizrakci.png' },
+    kilicli: { name: 'Kılıçlı', cls: 'piyade', gold: 2, duel: 0, range: 0, speed: 1, siege: 0, special: 'anti_infantry', duelBonusVs: 'piyade', img: 'kilicli.png' },
+    okcu: { name: 'Okçu', cls: 'piyade', gold: 2, duel: -1, range: 1, speed: 1, siege: 0, special: null, img: 'okcu.png' },
+    sovalye: { name: 'Şövalye', cls: 'suvari', gold: 4, duel: 2, range: 0, speed: 1, siege: 0, special: null, img: 'sovalye.png' },
+    hafif_suvari: { name: 'Hafif Süvari', cls: 'suvari', gold: 3, duel: 0, range: 0, speed: 2, siege: 0, special: null, img: 'hafifsuvari.png' },
+    atli_okcu: { name: 'Atlı Okçu', cls: 'suvari', gold: 3, duel: -1, range: 1, speed: 2, siege: 0, special: null, img: 'atliokcu.png' },
 
-    kocbasi:      { name: 'Koçbaşı',      cls: 'kusatma', gold: 3, duel: -3, range: 0, speed: 1, siege: 1, special: 'no_attack',                            img: 'kocbasi.png' },
-    mancinik:     { name: 'Mancınık',     cls: 'kusatma', gold: 4, duel: -3, range: 1, speed: 1, siege: 1, special: null,                                   img: 'mancinik.png' },
-    topcu:        { name: 'Topçu',        cls: 'kusatma', gold: 5, duel: -2, range: 0, speed: 1, siege: 1, special: 'multi_2',                              img: 'topcu.png'    },
+    kocbasi: { name: 'Koçbaşı', cls: 'kusatma', gold: 3, duel: -3, range: 0, speed: 1, siege: 1, special: 'no_attack', img: 'kocbasi.png' },
+    mancinik: { name: 'Mancınık', cls: 'kusatma', gold: 4, duel: -3, range: 1, speed: 1, siege: 1, special: null, img: 'mancinik.png' },
+    topcu: { name: 'Topçu', cls: 'kusatma', gold: 5, duel: -2, range: 0, speed: 1, siege: 1, special: 'multi_2', img: 'topcu.png' },
 };
 
 const UNIT_CLASSES = {
-    piyade:  { name: 'Piyade',  emoji: '👤' },
-    suvari:  { name: 'Süvari',  emoji: '🐎' },
+    piyade: { name: 'Piyade', emoji: '👤' },
+    suvari: { name: 'Süvari', emoji: '🐎' },
     kusatma: { name: 'Kuşatma', emoji: '🏰' },
 };
 
 // ==================== OYUNCU RENKLERİ ====================
 const PLAYER_COLORS = [
-    { id: 'red',    name: 'Kırmızı', hex: '#FF1744', light: '#FFCDD2', dark: '#B71C1C' }, // Daha parlak/neon
-    { id: 'blue',   name: 'Mavi',    hex: '#00B0FF', light: '#BBDEFB', dark: '#0D47A1' }, // Daha parlak neon mavi
-    { id: 'green',  name: 'Yeşil',   hex: '#00E676', light: '#C8E6C9', dark: '#1B5E20' },
-    { id: 'yellow', name: 'Sarı',    hex: '#FFEA00', light: '#FFF9C4', dark: '#F57F17' },
-    { id: 'purple', name: 'Mor',     hex: '#D500F9', light: '#E1BEE7', dark: '#4A148C' },
-    { id: 'teal',   name: 'Teal',    hex: '#1DE9B6', light: '#B2DFDB', dark: '#004D40' },
+    { id: 'red', name: 'Kırmızı', hex: '#FF1744', light: '#FFCDD2', dark: '#B71C1C' }, // Daha parlak/neon
+    { id: 'blue', name: 'Mavi', hex: '#00B0FF', light: '#BBDEFB', dark: '#0D47A1' }, // Daha parlak neon mavi
+    { id: 'green', name: 'Yeşil', hex: '#00E676', light: '#C8E6C9', dark: '#1B5E20' },
+    { id: 'yellow', name: 'Sarı', hex: '#FFEA00', light: '#FFF9C4', dark: '#F57F17' },
+    { id: 'purple', name: 'Mor', hex: '#D500F9', light: '#E1BEE7', dark: '#4A148C' },
+    { id: 'teal', name: 'Teal', hex: '#1DE9B6', light: '#B2DFDB', dark: '#004D40' },
 ];
 
 // ==================== HARİTA BOYUTLARI ====================
 const MAP_SIZES = {
-    orta:  { radius: 3, name: 'Orta (37 Hex)',   hexSize: 56 },
-    buyuk: { radius: 4, name: 'Büyük (61 Hex)',  hexSize: 44 },
+    orta: { radius: 3, name: 'Orta (37 Hex)', hexSize: 56 },
+    buyuk: { radius: 4, name: 'Büyük (61 Hex)', hexSize: 44 },
 };
 
 // ==================== OYUN SABİTLERİ ====================
@@ -108,7 +108,7 @@ const VP_GOAL = 10;
 const MAX_TURNS = 100;
 const GAME_END_CITIES = 5; // player needs 5 city-level settlements
 const BANK_TRADE_RATE = 6; // 6 basic resources = 1 gold
-const BANK_SELL_RATE  = 2; // 1 gold → 2 basic resources
+const BANK_SELL_RATE = 2; // 1 gold → 2 basic resources
 const KERVANSARAY_LV2_RATE = 3; // with kervansaray lv2: 1 gold → 3 basic resources
 
 const SIEGE_REQ = {
@@ -119,8 +119,8 @@ const SIEGE_REQ = {
 
 // ==================== ZAFER PUANLARI ====================
 const VP = {
-    koy:      1,
-    sehir:    2,
+    koy: 1,
+    sehir: 2,
     metropol: 3,
     finisher: 3,
     ciftlikLv3First: 3,
@@ -132,7 +132,7 @@ const BUILDING_BONUSES = {
     ciftlik: {
         1: ['Üretim zarı sonucu bu yerleşim yerine denk geldiyse +1 besin kazanılır (Biyomda besin olmasına gerek yoktur)'],
         2: ['(A) Oyuncu her turunda 1 besin kazanır', '(B) Gelecek çiftlik inşaları için maliyet artık sadece 6 besindir'],
-        3: ['(A) Asker popülasyonu +2 artar (Maks 16)', '(B) Çiftlik bulunan her yerleşim için kuşatma puanı +1 artar'],
+        3: ['(A) Asker popülasyonu +2 artar (Maks 16)', '(B) çiftlik bulunan yerleşim yerlerinde kuşatma puanı +1 artar.'],
     },
     kervansaray: {
         1: ['(A) Yol maliyetinde -1 Odun', '(B) Yol maliyetinde -1 Taş'],
