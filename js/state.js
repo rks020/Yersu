@@ -962,8 +962,8 @@ class GameState {
         // Baz kuşatma puanı 3 (Tüm yerleşim tipleri için)
         let req = 3; 
 
-        // Çöl biyomu bonusu +2
-        if (hex.biome === 'col') {
+        // Vaha biyomu bonusu +2
+        if (hex.biome === 'vaha') {
             req += 2;
         }
 

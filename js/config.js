@@ -18,12 +18,11 @@ const BIOME_INFO = {
     daglik: { name: 'Dağlık', fixedRes: ['tas', 'maden'], resName: 'Taş & Maden', color: '#8D6E63', dark: '#4E342E', emoji: '⛰️', canSettle: true },
     cayir: { name: 'Çayır', fixedRes: ['besin', 'odun'], resName: 'Besin & Odun', color: '#AED581', dark: '#689F38', emoji: '🌱', canSettle: true },
     kumsal: { name: 'Kumsal', fixedRes: ['tas', 'kil'], resName: 'Taş & Kil', color: '#FFD54F', dark: '#F9A825', emoji: '🏖️', canSettle: true },
-    vaha: { name: 'Vaha', fixedRes: ['besin', 'maden'], resName: 'Besin & Maden', color: '#26C6DA', dark: '#00838F', emoji: '🌴', canSettle: true },
-    col: { name: 'Çöl', fixedRes: [], resName: 'Yok', color: '#FFA726', dark: '#E65100', emoji: '🏜️', canSettle: false },
+    vaha: { name: 'Vaha', fixedRes: [], resName: 'Değişken', color: '#26C6DA', dark: '#00838F', emoji: '🌴', canSettle: true },
     bataklik: { name: 'Bataklık', fixedRes: [], resName: 'Yok', color: '#546E7A', dark: '#263238', emoji: '🌫️', canSettle: false },
 };
 
-const PRODUCTION_BIOMES = ['ova', 'koruluk', 'daglik', 'cayir', 'kumsal', 'vaha'];
+const PRODUCTION_BIOMES = ['ova', 'koruluk', 'daglik', 'cayir', 'kumsal'];
 
 // ==================== İNŞAAT MALİYETLERİ ====================
 const BUILD_COSTS = {

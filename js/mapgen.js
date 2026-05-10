@@ -13,22 +13,34 @@ class MapGen {
         const R       = grid.radius;
 
         // ── 1. Biyom dağılımı ────────────────────────────────────
-        // Zorunlu: 2 Çöl, 2 Bataklık
+        // Zorunlu: 2 Vaha, 2 Bataklık
         // Geriye kalan: production biyomlar — her 5 kaynak türü eşit sayıda
 
         const specialSlots   = MapGen._pickSpecialHexes(grid, hexList);
-        const productionSlots = hexList.filter(h => !specialSlots.has(h.id));
+        
+        // Bataklıklar kaynak üretmez, Vahalar üretir.
+        const bataklikIds = [];
+        const vahaIds = [];
+        specialSlots.forEach((isBataklik, hid) => {
+            if (isBataklik) bataklikIds.push(hid);
+            else vahaIds.push(hid);
+        });
+
+        const productionSlots = hexList.filter(h => !bataklikIds.includes(h.id));
 
         // Production biyomları — her kaynaktan eşit sayıda üretici olmalı
         const prodBiomes = MapGen._balancedProductionBiomes(productionSlots.length);
 
-        // Karıştır ve ata
-        MapGen._shuffle(prodBiomes);
         productionSlots.forEach((hex, i) => {
-            hex.biome = prodBiomes[i];
+            // Eğer zaten vaha değilse (specialSlots'tan gelmediyse) prod biyomu ata
+            if (!vahaIds.includes(hex.id)) {
+                hex.biome = prodBiomes.pop();
+            } else {
+                hex.biome = 'vaha';
+            }
         });
-        specialSlots.forEach((isBataklik, hid) => {
-            grid.hexes.get(hid).biome = isBataklik ? 'bataklik' : 'col';
+        bataklikIds.forEach(hid => {
+            grid.hexes.get(hid).biome = 'bataklik';
         });
 
         // ── 2. Kaynak ataması ────────────────────────────────────
@@ -62,7 +74,7 @@ class MapGen {
                 chosen.push(hex);
                 result.set(hex.id, bataklikCount < 2);
                 bataklikCount++;
-                if (result.size === 4) break; // 2 Bataklık + 2 Çöl
+                if (result.size === 4) break; // 2 Bataklık + 2 Vaha
             }
         }
 
