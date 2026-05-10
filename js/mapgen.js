@@ -109,7 +109,7 @@ class MapGen {
             for (let j = 0; j < cnt; j++) result.push(b);
         });
 
-        return result;
+        return MapGen._shuffle(result);
     }
 
     // ── Dengeli Kaynak Ataması ────────────────────────────────────

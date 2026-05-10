@@ -1439,7 +1439,7 @@ class UI {
                     <span class="hex-biome-emoji">${b.emoji}</span>
                     <div>
                         <div class="hex-biome-name">${b.name.toUpperCase()}</div>
-                        <div style="font-size:0.65rem; color:#ccc;">ID: ${h.id} | Üretim: ${b.resName || '-'}</div>
+                        <div style="font-size:0.65rem; color:#ccc;">ID: ${h.id} | Üretim: ${h.biome === 'vaha' ? h.resources.map(r => RESOURCE_INFO[r].name).join(' & ') : (b.resName || '-')}</div>
                     </div>
                     <div class="hex-num-badge">${h.number || '-'}</div>
                 </div>
@@ -2714,7 +2714,11 @@ class UI {
         const info = BIOME_INFO[hex.biome];
         if (!info) return;
 
-        this.els.biomeName.textContent = info.name;
+        let displayName = info.name;
+        if (hex.biome === 'vaha' && hex.resources.length > 0) {
+            displayName += ` (${hex.resources.map(r => RESOURCE_INFO[r].name).join(' & ')})`;
+        }
+        this.els.biomeName.textContent = displayName;
         this.els.biomeBody.innerHTML = `
             <div style="margin-bottom: 8px;">Zar Numarası: <b>${hex.number || '-'}</b></div>
             <div>Üretilen Kaynaklar:</div>
