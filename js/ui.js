@@ -46,12 +46,9 @@ class UI {
 
             // Ticaret
             tradeModal: document.getElementById('tradeModal'),
-            tradeBuyType: document.getElementById('tradeBuyType'),
-            tradeBuyType2: document.getElementById('tradeBuyType2'),
-            tradeBuyType2Row: document.getElementById('tradeBuyType2Row'),
-            bankTradeSellGrid: document.getElementById('bankTradeSellGrid'),
-            bankTradeSellTotal: document.getElementById('bankTradeSellTotal'),
-            bankTradeReqTotal: document.getElementById('bankTradeReqTotal'),
+            btOfferGrid: document.getElementById('btOfferGrid'),
+            btRequestGrid: document.getElementById('btRequestGrid'),
+            bankTradeStatus: document.getElementById('bankTradeStatus'),
             btnConfirmTrade: document.getElementById('btnConfirmTrade'),
 
             // Biyom
@@ -2196,7 +2193,7 @@ class UI {
 
     showTradeModal() {
         this.showChoiceModalWithDesc("Ticaret Türü", [
-            { id: 'bank', name: 'Banka Ticareti', icon: '🏦', enabled: true, costStr: '', desc: 'Sistemle takas yap (Karma kaynak 6:1 vs)' },
+            { id: 'bank', name: 'Banka Ticareti', icon: '🏦', enabled: true, costStr: '', desc: 'Sistemle takas yap (2 Sütunlu Arayüz)' },
             { id: 'player', name: 'Oyuncu Ticareti', icon: '🤝', enabled: true, costStr: '', desc: 'Diğer oyunculara teklif sun' }
         ], (choice) => {
             if (choice === 'bank') {
@@ -2211,60 +2208,93 @@ class UI {
     }
 
     _initBankTradeUI() {
-        const grid = this.els.bankTradeSellGrid;
-        if (!grid) return;
+        const offerGrid = this.els.btOfferGrid;
+        const requestGrid = this.els.btRequestGrid;
+        if (!offerGrid || !requestGrid) return;
 
         const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden', 'gold'];
-        grid.innerHTML = '';
+        offerGrid.innerHTML = '';
+        requestGrid.innerHTML = '';
         
         resKeys.forEach(r => {
             const iconHtml = r === 'gold' ? '💰' : this._getResIconHtml(r, 18);
-            const div = document.createElement('div');
-            div.style.display = 'flex';
-            div.style.flexDirection = 'column';
-            div.style.gap = '4px';
-            div.innerHTML = `
-                <div style="font-size:0.75rem; color:#ccc; display:flex; align-items:center; gap:4px;">
-                    ${iconHtml} ${r.toUpperCase()}
-                </div>
-                <input type="number" id="btSell_${r}" class="input-style bt-sell-input" value="0" min="0" style="width:100%; height:30px; padding:4px;">
+            
+            // Offer Column
+            const oDiv = document.createElement('div');
+            oDiv.style.display = 'flex';
+            oDiv.style.justifyContent = 'space-between';
+            oDiv.style.alignItems = 'center';
+            oDiv.style.marginBottom = '4px';
+            oDiv.innerHTML = `
+                <span style="font-size:0.8rem;">${iconHtml} ${r.toUpperCase()}</span>
+                <input type="number" id="btOffer_${r}" class="input-style bt-input" value="0" min="0" style="width:50px; padding:2px; height:24px;">
             `;
-            grid.appendChild(div);
+            offerGrid.appendChild(oDiv);
+
+            // Request Column
+            const rDiv = document.createElement('div');
+            rDiv.style.display = 'flex';
+            rDiv.style.justifyContent = 'space-between';
+            rDiv.style.alignItems = 'center';
+            rDiv.style.marginBottom = '4px';
+            rDiv.innerHTML = `
+                <span style="font-size:0.8rem;">${iconHtml} ${r.toUpperCase()}</span>
+                <input type="number" id="btRequest_${r}" class="input-style bt-input" value="0" min="0" style="width:50px; padding:2px; height:24px;">
+            `;
+            requestGrid.appendChild(rDiv);
         });
 
-        // Event listeners for real-time calculation
-        grid.querySelectorAll('.bt-sell-input').forEach(input => {
+        this.els.tradeModal.querySelectorAll('.bt-input').forEach(input => {
             input.oninput = () => this._refreshBankTradeUI();
         });
 
-        this.els.tradeBuyType.onchange = () => this._refreshBankTradeUI();
-        
         this._refreshBankTradeUI();
     }
 
     _refreshBankTradeUI() {
         const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden'];
-        let totalBasic = 0;
+        let offBasic = 0;
+        let reqBasic = 0;
+        let offGold = parseInt(document.getElementById('btOffer_gold')?.value) || 0;
+        let reqGold = parseInt(document.getElementById('btRequest_gold')?.value) || 0;
+
         resKeys.forEach(r => {
-            const input = document.getElementById(`btSell_${r}`);
-            const val = input ? parseInt(input.value) : 0;
-            totalBasic += (isNaN(val) || val < 0) ? 0 : val;
+            offBasic += parseInt(document.getElementById(`btOffer_${r}`)?.value) || 0;
+            reqBasic += parseInt(document.getElementById(`btRequest_${r}`)?.value) || 0;
         });
 
-        const goldInput = document.getElementById('btSell_gold');
-        const goldVal = goldInput ? parseInt(goldInput.value) : 0;
-        const buyType = this.els.tradeBuyType ? this.els.tradeBuyType.value : 'gold';
+        let status = "";
+        let valid = false;
 
-        if (this.els.bankTradeSellTotal) this.els.bankTradeSellTotal.textContent = totalBasic;
-        
-        if (goldVal > 0) {
-            if (this.els.bankTradeReqTotal) this.els.bankTradeReqTotal.textContent = " (Altın Satılıyor)";
-            if (this.els.tradeBuyType2Row) this.els.tradeBuyType2Row.style.display = 'block';
+        if (offGold > 0 && offBasic > 0) {
+            status = "❌ Altın ve temel kaynağı aynı anda satamazsınız.";
+        } else if (reqGold > 0 && reqBasic > 0) {
+            status = "❌ Altın ve temel kaynağı aynı anda alamazsınız.";
+        } else if (offBasic > 0 && reqGold > 0) {
+            // 6 Temel -> 1 Altın
+            const needed = reqGold * 6;
+            status = `⚖️ ${reqGold} Altın için ${needed} Temel Kaynak gerekli. (Şu an: ${offBasic})`;
+            if (offBasic === needed) valid = true;
+        } else if (offBasic > 0 && reqBasic > 0) {
+            // 3 Temel -> 1 Temel
+            const needed = reqBasic * 3;
+            status = `⚖️ ${reqBasic} Kaynak için ${needed} Temel Kaynak gerekli. (Şu an: ${offBasic})`;
+            if (offBasic === needed) valid = true;
+        } else if (offGold > 0 && reqBasic > 0) {
+            // 1 Altın -> 2/3 Temel
+            const rate = this.state.currentPlayer.bonusState.bankSellRate || 2;
+            const needed = offGold * rate;
+            status = `⚖️ ${offGold} Altın ile ${needed} Kaynak alabilirsiniz. (Şu an: ${reqBasic})`;
+            if (reqBasic === needed) valid = true;
         } else {
-            const req = (buyType === 'gold') ? 6 : 3;
-            if (this.els.bankTradeReqTotal) this.els.bankTradeReqTotal.textContent = `/ ${req}`;
-            if (this.els.tradeBuyType2Row) this.els.tradeBuyType2Row.style.display = 'none';
+            status = "Geçerli bir miktar girin (Örn: 6 Temel Ver -> 1 Altın Al)";
         }
+
+        if (this.els.bankTradeStatus) {
+            this.els.bankTradeStatus.textContent = status;
+            this.els.bankTradeStatus.style.color = valid ? "#4caf50" : "#ffc107";
+        }
+        if (this.els.btnConfirmTrade) this.els.btnConfirmTrade.disabled = !valid;
     }
 
     showPlayerTradeModal() {
@@ -2361,52 +2391,52 @@ class UI {
 
     handleConfirmTrade() {
         const p = this.state.currentPlayer;
-        const buyType = this.els.tradeBuyType?.value;
-        const buyType2 = this.els.tradeBuyType2?.value;
-        
-        const sellMap = {};
         const resKeys = ['besin', 'odun', 'tas', 'kil', 'maden', 'gold'];
-        let totalBasic = 0;
-        let totalGold = 0;
+        
+        const offer = {};
+        const request = {};
+        let offBasic = 0;
+        let reqBasic = 0;
+        let offGold = 0;
+        let reqGold = 0;
 
         resKeys.forEach(r => {
-            const val = parseInt(document.getElementById(`btSell_${r}`)?.value) || 0;
-            if (val > 0) {
-                sellMap[r] = val;
-                if (r === 'gold') totalGold += val;
-                else totalBasic += val;
+            const oVal = parseInt(document.getElementById(`btOffer_${r}`)?.value) || 0;
+            const rVal = parseInt(document.getElementById(`btRequest_${r}`)?.value) || 0;
+            if (oVal > 0) {
+                offer[r] = oVal;
+                if (r === 'gold') offGold += oVal; else offBasic += oVal;
+            }
+            if (rVal > 0) {
+                request[r] = rVal;
+                if (r === 'gold') reqGold += rVal; else reqBasic += rVal;
             }
         });
 
-        if (totalGold > 0 && totalBasic > 0) {
-            this.showNotice("Altın ve temel kaynakları aynı anda satamazsınız!", "warning");
-            return;
-        }
+        // Hızlı doğrulama (Gerekirse Actions içinde de yapılacak)
+        if (offGold > 0) {
+            const rate = p.bonusState.bankSellRate || 2;
+            if (reqBasic !== offGold * rate || reqGold > 0) return;
+        } else if (reqGold > 0) {
+            if (offBasic !== reqGold * 6) return;
+        } else if (reqBasic > 0) {
+            if (offBasic !== reqBasic * 3) return;
+        } else return;
 
-        let tradeCount = 0;
-        let finalSellType = null;
+        // Alınacak asıl kaynak tipi (Eğer birden fazlaysa ilki baz alınır, basitleştirme)
+        const buyRes = Object.keys(request)[0];
+        const buyRes2 = Object.keys(request)[1] || null;
+        const sellType = offGold > 0 ? 'gold' : offer;
+        const tradeCount = offGold > 0 ? offGold : (reqGold > 0 ? reqGold : reqBasic);
 
-        if (totalGold > 0) {
-            tradeCount = totalGold;
-            finalSellType = 'gold';
-        } else {
-            const req = (buyType === 'gold') ? 6 : 3;
-            if (totalBasic % req !== 0 || totalBasic === 0) {
-                this.showNotice(`Hatalı miktar! ${req}'in katı olmalı.`, "warning");
-                return;
-            }
-            tradeCount = totalBasic / req;
-            finalSellType = sellMap; // Object passed to handle multi-res
-        }
-
-        const ok = this.actions.tradeWithBank(p.id, finalSellType, buyType, buyType2, tradeCount);
+        const ok = this.actions.tradeWithBank(p.id, sellType, buyRes, buyRes2, tradeCount);
 
         if (ok) {
             this.els.tradeModal.classList.remove('active');
-            this.showNotice(`Takas başarılı! ${tradeCount} adet ${buyType} alındı.`, "success");
+            this.showNotice("Banka takası başarılı!", "success");
             this.update();
         } else {
-            this.showNotice("Takas gerçekleştirilemedi! (Yetersiz kaynak)", "danger");
+            this.showNotice("Yetersiz kaynak!", "danger");
         }
     }
 
