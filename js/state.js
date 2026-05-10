@@ -628,7 +628,7 @@ class GameState {
                     const aTotal = (a1 + a2) + (siegePower - 1);
                     const dTotal = (d1 + d2) + dBonus;
 
-                    this.addLog(`🏰 ${p.name} Kuşatma Atışı: [${a1},${a2}] + Güç(${siegePower - 1}) = ${aTotal} vs Savunma: [${d1},${d2}] + Bonus(${dBonus}) = ${dTotal}`, 'info');
+                    this.addLog(`🏰 ${attacker.name} Kuşatma Atışı: [${a1},${a2}] + Güç(${siegePower - 1}) = ${aTotal} vs Savunma: [${d1},${d2}] + Bonus(${dBonus}) = ${dTotal}`, 'info');
 
                     // Animasyon Tetikle
                     if (window.appMain && window.appMain.ui && window.appMain.ui.renderer) {
@@ -637,7 +637,7 @@ class GameState {
                             [a1, a2], [d1, d2],
                             siegePower - 1, dBonus,
                             aTotal, dTotal,
-                            p.name
+                            attacker.name
                         );
                     }
 
@@ -648,7 +648,7 @@ class GameState {
                         this.addLog(`🛡️ Savunma hattı aşılamadı.`, 'info');
                     }
 
-                    const req = this.calculateSiegeRequirement(hexId, p.id);
+                    const req = this.calculateSiegeRequirement(hexId, attacker.id);
                     if (s.points >= req) {
                         setTimeout(() => {
                             if (window.appMain && window.appMain.actions) {
