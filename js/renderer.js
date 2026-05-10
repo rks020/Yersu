@@ -15,6 +15,7 @@ class Renderer {
         this.unitImages = {};
         this.buildingImages = {};
         this.settlementImages = {};
+        this.biomeImages = {};
         this.animations = [];
         this._loadImages();
         this._initCamera();
@@ -47,6 +48,14 @@ class Renderer {
             const img = new Image();
             img.src = src;
             this.settlementImages[id] = img;
+        });
+        // Biyomlar
+        Object.entries(BIOME_INFO).forEach(([id, data]) => {
+            if (data.texture) {
+                const img = new Image();
+                img.src = data.texture;
+                this.biomeImages[id] = img;
+            }
         });
     }
 
@@ -455,9 +464,20 @@ class Renderer {
         for (let i = 1; i < 6; i++) ctx.lineTo(verts[i].x, verts[i].y);
         ctx.closePath();
 
-        // Düz renk dolgu
-        ctx.fillStyle = info.color;
-        ctx.fill();
+        const img = this.biomeImages[hex.biome];
+        if (img && img.complete && img.naturalWidth > 0) {
+            ctx.save();
+            ctx.clip();
+            const s = this.state.grid.hexSize;
+            // Resmin hex'i tam kaplaması için biraz daha büyük (2 * s) çizelim
+            const size = 2 * s * 1.05; 
+            ctx.drawImage(img, cx - size/2, cy - size/2, size, size);
+            ctx.restore();
+        } else {
+            // Düz renk dolgu (resim yoksa)
+            ctx.fillStyle = info.color;
+            ctx.fill();
+        }
 
         // Altın kenarlık
         ctx.strokeStyle = '#c8a84e';

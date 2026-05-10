@@ -13,13 +13,13 @@ const RESOURCE_INFO = {
 
 // ==================== BİYOMLAR ====================
 const BIOME_INFO = {
-    ova: { name: 'Ova', fixedRes: ['besin', 'kil'], resName: 'Besin & Kil', color: '#8BC34A', dark: '#558B2F', emoji: '🌿', canSettle: true },
-    koruluk: { name: 'Koruluk', fixedRes: ['besin', 'odun'], resName: 'Besin & Odun', color: '#388E3C', dark: '#1B5E20', emoji: '🌲', canSettle: true },
-    daglik: { name: 'Dağlık', fixedRes: ['tas', 'maden'], resName: 'Taş & Maden', color: '#8D6E63', dark: '#4E342E', emoji: '⛰️', canSettle: true },
-    cayir: { name: 'Çayır', fixedRes: ['besin', 'odun'], resName: 'Besin & Odun', color: '#AED581', dark: '#689F38', emoji: '🌱', canSettle: true },
-    kumsal: { name: 'Kumsal', fixedRes: ['tas', 'kil'], resName: 'Taş & Kil', color: '#FFD54F', dark: '#F9A825', emoji: '🏖️', canSettle: true },
-    vaha: { name: 'Vaha', fixedRes: [], resName: 'Değişken', color: '#26C6DA', dark: '#00838F', emoji: '🌴', canSettle: true },
-    bataklik: { name: 'Bataklık', fixedRes: [], resName: 'Yok', color: '#546E7A', dark: '#263238', emoji: '🌫️', canSettle: false },
+    ova: { name: 'Ova', fixedRes: ['besin', 'kil'], resName: 'Besin & Kil', color: '#8BC34A', dark: '#558B2F', emoji: '🌿', canSettle: true, texture: 'assets/textures/ova.png' },
+    koruluk: { name: 'Koruluk', fixedRes: ['besin', 'odun'], resName: 'Besin & Odun', color: '#388E3C', dark: '#1B5E20', emoji: '🌲', canSettle: true, texture: 'assets/textures/koruluk.png' },
+    daglik: { name: 'Dağlık', fixedRes: ['tas', 'maden'], resName: 'Taş & Maden', color: '#8D6E63', dark: '#4E342E', emoji: '⛰️', canSettle: true, texture: 'assets/textures/daglik.png' },
+    cayir: { name: 'Çayır', fixedRes: ['besin', 'odun'], resName: 'Besin & Odun', color: '#AED581', dark: '#689F38', emoji: '🌱', canSettle: true, texture: 'assets/textures/cayir.png' },
+    kumsal: { name: 'Kumsal', fixedRes: ['tas', 'kil'], resName: 'Taş & Kil', color: '#FFD54F', dark: '#F9A825', emoji: '🏖️', canSettle: true, texture: 'assets/textures/kumsal.png' },
+    vaha: { name: 'Vaha', fixedRes: [], resName: 'Değişken', color: '#26C6DA', dark: '#00838F', emoji: '🌴', canSettle: true, texture: 'assets/textures/vaha.png' },
+    bataklik: { name: 'Bataklık', fixedRes: [], resName: 'Yok', color: '#546E7A', dark: '#263238', emoji: '🌫️', canSettle: false, texture: 'assets/textures/bataklik.png' },
 };
 
 const PRODUCTION_BIOMES = ['ova', 'koruluk', 'daglik', 'cayir', 'kumsal'];
