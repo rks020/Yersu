@@ -315,7 +315,7 @@ class GameState {
                 if (choice === 'A') player.bonusState.enemySiegePenalty = 1;
                 else player.bonusState.winOnDraw = true;
             } else if (level === 3) {
-                if (choice === 'A') player.bonusState.sovGoldReduction = 3;
+                if (choice === 'A') player.bonusState.sovGoldReduction += 1;
                 else player.bonusState.freeRevive = true;
             }
         } else if (type === 'tiyatro') {
@@ -987,7 +987,7 @@ class GameState {
         if (!hex || !hex.settlement) return 3;
 
         // Baz kuşatma puanı 3 (Tüm yerleşim tipleri için)
-        let req = 3; 
+        let req = 3;
 
         // Vaha biyomu bonusu +2
         if (hex.biome === 'vaha') {
