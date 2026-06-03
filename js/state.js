@@ -833,7 +833,17 @@ class GameState {
             casualty = 'attacker';
             this.addLog(`💀 ${attackerPlayer.name} saldırıda birimini kaybetti.`, 'danger');
         } else {
-            this.addLog(`⚔️ Zarlar eşit! İki taraf da sağ kaldı.`, 'warning');
+            if (attackerPlayer.bonusState.winOnDraw && !defenderPlayer.bonusState.winOnDraw) {
+                winner = 'attacker';
+                casualty = 'defender';
+                this.addLog(`🗡️ Zarlar eşit, ancak ${attackerPlayer.name} Tapınak (Sv2-B) bonusuyla kazandı!`, 'success');
+            } else if (defenderPlayer.bonusState.winOnDraw && !attackerPlayer.bonusState.winOnDraw) {
+                winner = 'defender';
+                casualty = 'attacker';
+                this.addLog(`💀 Zarlar eşit, ancak ${defenderPlayer.name} Tapınak (Sv2-B) bonusuyla kazandı!`, 'danger');
+            } else {
+                this.addLog(`⚔️ Zarlar eşit! İki taraf da sağ kaldı.`, 'warning');
+            }
         }
 
         // --- KIŞLA SV 3 B: RE-ROLL (LAST STAND) ---
@@ -919,6 +929,10 @@ class GameState {
             winner = 'attacker';
             casualty = 'defender';
             this.addLog(`🎯 ${attackerPlayer.name} menzilli atışla düşmanı vurdu!`, 'success');
+        } else if (aStr === dStr && attackerPlayer.bonusState.winOnDraw && !defenderPlayer.bonusState.winOnDraw) {
+            winner = 'attacker';
+            casualty = 'defender';
+            this.addLog(`🎯 Zarlar eşit, ancak ${attackerPlayer.name} Tapınak (Sv2-B) bonusuyla vurdu!`, 'success');
         } else {
             this.addLog(`🏹 Atış ıska geçti veya zırhı geçemedi.`, 'info');
         }
