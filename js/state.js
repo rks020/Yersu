@@ -668,6 +668,7 @@ class GameState {
         this.subPhase = 'production';
         this.players.forEach(p => {
             p.bonusState.kislaLv3BUsedThisTurn = false;
+            p.freeReviveUsedThisTurn = false;
             p.units.forEach(u => {
                 u.hasAttacked = false;
                 if (this.phase === 'setup') {
@@ -694,6 +695,7 @@ class GameState {
         this.selectedBuilding = null;
         this.selectedUnit = null;
         this.selectedUnitNode = null;
+        this.selectedReviveUnit = null;
     }
 
     addLog(msg, type = 'info') {

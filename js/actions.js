@@ -346,41 +346,10 @@ class Actions {
                 targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
                 if (targetNode.army.units.length === 0) targetNode.army = null;
                 
-                let resurrected = false;
-                if (defPlayer.bonusState && defPlayer.bonusState.freeRevive) {
-                    const tapinakHexIds = defPlayer.settlements.filter(hid => {
-                        const h = this.state.grid.hexes.get(hid);
-                        return h && h.settlement && h.settlement.buildings.has('tapinak');
-                    });
-                    
-                    let safeNodeId = null;
-                    for (let hid of tapinakHexIds) {
-                        const h = this.state.grid.hexes.get(hid);
-                        for (let nid of h.nodeIds) {
-                            const n = this.state.grid.nodes.get(nid);
-                            if (!n.army || String(n.army.playerId) === String(defPlayer.id)) {
-                                safeNodeId = nid;
-                                break;
-                            }
-                        }
-                        if (safeNodeId) break;
-                    }
-                    
-                    if (safeNodeId) {
-                        killed.nodeId = safeNodeId;
-                        killed.hasAttacked = true;
-                        killed.movesLeft = 0;
-                        const safeNode = this.state.grid.nodes.get(safeNodeId);
-                        if (!safeNode.army) safeNode.army = { playerId: defPlayer.id, units: [] };
-                        safeNode.army.units.push(killed);
-                        resurrected = true;
-                        this.state.addLog(`🕊️ ${defPlayer.name} oyuncusunun ölen birimi Tapınak sayesinde dirildi!`, 'success');
-                    }
-                }
+                if (!defPlayer._deadThisTurn) defPlayer._deadThisTurn = [];
+                defPlayer._deadThisTurn.push(JSON.parse(JSON.stringify(killed)));
                 
-                if (!resurrected) {
-                    defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
-                }
+                defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
             }
         }
 
@@ -441,38 +410,10 @@ class Actions {
                     if (sourceNode.army.units.length === 0) sourceNode.army = null;
                 }
                 
-                let resurrected = false;
-                if (p.bonusState && p.bonusState.freeRevive) {
-                    const tapinakHexIds = p.settlements.filter(hid => {
-                        const h = this.state.grid.hexes.get(hid);
-                        return h && h.settlement && h.settlement.buildings.has('tapinak');
-                    });
-                    let safeNodeId = null;
-                    for (let hid of tapinakHexIds) {
-                        const h = this.state.grid.hexes.get(hid);
-                        for (let nid of h.nodeIds) {
-                            const n = this.state.grid.nodes.get(nid);
-                            if (!n.army || String(n.army.playerId) === String(p.id)) {
-                                safeNodeId = nid;
-                                break;
-                            }
-                        }
-                        if (safeNodeId) break;
-                    }
-                    if (safeNodeId) {
-                        unit.nodeId = safeNodeId;
-                        unit.hasAttacked = true;
-                        unit.movesLeft = 0;
-                        const safeNode = this.state.grid.nodes.get(safeNodeId);
-                        if (!safeNode.army) safeNode.army = { playerId: p.id, units: [] };
-                        safeNode.army.units.push(unit);
-                        resurrected = true;
-                        this.state.addLog(`🕊️ ${p.name} oyuncusunun ölen birimi Tapınak sayesinde dirildi!`, 'success');
-                    }
-                }
-                if (!resurrected) {
-                    p.units = p.units.filter(u => u.uid !== unitUid);
-                }
+                if (!p._deadThisTurn) p._deadThisTurn = [];
+                p._deadThisTurn.push(JSON.parse(JSON.stringify(unit)));
+                p.units = p.units.filter(u => u.uid !== unitUid);
+                
             } else if (combat.casualty === 'defender') {
                 const killed = combat.defender.unit;
                 const defPlayerId = killed.playerId !== undefined ? killed.playerId : targetNode.army.playerId;
@@ -482,38 +423,9 @@ class Actions {
                     targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
                     if (targetNode.army.units.length === 0) targetNode.army = null;
                     
-                    let resurrected = false;
-                    if (defPlayer.bonusState && defPlayer.bonusState.freeRevive) {
-                        const tapinakHexIds = defPlayer.settlements.filter(hid => {
-                            const h = this.state.grid.hexes.get(hid);
-                            return h && h.settlement && h.settlement.buildings.has('tapinak');
-                        });
-                        let safeNodeId = null;
-                        for (let hid of tapinakHexIds) {
-                            const h = this.state.grid.hexes.get(hid);
-                            for (let nid of h.nodeIds) {
-                                const n = this.state.grid.nodes.get(nid);
-                                if (!n.army || String(n.army.playerId) === String(defPlayer.id)) {
-                                    safeNodeId = nid;
-                                    break;
-                                }
-                            }
-                            if (safeNodeId) break;
-                        }
-                        if (safeNodeId) {
-                            killed.nodeId = safeNodeId;
-                            killed.hasAttacked = true;
-                            killed.movesLeft = 0;
-                            const safeNode = this.state.grid.nodes.get(safeNodeId);
-                            if (!safeNode.army) safeNode.army = { playerId: defPlayer.id, units: [] };
-                            safeNode.army.units.push(killed);
-                            resurrected = true;
-                            this.state.addLog(`🕊️ ${defPlayer.name} oyuncusunun ölen birimi Tapınak sayesinde dirildi!`, 'success');
-                        }
-                    }
-                    if (!resurrected) {
-                        defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
-                    }
+                    if (!defPlayer._deadThisTurn) defPlayer._deadThisTurn = [];
+                    defPlayer._deadThisTurn.push(JSON.parse(JSON.stringify(killed)));
+                    defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
                 }
             }
 

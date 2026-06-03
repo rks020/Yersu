@@ -587,6 +587,28 @@ class UI {
                 executeAction();
             }
         }
+        // ── DİRİLTME NOKTASI SEÇİMİ ──
+        else if (mode === 'selectReviveNode' && clickedNode) {
+            const p = this.state.currentPlayer;
+            if (this.state.highlightedNodes.has(clickedNode.id)) {
+                const unitToRevive = this.state.selectedReviveUnit;
+                unitToRevive.nodeId = clickedNode.id;
+                unitToRevive.hasAttacked = true;
+                unitToRevive.movesLeft = 0;
+                
+                if (!clickedNode.army) clickedNode.army = { playerId: p.id, units: [] };
+                clickedNode.army.units.push(unitToRevive);
+                p.units.push(unitToRevive);
+                
+                p.freeReviveUsedThisTurn = true;
+                this.showNotice("Birim başarıyla diriltildi!", "success");
+                this.state.addLog(`🕊️ ${p.name} Tapınak (Sv3-B) sayesinde ${UNIT_DATA[unitToRevive.type].name} birimini diriltti.`, 'success');
+                this.state.clearSelection();
+            } else {
+                this.showNotice("Lütfen parlayan noktalardan (Tapınağınızın olduğu noktalar) birini seçin!", "danger");
+            }
+            this.update();
+        }
         // ── KUŞATMA BAŞLATMA (DÜŞMAN HEX'İNE TIKLANDIĞINDA) ──
         else if (mode === 'moveOrAttack' && clickedHex) {
             const p = this.state.currentPlayer;
@@ -1047,6 +1069,7 @@ class UI {
         }
 
         this.checkKervansarayBonus();
+        this.checkFreeReviveBonus();
     }
 
     showVictoryModal(winner) {
@@ -1076,6 +1099,59 @@ class UI {
         if (p.pendingChoices.length > 0 && !this.choiceModalOpen) {
             const choice = p.pendingChoices[0];
             this.showChoiceModal(choice.type, choice.level);
+        }
+    }
+
+    checkFreeReviveBonus() {
+        const p = this.state.currentPlayer;
+        if (p.isAI) return;
+        
+        if (p.bonusState && p.bonusState.freeRevive && p.deadUnitsLastTurn && p.deadUnitsLastTurn.length > 0 && !p.freeReviveUsedThisTurn && !this.freeReviveModalOpen && !this.choiceModalOpen) {
+            const tapinakHexIds = p.settlements.filter(hid => {
+                const h = this.state.grid.hexes.get(hid);
+                return h && h.settlement && h.settlement.buildings.has('tapinak');
+            });
+            if (tapinakHexIds.length === 0) return;
+            
+            let validNodes = [];
+            tapinakHexIds.forEach(hid => {
+                const h = this.state.grid.hexes.get(hid);
+                h.nodeIds.forEach(nid => {
+                    const n = this.state.grid.nodes.get(nid);
+                    if (!n.army || String(n.army.playerId) === String(p.id)) {
+                        if (!validNodes.includes(nid)) validNodes.push(nid);
+                    }
+                });
+            });
+            
+            if (validNodes.length === 0) return;
+            
+            this.freeReviveModalOpen = true;
+            this.showChoiceModalWithDesc("🕊️ Tapınak: Ücretsiz Diriltme", p.deadUnitsLastTurn.map((u, i) => {
+                const data = UNIT_DATA[u.type];
+                return {
+                    id: i,
+                    name: data.name,
+                    icon: data.emoji,
+                    enabled: true,
+                    costStr: '',
+                    desc: 'Tapınak bonusuyla diriltilecek biriminizi seçin.'
+                };
+            }), (choiceIndex) => {
+                this.freeReviveModalOpen = false;
+                if (choiceIndex !== null) {
+                    const chosenUnit = p.deadUnitsLastTurn[choiceIndex];
+                    this.state.actionMode = 'selectReviveNode';
+                    this.state.selectedReviveUnit = chosenUnit;
+                    this.state.highlightedNodes.clear();
+                    validNodes.forEach(nid => this.state.highlightedNodes.add(nid));
+                    this.showNotice("Diriltilecek Tapınak noktasını seçin.", "info");
+                    this.update();
+                } else {
+                    p.freeReviveUsedThisTurn = true;
+                    this.update();
+                }
+            });
         }
     }
 
