@@ -315,7 +315,7 @@ class GameState {
                 if (choice === 'A') player.bonusState.enemySiegePenalty = 1;
                 else player.bonusState.winOnDraw = true;
             } else if (level === 3) {
-                if (choice === 'A') player.bonusState.sovGoldReduction += 1;
+                if (choice === 'A') player.bonusState.sovGoldReduction = 3;
                 else player.bonusState.freeRevive = true;
             }
         } else if (type === 'tiyatro') {
