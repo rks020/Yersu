@@ -2027,7 +2027,12 @@ class UI {
     showUnitChoice() {
         const p = this.state.currentPlayer;
         const items = Object.entries(UNIT_DATA).map(([id, data]) => {
-            const hasGold = (p.resources.gold || 0) >= (data.gold || 0);
+            let actualGoldCost = data.gold || 0;
+            if (id === 'sovalye' && p.bonusState && p.bonusState.sovGoldReduction > 0) {
+                actualGoldCost = Math.max(1, actualGoldCost - p.bonusState.sovGoldReduction);
+            }
+            
+            const hasGold = (p.resources.gold || 0) >= actualGoldCost;
             const hasPop = p.units.length < p.maxPopulation;
             let canBuild = hasGold && hasPop;
             let error = "";
@@ -2039,7 +2044,7 @@ class UI {
                 canBuild = false;
                 error = "Kuşatma birimi için Mühendishane gerekir!";
             } else if (!hasGold) {
-                error = `Yetersiz Altın! (${p.resources.gold}/${data.gold})`;
+                error = `Yetersiz Altın! (${p.resources.gold}/${actualGoldCost})`;
             } else if (!hasPop) {
                 error = "Nüfus kapasitesi dolu!";
             }
@@ -2049,7 +2054,7 @@ class UI {
                 name: data.name,
                 icon: data.img ? `<img src="${data.img}" style="width:50px;height:50px;object-fit:contain;">` : (data.emoji || '👤'),
                 desc: `${data.duel}⚔️ | ${data.speed}🏃 | ${data.range}🎯`,
-                costStr: `💰 ${data.gold} Altın`,
+                costStr: `💰 ${actualGoldCost} Altın`,
                 enabled: canBuild,
                 error
             };
