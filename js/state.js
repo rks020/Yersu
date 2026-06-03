@@ -760,6 +760,8 @@ class GameState {
         const rollTotal = d1 + d2;
 
         let strength = rollTotal + (data.duel || 0);
+        let bonusTexts = [];
+        if (data.duel) bonusTexts.push(`Birim (${data.duel > 0 ? '+' : ''}${data.duel})`);
 
         // --- GLOBAL KIŞLA BONUSLARI ---
         const kislaCount = player.buildings?.['kisla'] || 0;
@@ -767,20 +769,20 @@ class GameState {
 
         if (kislaLv >= 1) {
             const c1 = player.bonusState.kislaLv1Choice;
-            if (c1 === 'A' && unit.type === 'mizrakci') strength += 1;
-            else if (c1 === 'B' && unit.type === 'kilicli') strength += 1;
-            else if (c1 === 'C' && unit.type === 'okcu') strength += 1;
+            if (c1 === 'A' && unit.type === 'mizrakci') { strength += 1; bonusTexts.push('Kışla Sv.1A (+1)'); }
+            else if (c1 === 'B' && unit.type === 'kilicli') { strength += 1; bonusTexts.push('Kışla Sv.1B (+1)'); }
+            else if (c1 === 'C' && unit.type === 'okcu') { strength += 1; bonusTexts.push('Kışla Sv.1C (+1)'); }
         }
 
         if (kislaLv >= 2) {
             const c2 = player.bonusState.kislaLv2Choice;
-            if (c2 === 'B' && unit.type === 'sovalye') strength += 1;
+            if (c2 === 'B' && unit.type === 'sovalye') { strength += 1; bonusTexts.push('Kışla Sv.2B (+1)'); }
         }
 
         if (kislaLv >= 3) {
             const c3 = player.bonusState.kislaLv3Choice;
-            if (c3 === 'A') strength += 1;
-            else if (c3 === 'B' && ['kocbasi', 'mancinik', 'topcu'].includes(unit.type)) strength += 1;
+            if (c3 === 'A') { strength += 1; bonusTexts.push('Kışla Sv.3A (+1)'); }
+            else if (c3 === 'B' && ['kocbasi', 'mancinik', 'topcu'].includes(unit.type)) { strength += 1; bonusTexts.push('Kışla Sv.3B (+1)'); }
         }
 
         // --- YEREL BONUSLAR (Tapınak vb.) ---
@@ -790,11 +792,14 @@ class GameState {
                 if (hex && hex.settlement && hex.settlement.playerId === player.id) {
                     if (this.sieges[hex.id] && hex.settlement.buildings.has('tapinak')) {
                         strength += 1;
+                        if (!bonusTexts.includes('Tapınak Kuşatma Sav. (+1)')) {
+                            bonusTexts.push('Tapınak Kuşatma Sav. (+1)');
+                        }
                     }
                 }
             });
         }
-        return { total: strength, rolls: [d1, d2] };
+        return { total: strength, rolls: [d1, d2], bonusTexts };
     }
 
     resolveCombat(attackerUnit, attackerPlayer, targetNode, targetUnitOverride = null) {
@@ -816,10 +821,12 @@ class GameState {
         const aData = UNIT_DATA[attackerUnit.type];
         const dData = UNIT_DATA[defenderUnit.type];
 
-        if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) aStr += 1;
-        if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) dStr += 1;
+        if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) { aStr += 1; aRes.bonusTexts.push(`Sınıf Avantajı (+1)`); }
+        if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) { dStr += 1; dRes.bonusTexts.push(`Sınıf Avantajı (+1)`); }
 
-        this.addLog(`⚔️ SAVAŞ: ${aData.name} (Güç: ${aStr}) vs ${dData.name} (Güç: ${dStr}) [Zarlar: ${aRes.rolls} vs ${dRes.rolls}]`, 'info');
+        const aBonusStr = aRes.bonusTexts.length > 0 ? ` [Bonuslar: ${aRes.bonusTexts.join(', ')}]` : '';
+        const dBonusStr = dRes.bonusTexts.length > 0 ? ` [Bonuslar: ${dRes.bonusTexts.join(', ')}]` : '';
+        this.addLog(`⚔️ SAVAŞ: ${aData.name} [Güç: ${aStr} (Zar: ${aRes.rolls.join('+')})${aBonusStr}] vs ${dData.name} [Güç: ${dStr} (Zar: ${dRes.rolls.join('+')})${dBonusStr}]`, 'info');
 
         let winner = 'none';
         let casualty = 'none';
@@ -854,8 +861,9 @@ class GameState {
                 this.addLog(`🛡️ ${attackerPlayer.name}, Kışla (Sv3-B) ile son bir gayretle tekrar saldırıyor!`, 'warning');
                 const reRes = this.calculateDuelStrength(attackerUnit, attackerPlayer, this.grid.nodes.get(attackerUnit.nodeId));
                 let newAStr = reRes.total;
-                if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) newAStr += 1;
-                this.addLog(`🎲 Yeniden Atış: [${reRes.rolls}] (Güç: ${newAStr}) vs Eski Savunma (${dStr})`, 'info');
+                if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) { newAStr += 1; reRes.bonusTexts.push(`Sınıf Avantajı (+1)`); }
+                const reBonusStr = reRes.bonusTexts.length > 0 ? ` [Bonuslar: ${reRes.bonusTexts.join(', ')}]` : '';
+                this.addLog(`🎲 Yeniden Atış: Zar: ${reRes.rolls.join('+')}${reBonusStr} (Güç: ${newAStr}) vs Eski Savunma (${dStr})`, 'info');
                 if (newAStr > dStr) {
                     winner = 'attacker';
                     casualty = 'defender';
@@ -871,8 +879,9 @@ class GameState {
                 this.addLog(`🛡️ ${defenderPlayer.name}, Kışla (Sv3-B) ile son bir gayretle tekrar savunuyor!`, 'warning');
                 const reRes = this.calculateDuelStrength(defenderUnit, defenderPlayer, targetNode);
                 let newDStr = reRes.total;
-                if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) newDStr += 1;
-                this.addLog(`🎲 Yeniden Atış: [${reRes.rolls}] (Güç: ${newDStr}) vs Eski Saldırı (${aStr})`, 'info');
+                if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) { newDStr += 1; reRes.bonusTexts.push(`Sınıf Avantajı (+1)`); }
+                const reBonusStr = reRes.bonusTexts.length > 0 ? ` [Bonuslar: ${reRes.bonusTexts.join(', ')}]` : '';
+                this.addLog(`🎲 Yeniden Atış: Zar: ${reRes.rolls.join('+')}${reBonusStr} (Güç: ${newDStr}) vs Eski Saldırı (${aStr})`, 'info');
                 if (newDStr > aStr) {
                     winner = 'defender';
                     casualty = 'attacker';
@@ -916,10 +925,12 @@ class GameState {
         const aData = UNIT_DATA[attackerUnit.type];
         const dData = UNIT_DATA[defenderUnit.type];
 
-        if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) aStr += 1;
-        if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) dStr += 1;
+        if (aData.duelBonusVs && aData.duelBonusVs === dData.cls) { aStr += 1; aRes.bonusTexts.push(`Sınıf Avantajı (+1)`); }
+        if (dData.duelBonusVs && dData.duelBonusVs === aData.cls) { dStr += 1; dRes.bonusTexts.push(`Sınıf Avantajı (+1)`); }
 
-        this.addLog(`🏹 MENZİLLİ: ${aData.name} (Güç: ${aStr}) vs ${dData.name} (Güç: ${dStr}) [Zarlar: ${aRes.rolls} vs ${dRes.rolls}]`, 'info');
+        const aBonusStr = aRes.bonusTexts.length > 0 ? ` [Bonuslar: ${aRes.bonusTexts.join(', ')}]` : '';
+        const dBonusStr = dRes.bonusTexts.length > 0 ? ` [Bonuslar: ${dRes.bonusTexts.join(', ')}]` : '';
+        this.addLog(`🏹 MENZİLLİ: ${aData.name} [Güç: ${aStr} (Zar: ${aRes.rolls.join('+')})${aBonusStr}] vs ${dData.name} [Güç: ${dStr} (Zar: ${dRes.rolls.join('+')})${dBonusStr}]`, 'info');
 
         let winner = 'none';
         let casualty = 'none';
