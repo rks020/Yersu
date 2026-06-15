@@ -664,6 +664,27 @@ class GameState {
         });
     }
 
+    isSiegeUnitProtected(unit, player) {
+        if (!player || !player.bonusState || !player.bonusState.siegeInvulnerable) return false;
+        if (unit.type !== 'topcu' && unit.type !== 'mancinik') return false;
+
+        const node = this.grid.nodes.get(unit.nodeId);
+        if (!node) return false;
+
+        for (const hexId of node.hexes) {
+            const siege = this.sieges[hexId];
+            if (siege) {
+                const hex = this.grid.hexes.get(hexId);
+                if (hex && hex.settlement && hex.settlement.playerId === player.id) {
+                    if (hex.settlement.buildings.has('muhendishane')) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     resetTurnActions() {
         this.subPhase = 'production';
         this.players.forEach(p => {

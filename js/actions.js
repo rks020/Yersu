@@ -340,16 +340,22 @@ class Actions {
         combat.animation = '🏹';
 
         if (combat.casualty === 'defender') {
-            const defPlayer = this.state.players.find(pl => pl.id === combat.defender.unit.playerId);
             const killed = combat.defender.unit;
+            const defPlayerId = killed.playerId !== undefined ? killed.playerId : targetNode.army.playerId;
+            const defPlayer = this.state.players.find(pl => pl.id === defPlayerId);
             if (defPlayer && killed) {
-                targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
-                if (targetNode.army.units.length === 0) targetNode.army = null;
-                
-                if (!defPlayer._deadThisTurn) defPlayer._deadThisTurn = [];
-                defPlayer._deadThisTurn.push(JSON.parse(JSON.stringify(killed)));
-                
-                defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
+                if (this.state.isSiegeUnitProtected(killed, defPlayer)) {
+                    const unitName = UNIT_DATA[killed.type]?.name || killed.type;
+                    this.state.addLog(`🛡️ ${defPlayer.name}'in ${unitName} birimi şehir surlarına tahkim edildiği için yok edilemez.`, 'info');
+                } else {
+                    targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
+                    if (targetNode.army.units.length === 0) targetNode.army = null;
+                    
+                    if (!defPlayer._deadThisTurn) defPlayer._deadThisTurn = [];
+                    defPlayer._deadThisTurn.push(JSON.parse(JSON.stringify(killed)));
+                    
+                    defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
+                }
             }
         }
 
@@ -404,15 +410,20 @@ class Actions {
             combat.animation = '⚔️';
 
             if (combat.casualty === 'attacker') {
-                const sourceNode = this.state.grid.nodes.get(unit.nodeId);
-                if (sourceNode.army) {
-                    sourceNode.army.units = sourceNode.army.units.filter(u => u.uid !== unitUid);
-                    if (sourceNode.army.units.length === 0) sourceNode.army = null;
+                if (this.state.isSiegeUnitProtected(unit, p)) {
+                    const unitName = UNIT_DATA[unit.type]?.name || unit.type;
+                    this.state.addLog(`🛡️ ${p.name}'in ${unitName} birimi şehir surlarına tahkim edildiği için yok edilemez.`, 'info');
+                } else {
+                    const sourceNode = this.state.grid.nodes.get(unit.nodeId);
+                    if (sourceNode.army) {
+                        sourceNode.army.units = sourceNode.army.units.filter(u => u.uid !== unitUid);
+                        if (sourceNode.army.units.length === 0) sourceNode.army = null;
+                    }
+                    
+                    if (!p._deadThisTurn) p._deadThisTurn = [];
+                    p._deadThisTurn.push(JSON.parse(JSON.stringify(unit)));
+                    p.units = p.units.filter(u => u.uid !== unitUid);
                 }
-                
-                if (!p._deadThisTurn) p._deadThisTurn = [];
-                p._deadThisTurn.push(JSON.parse(JSON.stringify(unit)));
-                p.units = p.units.filter(u => u.uid !== unitUid);
                 
             } else if (combat.casualty === 'defender') {
                 const killed = combat.defender.unit;
@@ -420,12 +431,17 @@ class Actions {
                 const defPlayer = this.state.players.find(pl => pl.id === defPlayerId);
                 
                 if (defPlayer && killed) {
-                    targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
-                    if (targetNode.army.units.length === 0) targetNode.army = null;
-                    
-                    if (!defPlayer._deadThisTurn) defPlayer._deadThisTurn = [];
-                    defPlayer._deadThisTurn.push(JSON.parse(JSON.stringify(killed)));
-                    defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
+                    if (this.state.isSiegeUnitProtected(killed, defPlayer)) {
+                        const unitName = UNIT_DATA[killed.type]?.name || killed.type;
+                        this.state.addLog(`🛡️ ${defPlayer.name}'in ${unitName} birimi şehir surlarına tahkim edildiği için yok edilemez.`, 'info');
+                    } else {
+                        targetNode.army.units = targetNode.army.units.filter(u => u.uid !== killed.uid);
+                        if (targetNode.army.units.length === 0) targetNode.army = null;
+                        
+                        if (!defPlayer._deadThisTurn) defPlayer._deadThisTurn = [];
+                        defPlayer._deadThisTurn.push(JSON.parse(JSON.stringify(killed)));
+                        defPlayer.units = defPlayer.units.filter(u => u.uid !== killed.uid);
+                    }
                 }
             }
 
@@ -611,6 +627,28 @@ class Actions {
         // Oyuncu listelerini güncelle
         attacker.settlements.push(hexId);
         defender.settlements = defender.settlements.filter(id => id !== hexId);
+
+        // Surlara tahkim edilmiş olan (adjacent nodes) defender topçu ve mancınıklarını yok et
+        hex.nodeIds.forEach(nid => {
+            const node = this.state.grid.nodes.get(nid);
+            if (node && node.army && node.army.units.length > 0) {
+                const ownerId = node.army.playerId;
+                if (ownerId === defenderId) {
+                    const siegeUnits = node.army.units.filter(u => u.type === 'topcu' || u.type === 'mancinik');
+                    for (const u of siegeUnits) {
+                        const unitName = UNIT_DATA[u.type]?.name || u.type;
+                        this.state.addLog(`💀 Kuşatılan şehir (${hexId}) düştüğü için surlardaki ${unitName} birimi yok oldu.`, 'info');
+                        node.army.units = node.army.units.filter(unit => unit.uid !== u.uid);
+                        defender.units = defender.units.filter(unit => unit.uid !== u.uid);
+                        if (!defender._deadThisTurn) defender._deadThisTurn = [];
+                        defender._deadThisTurn.push(JSON.parse(JSON.stringify(u)));
+                    }
+                    if (node.army.units.length === 0) {
+                        node.army = null;
+                    }
+                }
+            }
+        });
 
         // Kuşatmayı kaldır
         delete this.state.sieges[hexId];
