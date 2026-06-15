@@ -1132,7 +1132,7 @@ class UI {
                 return {
                     id: i,
                     name: data.name,
-                    icon: data.emoji,
+                    icon: data.img ? data.img : data.emoji,
                     enabled: true,
                     costStr: '',
                     desc: 'Tapınak bonusuyla diriltilecek biriminizi seçin.'
