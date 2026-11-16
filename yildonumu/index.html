@@ -46,8 +46,8 @@
   /* Screens */
   .screen {
     position: fixed; inset: 0; z-index: 5;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 60px 28px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 70px 28px 90px; text-align: center;
     opacity: 0; visibility: hidden; transform: translateY(24px) scale(.98);
     transition: opacity .9s ease, transform .9s cubic-bezier(.2,.8,.2,1), visibility .9s;
     overflow-y: auto;
@@ -101,9 +101,9 @@
   .no-msg { margin-top: 34px; min-height: 1.6em; font-style: italic; color: var(--gold1); font-size: 1.25rem; transition: opacity .4s; }
 
   /* Choice cards */
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px; width: 100%; max-width: 980px; margin: 30px 0 36px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 16px; width: 100%; max-width: 1080px; margin: 30px 0 36px; }
   .card {
-    position: relative; padding: 28px 20px 24px; border-radius: 18px; cursor: pointer;
+    position: relative; padding: 22px 16px 18px; border-radius: 18px; cursor: pointer;
     background: linear-gradient(160deg, rgba(40,31,16,.85), rgba(16,12,7,.92));
     border: 1px solid rgba(212,175,55,.22);
     transition: transform .4s cubic-bezier(.2,.8,.2,1), border-color .4s, box-shadow .4s;
@@ -114,7 +114,7 @@
   .card:hover { transform: translateY(-6px); border-color: rgba(212,175,55,.6); box-shadow: 0 18px 50px rgba(0,0,0,.5), 0 0 30px rgba(212,175,55,.12); }
   .card.selected { border-color: var(--gold2); box-shadow: 0 0 0 1px var(--gold2), 0 0 40px rgba(212,175,55,.3); }
   .card.selected::after { content: "✦"; position: absolute; top: 12px; right: 16px; color: var(--gold2); font-size: 1.1rem; }
-  .card .ico { font-size: 2.4rem; margin-bottom: 12px; display: block; filter: saturate(.85); }
+  .card .ico { font-size: 2.1rem; margin-bottom: 10px; display: block; filter: saturate(.85); }
   .card h3 { font-family: "Cinzel", serif; font-weight: 600; letter-spacing: .12em; font-size: 1rem; color: var(--gold1); margin-bottom: 8px; text-transform: uppercase; }
   .card p { font-size: 1.05rem; color: var(--muted); font-style: italic; line-height: 1.4; }
 
@@ -172,7 +172,7 @@
   .screen.active .fade-in-seq > *:nth-child(6) { animation-delay: 1.45s; }
   .screen.active .fade-in-seq > *:nth-child(7) { animation-delay: 1.7s; }
   @keyframes rise { to { opacity: 1; transform: none; } }
-  .fade-in-seq { display: flex; flex-direction: column; align-items: center; width: 100%; }
+  .fade-in-seq { display: flex; flex-direction: column; align-items: center; width: 100%; margin: auto 0; }
 
   .music { position: fixed; bottom: 36px; right: 46px; z-index: 10; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(212,175,55,.45); background: rgba(20,15,8,.7); color: var(--gold1); cursor: pointer; font-size: 1.1rem; }
 
@@ -182,6 +182,10 @@
     .back { left: 26px; bottom: 26px; }
     .music { right: 24px; bottom: 22px; }
     .btn { padding: 16px 34px; }
+    .cards { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .card { padding: 18px 10px 14px; }
+    .card h3 { font-size: .85rem; letter-spacing: .08em; }
+    .card p { font-size: .95rem; }
   }
 </style>
 </head>
@@ -199,7 +203,7 @@
 <section class="screen active" id="s0">
   <div class="fade-in-seq">
     <div class="eyebrow">Sadece senin için</div>
-    <h1 class="script gold-text" id="herNameTitle">Sevgilim</h1>
+    <h1 class="script gold-text" id="herNameTitle">Bebeğim</h1>
     <div class="divider"><span></span><i>✦</i><span></span></div>
     <p class="lead">Seninle geçen her gün, hayatımın en güzel sayfası.<br/>Bugün sana küçük bir sorum var…</p>
     <div style="height:36px"></div>
@@ -256,11 +260,15 @@
       <div class="field"><label>Tarih</label><input type="date" id="dateInput" /></div>
     </div>
     <div class="times" id="times">
+      <button class="chip" data-v="18:00">18:00</button>
+      <button class="chip" data-v="18:30">18:30</button>
       <button class="chip" data-v="19:00">19:00</button>
       <button class="chip" data-v="19:30">19:30</button>
       <button class="chip" data-v="20:00">20:00</button>
       <button class="chip" data-v="20:30">20:30</button>
       <button class="chip" data-v="21:00">21:00</button>
+      <button class="chip" data-v="21:30">21:30</button>
+      <button class="chip" data-v="22:00">22:00</button>
     </div>
     <button class="btn btn-gold" id="next3">Devam</button>
   </div>
@@ -278,6 +286,14 @@
       <div class="card" data-v="Steakhouse"><span class="ico">🥩</span><h3>Steakhouse</h3><p>Kusursuz pişmiş et, kadife koltuklar</p></div>
       <div class="card" data-v="Boğaz'da Balık"><span class="ico">🐟</span><h3>Deniz Kenarı</h3><p>Boğaz manzarası eşliğinde balık</p></div>
       <div class="card" data-v="Fransız Bistrosu"><span class="ico">🥂</span><h3>Fransız</h3><p>Şampanya, şık tabaklar, Paris havası</p></div>
+      <div class="card" data-v="Fine Dining Tadım Menüsü"><span class="ico">🍽️</span><h3>Tadım Menüsü</h3><p>Şefin elinden 7 tabaklık bir yolculuk</p></div>
+      <div class="card" data-v="Meyhane"><span class="ico">🍷</span><h3>Meyhane</h3><p>Mezeler, fasıl ve bitmeyen sohbet</p></div>
+      <div class="card" data-v="Ocakbaşı & Kebap"><span class="ico">🔥</span><h3>Ocakbaşı</h3><p>Közde pişen lezzetler, sıcacık bir sofra</p></div>
+      <div class="card" data-v="Uzak Doğu – Thai & Çin"><span class="ico">🥢</span><h3>Uzak Doğu</h3><p>Baharatlı, egzotik ve renkli</p></div>
+      <div class="card" data-v="Meksika Mutfağı"><span class="ico">🌮</span><h3>Meksika</h3><p>Taco, guacamole ve margarita</p></div>
+      <div class="card" data-v="Hint Mutfağı"><span class="ico">🍛</span><h3>Hint</h3><p>Köri, naan ve büyülü baharatlar</p></div>
+      <div class="card" data-v="Rooftop Restoran"><span class="ico">🌆</span><h3>Rooftop</h3><p>Şehrin ışıkları ayaklarımızın altında</p></div>
+      <div class="card" data-v="Evde Romantik Yemek"><span class="ico">🕯️</span><h3>Evde Ben Pişiririm</h3><p>Mumlar, müzik ve şef kocan</p></div>
       <div class="card" data-v="Sürpriz – Bana bırak"><span class="ico">🎁</span><h3>Sürpriz</h3><p>Gözlerini kapat, gerisini bana bırak</p></div>
     </div>
     <button class="btn btn-gold" id="next4">Devam</button>
@@ -293,8 +309,16 @@
     <div class="cards" data-group="dessert">
       <div class="card" data-v="Çikolatalı Sufle"><span class="ico">🍫</span><h3>Sufle</h3><p>Sıcacık, akışkan çikolata</p></div>
       <div class="card" data-v="Tiramisu"><span class="ico">☕</span><h3>Tiramisu</h3><p>İtalya'dan bir öpücük</p></div>
-      <div class="card" data-v="Cheesecake"><span class="ico">🍰</span><h3>Cheesecake</h3><p>Frambuaz soslu, kremalı</p></div>
+      <div class="card" data-v="San Sebastian Cheesecake"><span class="ico">🍰</span><h3>Cheesecake</h3><p>Yanık yüzlü, kremalı San Sebastian</p></div>
       <div class="card" data-v="Künefe"><span class="ico">🍯</span><h3>Künefe</h3><p>Çıtır, sıcak, bol fıstıklı</p></div>
+      <div class="card" data-v="Crème Brûlée"><span class="ico">🍮</span><h3>Crème Brûlée</h3><p>Çıtır karamel, ipeksi krema</p></div>
+      <div class="card" data-v="Profiterol"><span class="ico">🧁</span><h3>Profiterol</h3><p>Bol çikolata soslu klasik</p></div>
+      <div class="card" data-v="Fıstıklı Baklava & Dondurma"><span class="ico">🥮</span><h3>Baklava</h3><p>Yanında kaymaklı dondurmayla</p></div>
+      <div class="card" data-v="Çikolata Fondü"><span class="ico">🍓</span><h3>Fondü</h3><p>Çilekleri birbirimize uzatalım</p></div>
+      <div class="card" data-v="İtalyan Gelato"><span class="ico">🍨</span><h3>Gelato</h3><p>Sahilde yürürken külahta</p></div>
+      <div class="card" data-v="Magnolia"><span class="ico">🍌</span><h3>Magnolia</h3><p>Muzlu, bisküvili, hafif</p></div>
+      <div class="card" data-v="Waffle"><span class="ico">🧇</span><h3>Waffle</h3><p>Meyveli, çikolatalı, bol mutlu</p></div>
+      <div class="card" data-v="Tatlı yerine sen yeter"><span class="ico">💋</span><h3>Sen</h3><p>En tatlı şey zaten karşımda</p></div>
     </div>
     <button class="btn btn-gold" id="next5">Devam</button>
   </div>
@@ -310,7 +334,15 @@
       <div class="card" data-v="Sahilde uzun bir yürüyüş"><span class="ico">🌙</span><h3>Yürüyüş</h3><p>Ay ışığında, el ele sahilde</p></div>
       <div class="card" data-v="Rooftop'ta bir kadeh"><span class="ico">🍸</span><h3>Rooftop</h3><p>Şehrin ışıklarına karşı bir kadeh</p></div>
       <div class="card" data-v="Evde dans & film"><span class="ico">🎶</span><h3>Evde Dans</h3><p>Bizim şarkımız, loş ışık, film</p></div>
-      <div class="card" data-v="Bir sürpriz daha"><span class="ico">✨</span><h3>Sürpriz</h3><p>Gecenin bir sırrı daha var…</p></div>
+      <div class="card" data-v="Boğaz'da tekne turu"><span class="ico">⛵</span><h3>Tekne Turu</h3><p>Gece Boğaz'ında, battaniyeye sarılı</p></div>
+      <div class="card" data-v="Caz bar & canlı müzik"><span class="ico">🎷</span><h3>Caz Bar</h3><p>Loş ışık, saksafon, sen ve ben</p></div>
+      <div class="card" data-v="Sinema"><span class="ico">🎬</span><h3>Sinema</h3><p>Tek patlamış mısır, iki pipet</p></div>
+      <div class="card" data-v="Karaoke"><span class="ico">🎤</span><h3>Karaoke</h3><p>Bizim şarkımızı bağıra bağıra</p></div>
+      <div class="card" data-v="Gece kahvesi & tatlı"><span class="ico">☕</span><h3>Kahve Molası</h3><p>Şirin bir kafede uzun sohbet</p></div>
+      <div class="card" data-v="Yıldız izleme"><span class="ico">✨</span><h3>Yıldızlar</h3><p>Şehirden uzakta, gökyüzüne bakarak</p></div>
+      <div class="card" data-v="Anı fotoğrafları çekimi"><span class="ico">📸</span><h3>Fotoğraf</h3><p>Bu geceyi ölümsüzleştirelim</p></div>
+      <div class="card" data-v="Otelde konaklama"><span class="ico">🏨</span><h3>Otel</h3><p>Gece hiç bitmesin</p></div>
+      <div class="card" data-v="Bir sürpriz daha"><span class="ico">🎁</span><h3>Sürpriz</h3><p>Gecenin bir sırrı daha var…</p></div>
     </div>
     <button class="btn btn-gold" id="next6">Davetiyemi Hazırla</button>
   </div>
@@ -343,7 +375,7 @@
 <script>
 /* ============ KİŞİSELLEŞTİR ============ */
 const CONFIG = {
-  herName: "Sevgilim",          // Eşinin adı / hitap (ör. "Ayşe" ya da "Prensesim")
+  herName: "Bebeğim",           // Eşinin adı / hitap (ör. "Ayşe" ya da "Prensesim")
   hisName: "Seni seven kocan",  // İmza
   years: 0,                     // Kaçıncı yıl dönümü? (0 = gösterme)
   whatsappNumber: ""            // Cevabın gelmesini istediğin numara, ör: "905321234567" (boş = kişi seçer)
@@ -366,6 +398,7 @@ function go(n, push = true) {
   if (!to || n === current) return;
   if (push) navStack.push(current);
   from.classList.remove("active");
+  to.scrollTop = 0;
   to.classList.add("active");
   current = n;
   // progress bar for planning steps 3..7
