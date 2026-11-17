@@ -176,6 +176,36 @@
 
   .music { position: fixed; bottom: 36px; right: 46px; z-index: 10; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(212,175,55,.45); background: rgba(20,15,8,.7); color: var(--gold1); cursor: pointer; font-size: 1.1rem; }
 
+
+  /* Anı fotoğrafları */
+  #memories { position: fixed; inset: 0; z-index: 4; pointer-events: none; overflow: hidden; }
+  .memory {
+    position: absolute; width: var(--w); padding: 10px 10px 34px; background: #f7f1e3;
+    border-radius: 3px; box-shadow: 0 20px 50px rgba(0,0,0,.65), 0 0 0 1px rgba(212,175,55,.5), 0 0 40px rgba(212,175,55,.18);
+    opacity: 0; transform: translateY(30px) rotate(var(--r)) scale(.85);
+    animation: memoryLife var(--life) cubic-bezier(.25,.8,.25,1) forwards;
+  }
+  .memory img { display: block; width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 2px; filter: sepia(.12) saturate(1.05); }
+  .memory::after { content: "♥"; position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; font-size: .95rem; color: var(--gold3); }
+  .memory::before { content: ""; position: absolute; top: -10px; left: 50%; width: 70px; height: 20px; transform: translateX(-50%) rotate(-3deg); background: linear-gradient(90deg, rgba(212,175,55,.55), rgba(249,230,166,.75), rgba(212,175,55,.55)); }
+  @keyframes memoryLife {
+    0%   { opacity: 0; transform: translateY(40px) rotate(calc(var(--r) - 8deg)) scale(.8); filter: blur(6px); }
+    14%  { opacity: 1; transform: translateY(0) rotate(var(--r)) scale(1); filter: blur(0); }
+    80%  { opacity: 1; transform: translateY(-18px) rotate(calc(var(--r) + 3deg)) scale(1.02); filter: blur(0); }
+    100% { opacity: 0; transform: translateY(-50px) rotate(calc(var(--r) + 6deg)) scale(.9); filter: blur(5px); }
+  }
+
+  /* Müzik mini oynatıcı */
+  .player { position: fixed; right: 46px; bottom: 92px; z-index: 10; width: 220px; padding: 8px; border-radius: 12px;
+    background: rgba(20,15,8,.85); border: 1px solid rgba(212,175,55,.45); box-shadow: 0 10px 40px rgba(0,0,0,.6);
+    opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity .5s, transform .5s; }
+  .player.show { opacity: 1; transform: none; pointer-events: auto; }
+  .player .ytwrap { width: 204px; height: 115px; border-radius: 8px; overflow: hidden; }
+  .player .ytwrap iframe { width: 100%; height: 100%; border: 0; }
+  .player small { display: block; margin-top: 6px; font-family: "Cinzel", serif; font-size: .62rem; letter-spacing: .18em; color: var(--gold1); text-align: center; }
+  .music.playing { animation: pulse 2s ease-in-out infinite; background: var(--gold-grad); color: #1a1306; }
+  @media (max-width: 600px) { .player { right: 16px; bottom: 74px; } }
+
   @media (max-width: 600px) {
     .frame { inset: 10px; }
     .invite { padding: 50px 24px 34px; }
@@ -197,7 +227,10 @@
 
 <div class="steps" id="steps"><b></b><b></b><b></b><b></b><b></b></div>
 <button class="back" id="backBtn">← GERİ</button>
-<button class="music" id="musicBtn" title="Müzik">♪</button>
+<button class="music" id="musicBtn" title="Total Eclipse of the Heart">♪</button>
+<div class="player" id="player"><div class="ytwrap"><div id="yt"></div></div><small>♪ Total Eclipse of the Heart</small></div>
+<audio id="localAudio" preload="auto"></audio>
+<div id="memories"></div>
 
 <!-- 0: Açılış -->
 <section class="screen active" id="s0">
@@ -291,7 +324,7 @@
       <div class="card" data-v="Ocakbaşı & Kebap"><span class="ico">🔥</span><h3>Ocakbaşı</h3><p>Közde pişen lezzetler, sıcacık bir sofra</p></div>
       <div class="card" data-v="Uzak Doğu – Thai & Çin"><span class="ico">🥢</span><h3>Uzak Doğu</h3><p>Baharatlı, egzotik ve renkli</p></div>
       <div class="card" data-v="Meksika Mutfağı"><span class="ico">🌮</span><h3>Meksika</h3><p>Taco, guacamole ve margarita</p></div>
-      <div class="card" data-v="Hint Mutfağı"><span class="ico">🍛</span><h3>Hint</h3><p>Köri, naan ve büyülü baharatlar</p></div>
+      <div class="card" data-v="Napoli Pizzası"><span class="ico">🍕</span><h3>Pizza</h3><p>Taş fırında, ince hamur, bol mozzarella</p></div>
       <div class="card" data-v="Rooftop Restoran"><span class="ico">🌆</span><h3>Rooftop</h3><p>Şehrin ışıkları ayaklarımızın altında</p></div>
       <div class="card" data-v="Evde Romantik Yemek"><span class="ico">🕯️</span><h3>Evde Ben Pişiririm</h3><p>Mumlar, müzik ve şef kocan</p></div>
       <div class="card" data-v="Sürpriz – Bana bırak"><span class="ico">🎁</span><h3>Sürpriz</h3><p>Gözlerini kapat, gerisini bana bırak</p></div>
@@ -378,7 +411,12 @@ const CONFIG = {
   herName: "Bebeğim",           // Eşinin adı / hitap (ör. "Ayşe" ya da "Prensesim")
   hisName: "Seni seven kocan",  // İmza
   years: 0,                     // Kaçıncı yıl dönümü? (0 = gösterme)
-  whatsappNumber: ""            // Cevabın gelmesini istediğin numara, ör: "905321234567" (boş = kişi seçer)
+  whatsappNumber: "",           // Cevabın gelmesini istediğin numara, ör: "905321234567" (boş = kişi seçer)
+  photos: ["foto/1.jpg", "foto/2.jpg", "foto/3.jpg", "foto/4.jpg", "foto/5.jpg", "foto/6.jpg"],
+  // Müzik: Bonnie Tyler – Total Eclipse of the Heart (nakarattan başlar)
+  youtubeId: "lcOxhH8N3Bo",     // Resmi klip
+  musicStart: 88,               // Saniye – "And I need you now tonight..." nakaratı. Kaydıysa buradan ayarla.
+  musicFile: ""                 // İstersen kendi mp3'ünü koy (ör. "muzik.mp3"); doluysa YouTube yerine bu çalar
 };
 /* ======================================= */
 
@@ -406,6 +444,7 @@ function go(n, push = true) {
   [...stepsEl.children].forEach((b, i) => b.classList.toggle("on", i <= n - 3));
   backBtn.classList.toggle("show", n >= 3);
   resetNo();
+  if (n === 7) startMemories(); else stopMemories();
 }
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => go(+b.dataset.go)));
 backBtn.addEventListener("click", () => { const p = navStack.pop(); if (p !== undefined) go(p, false); });
@@ -643,28 +682,89 @@ function drawConfetti() {
 }
 window.addEventListener("resize", initParticles);
 
-// Yumuşak romantik müzik (Web Audio – dosya gerekmez)
-let audioCtx = null, playing = false, musicTimer = null;
+/* ============ ANI FOTOĞRAFLARI ============ */
+const memEl = document.getElementById("memories");
+let memTimer = null, memIdx = 0, lastSide = "right";
+const shuffled = [...CONFIG.photos].sort(() => Math.random() - .5);
+CONFIG.photos.forEach(src => { const i = new Image(); i.src = src; }); // ön yükleme
+function spawnMemory() {
+  if (!shuffled.length) return;
+  const vw = innerWidth, vh = innerHeight;
+  const invite = document.querySelector(".invite").getBoundingClientRect();
+  const side = lastSide === "left" ? "right" : "left"; lastSide = side;
+  const w = Math.round(Math.min(230, Math.max(130, vw * .14)) * (0.85 + Math.random() * .3));
+  const h = w * 1.25 + 44;
+  const freeLeft = invite.left - 30, freeRight = vw - invite.right - 30;
+  const free = side === "left" ? freeLeft : freeRight;
+  let x;
+  if (free > w) x = side === "left" ? 24 + Math.random() * (free - w) : invite.right + 30 + Math.random() * (free - w);
+  else x = side === "left" ? 10 + Math.random() * 30 : vw - w - 10 - Math.random() * 30; // dar ekran
+  const y = 40 + Math.random() * Math.max(10, vh - h - 80);
+  const el = document.createElement("div");
+  el.className = "memory";
+  el.style.left = x + "px"; el.style.top = y + "px";
+  el.style.setProperty("--w", w + "px");
+  el.style.setProperty("--r", (Math.random() * 16 - 8).toFixed(1) + "deg");
+  const life = 6 + Math.random() * 2;
+  el.style.setProperty("--life", life + "s");
+  const img = document.createElement("img");
+  img.src = shuffled[memIdx++ % shuffled.length]; img.alt = "";
+  el.appendChild(img); memEl.appendChild(el);
+  setTimeout(() => el.remove(), life * 1000 + 100);
+}
+function startMemories() {
+  stopMemories();
+  setTimeout(spawnMemory, 900); setTimeout(spawnMemory, 2300);
+  memTimer = setInterval(spawnMemory, 2600);
+}
+function stopMemories() { clearInterval(memTimer); memTimer = null; memEl.innerHTML = ""; }
+
+/* ============ MÜZİK – Total Eclipse of the Heart ============ */
 const musicBtn = document.getElementById("musicBtn");
-const chords = [[261.63, 329.63, 392.0, 493.88], [220.0, 261.63, 329.63, 392.0], [174.61, 220.0, 261.63, 329.63], [196.0, 246.94, 293.66, 392.0]];
-function playChord(i) {
-  const t = audioCtx.currentTime;
-  chords[i % chords.length].forEach((f, k) => {
-    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.type = "sine"; o.frequency.value = f;
-    g.gain.setValueAtTime(0, t + k * .35);
-    g.gain.linearRampToValueAtTime(.05, t + k * .35 + .05);
-    g.gain.exponentialRampToValueAtTime(.0008, t + k * .35 + 3.2);
-    o.connect(g).connect(audioCtx.destination);
-    o.start(t + k * .35); o.stop(t + k * .35 + 3.3);
-  });
+const playerBox = document.getElementById("player");
+const localAudio = document.getElementById("localAudio");
+let yt = null, ytReady = false, playing = false, startedOnce = false;
+
+function setPlayingUI(on) {
+  playing = on;
+  musicBtn.textContent = on ? "❚❚" : "♪";
+  musicBtn.classList.toggle("playing", on);
+  if (!CONFIG.musicFile) playerBox.classList.toggle("show", on);
+}
+if (CONFIG.musicFile) {
+  localAudio.src = CONFIG.musicFile;
+  localAudio.addEventListener("ended", () => { localAudio.currentTime = CONFIG.musicStart; localAudio.play(); });
+} else {
+  const tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.head.appendChild(tag);
+  window.onYouTubeIframeAPIReady = () => {
+    yt = new YT.Player("yt", {
+      videoId: CONFIG.youtubeId,
+      playerVars: { start: CONFIG.musicStart, autoplay: 0, controls: 1, playsinline: 1, rel: 0, modestbranding: 1 },
+      events: {
+        onReady: () => { ytReady = true; },
+        onStateChange: e => {
+          if (e.data === YT.PlayerState.PLAYING) setPlayingUI(true);
+          if (e.data === YT.PlayerState.PAUSED) setPlayingUI(false);
+          if (e.data === YT.PlayerState.ENDED) { yt.seekTo(CONFIG.musicStart, true); yt.playVideo(); }
+        }
+      }
+    });
+  };
 }
 musicBtn.onclick = () => {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  playing = !playing;
-  musicBtn.textContent = playing ? "❚❚" : "♪";
-  if (playing) { let i = 0; playChord(i++); musicTimer = setInterval(() => playChord(i++), 2800); }
-  else clearInterval(musicTimer);
+  if (CONFIG.musicFile) {
+    if (playing) { localAudio.pause(); setPlayingUI(false); return; }
+    if (!startedOnce) { localAudio.currentTime = CONFIG.musicStart; startedOnce = true; }
+    localAudio.play().then(() => setPlayingUI(true)).catch(() => {});
+    return;
+  }
+  if (!ytReady) { playerBox.classList.add("show"); return; } // henüz yükleniyor; oynatıcıdan da başlatılabilir
+  if (playing) { yt.pauseVideo(); setPlayingUI(false); return; }
+  if (!startedOnce) { yt.seekTo(CONFIG.musicStart, true); startedOnce = true; }
+  yt.unMute(); yt.setVolume(80); yt.playVideo();
+  setPlayingUI(true);
 };
 </script>
 </body>
