@@ -177,6 +177,44 @@
   .music { position: fixed; bottom: 36px; right: 46px; z-index: 10; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(212,175,55,.45); background: rgba(20,15,8,.7); color: var(--gold1); cursor: pointer; font-size: 1.1rem; }
 
 
+
+  /* Restoran önerileri */
+  .resto { width: 100%; max-width: 980px; margin: 10px 0 40px; }
+  .resto .sub { font-size: 1.15rem; font-style: italic; color: var(--muted); margin: 4px 0 22px; }
+  .tabs { display: inline-flex; padding: 5px; border-radius: 999px; border: 1px solid rgba(212,175,55,.4); background: rgba(20,15,8,.7); margin-bottom: 26px; }
+  .tab { padding: 11px 26px; border-radius: 999px; border: none; background: none; color: var(--cream); font-family: "Cinzel", serif; letter-spacing: .18em; font-size: .78rem; cursor: pointer; transition: all .35s; }
+  .tab.on { background: var(--gold-grad); color: #1a1306; font-weight: 600; box-shadow: 0 6px 24px rgba(212,175,55,.35); }
+  .rlist { display: flex; flex-direction: column; gap: 14px; text-align: left; }
+  .rcard { position: relative; display: grid; grid-template-columns: 54px 1fr auto; gap: 18px; align-items: center; padding: 18px 22px; border-radius: 16px;
+    background: linear-gradient(160deg, rgba(40,31,16,.88), rgba(16,12,7,.94)); border: 1px solid rgba(212,175,55,.22);
+    opacity: 0; transform: translateY(14px); animation: rise .7s cubic-bezier(.2,.8,.2,1) forwards; transition: border-color .3s, box-shadow .3s; }
+  .rcard:hover { border-color: rgba(212,175,55,.55); }
+  .rcard.top { border-color: var(--gold2); box-shadow: 0 0 0 1px rgba(212,175,55,.6), 0 0 50px rgba(212,175,55,.2); padding: 26px 22px; }
+  .rcard.chosen { box-shadow: 0 0 0 2px var(--gold1), 0 0 50px rgba(249,230,166,.3); }
+  .rank { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-family: "Cinzel", serif; font-size: 1.3rem; color: var(--gold1); border: 1px solid rgba(212,175,55,.5); }
+  .rcard.top .rank { background: var(--gold-grad); color: #1a1306; border: none; font-size: 1.5rem; }
+  .badge { position: absolute; top: -12px; left: 22px; padding: 4px 14px; border-radius: 999px; background: var(--gold-grad); color: #1a1306; font-family: "Cinzel", serif; font-size: .66rem; letter-spacing: .18em; font-weight: 600; box-shadow: 0 4px 16px rgba(212,175,55,.4); }
+  .rname { font-family: "Cinzel", serif; font-size: 1.12rem; letter-spacing: .06em; color: var(--gold1); }
+  .rcard.top .rname { font-size: 1.3rem; }
+  .rmeta { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin: 4px 0 8px; font-size: 1.05rem; color: var(--muted); }
+  .stars { color: var(--gold2); letter-spacing: 1px; }
+  .stars b { color: var(--gold1); font-weight: 600; margin-right: 4px; }
+  .feats { display: flex; flex-wrap: wrap; gap: 6px; }
+  .feat { font-size: .92rem; padding: 3px 11px; border-radius: 999px; border: 1px solid rgba(212,175,55,.28); color: var(--cream); background: rgba(212,175,55,.06); }
+  .ractions { display: flex; flex-direction: column; gap: 8px; }
+  .rbtn { padding: 9px 16px; border-radius: 999px; font-family: "Cinzel", serif; font-size: .66rem; letter-spacing: .16em; text-decoration: none; text-align: center; cursor: pointer; white-space: nowrap; border: 1px solid rgba(212,175,55,.5); background: none; color: var(--gold1); transition: all .3s; }
+  .rbtn:hover { background: rgba(212,175,55,.12); }
+  .rbtn.pick { background: var(--gold-grad); color: #1a1306; border: none; font-weight: 600; }
+  .rnote { margin-top: 14px; font-size: .95rem; color: var(--muted); font-style: italic; opacity: .8; }
+  .rempty { padding: 30px; border: 1px dashed rgba(212,175,55,.35); border-radius: 16px; font-size: 1.25rem; font-style: italic; color: var(--gold1); }
+  @media (max-width: 600px) {
+    .rcard { grid-template-columns: 40px 1fr; padding: 18px 16px; gap: 12px; }
+    .rank { width: 40px; height: 40px; font-size: 1rem; }
+    .ractions { grid-column: 1 / -1; flex-direction: row; }
+    .ractions .rbtn { flex: 1; }
+    .tab { padding: 10px 16px; font-size: .68rem; }
+  }
+
   /* Anı fotoğrafları */
   #memories { position: fixed; inset: 0; z-index: 4; pointer-events: none; overflow: hidden; }
   .memory {
@@ -393,10 +431,23 @@
       <div class="invite-row"><span>Tarih</span><span id="rDate">—</span></div>
       <div class="invite-row"><span>Saat</span><span id="rTime">—</span></div>
       <div class="invite-row"><span>Sofra</span><span id="rCuisine">—</span></div>
+      <div class="invite-row" id="rPlaceRow" style="display:none"><span>Mekân</span><span id="rPlace">—</span></div>
       <div class="invite-row"><span>Tatlı</span><span id="rDessert">—</span></div>
       <div class="invite-row"><span>Sonrası</span><span id="rAfter">—</span></div>
       <p class="note">Kıyafet: En güzel gülüşün.<br/>Tek şart: Telefonlar çantada, gözler bende. ♥</p>
       <div class="sign gold-text" id="signName">Seni seven kocan</div>
+    </div>
+    <div class="resto" id="resto">
+      <div class="divider"><span></span><i>✦</i><span></span></div>
+      <div class="eyebrow" style="margin-bottom:6px">Google Haritalar'a göre</div>
+      <h2 class="script gold-text">Sana layık mekânlar</h2>
+      <p class="sub" id="restoSub">Seçimine göre İstanbul'un en yüksek puanlı restoranları</p>
+      <div class="tabs">
+        <button class="tab on" data-side="avrupa">Avrupa Yakası</button>
+        <button class="tab" data-side="anadolu">Anadolu Yakası</button>
+      </div>
+      <div class="rlist" id="rlist"></div>
+      <p class="rnote" id="rnote"></p>
     </div>
     <div class="btn-row">
       <a class="btn btn-gold" id="waBtn" target="_blank" style="text-decoration:none">WhatsApp'tan Gönder</a>
@@ -405,6 +456,7 @@
   </div>
 </section>
 
+<script src="restaurants.js"></script>
 <script>
 /* ============ KİŞİSELLEŞTİR ============ */
 const CONFIG = {
@@ -416,6 +468,7 @@ const CONFIG = {
   // Müzik: Bonnie Tyler – Total Eclipse of the Heart (nakarattan başlar)
   youtubeId: "lcOxhH8N3Bo",     // Resmi klip
   musicStart: 88,               // Saniye – "And I need you now tonight..." nakaratı. Kaydıysa buradan ayarla.
+  googleMapsApiKey: "",         // (İsteğe bağlı) Google Maps JS + Places API (New) anahtarı → puanlar canlı gelir
   musicFile: ""                 // İstersen kendi mp3'ünü koy (ör. "muzik.mp3"); doluysa YouTube yerine bu çalar
 };
 /* ======================================= */
@@ -424,7 +477,7 @@ document.getElementById("herNameTitle").textContent = CONFIG.herName;
 document.getElementById("signName").textContent = CONFIG.hisName;
 if (CONFIG.years > 0) document.getElementById("yearsEyebrow").textContent = CONFIG.years + ". Evlilik Yıl Dönümümüz";
 
-const state = { date: "", time: "", cuisine: "", dessert: "", after: "" };
+const state = { date: "", time: "", cuisine: "", dessert: "", after: "", place: "" };
 let current = 0;
 const navStack = [];
 const stepsEl = document.getElementById("steps");
@@ -553,7 +606,7 @@ document.getElementById("next4").onclick = () => { if (need(state.cuisine, docum
 document.getElementById("next5").onclick = () => { if (need(state.dessert, document.querySelector('[data-group="dessert"]'))) go(6); };
 document.getElementById("next6").onclick = () => {
   if (!need(state.after, document.querySelector('[data-group="after"]'))) return;
-  fillInvite(); go(7); setTimeout(fireConfetti, 600);
+  state.place = ""; fillInvite(); loadResto(); go(7); setTimeout(fireConfetti, 600);
 };
 
 function fmtDate(v) {
@@ -568,12 +621,14 @@ function fillInvite() {
   document.getElementById("rCuisine").textContent = state.cuisine;
   document.getElementById("rDessert").textContent = state.dessert;
   document.getElementById("rAfter").textContent = state.after;
+  document.getElementById("rPlaceRow").style.display = state.place ? "" : "none";
+  document.getElementById("rPlace").textContent = state.place;
   const text =
 `💛 Yıl dönümü davetini kabul ediyorum! 💛
 
 📅 Tarih: ${fmtDate(state.date)}
 🕰 Saat: ${state.time}
-🍽 Sofra: ${state.cuisine}
+🍽 Sofra: ${state.cuisine}${state.place ? `\n📍 Mekân: ${state.place}` : ""}
 🍰 Tatlı: ${state.dessert}
 🌙 Sonrası: ${state.after}
 
@@ -581,6 +636,125 @@ Seni seviyorum ♥`;
   const base = CONFIG.whatsappNumber ? `https://wa.me/${CONFIG.whatsappNumber}` : "https://wa.me/";
   document.getElementById("waBtn").href = `${base}?text=${encodeURIComponent(text)}`;
 }
+
+/* ============ RESTORAN ÖNERİLERİ ============ */
+const restoState = { side: "avrupa", data: null, live: false };
+const ANADOLU = ["Kadıköy","Üsküdar","Ataşehir","Maltepe","Kartal","Pendik","Beykoz","Ümraniye","Çekmeköy","Sancaktepe","Tuzla","Sultanbeyli","Şile","Adalar","Moda","Bağdat","Suadiye","Caddebostan","Çengelköy","Kandilli","Kuzguncuk","Fenerbahçe","Erenköy","Göztepe","Kalamış"];
+const LIVE_QUERY = {
+  "İtalyan Restoranı": "İtalyan restoranı", "Japon & Suşi": "suşi japon restoranı", "Steakhouse": "steakhouse",
+  "Boğaz'da Balık": "balık restoranı deniz kenarı", "Fransız Bistrosu": "Fransız restoranı", "Fine Dining Tadım Menüsü": "fine dining tadım menüsü",
+  "Meyhane": "meyhane", "Ocakbaşı & Kebap": "ocakbaşı kebap", "Uzak Doğu – Thai & Çin": "Thai Çin restoranı",
+  "Meksika Mutfağı": "Meksika restoranı", "Napoli Pizzası": "Napoli pizza", "Rooftop Restoran": "rooftop restoran manzaralı"
+};
+function restoKey() {
+  const c = state.cuisine;
+  if (c.startsWith("Sürpriz")) return "Fine Dining Tadım Menüsü";
+  return c;
+}
+const esc = t => String(t ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+function starStr(r) { const full = Math.round(r); return "★".repeat(full) + "☆".repeat(5 - full); }
+function mapsUrl(x) { return x.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(x.name + " " + (x.area || "") + " İstanbul")}`; }
+
+function renderResto() {
+  const box = document.getElementById("rlist");
+  const note = document.getElementById("rnote");
+  const restoEl = document.getElementById("resto");
+  if (state.cuisine.startsWith("Evde")) {
+    restoEl.querySelector(".tabs").style.display = "none";
+    box.innerHTML = `<div class="rempty">Bu gece restoran yok… En özel mekân bizim evimiz, şef de kocan 👨‍🍳♥</div>`;
+    note.textContent = ""; return;
+  }
+  restoEl.querySelector(".tabs").style.display = "";
+  const list = (restoState.data?.[restoState.side] || []).slice().sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
+  if (!list.length) { box.innerHTML = `<div class="rempty">Bu yaka için öneri bulunamadı.</div>`; return; }
+  box.innerHTML = list.map((x, i) => `
+    <div class="rcard ${i === 0 ? "top" : ""} ${state.place && state.place.startsWith(x.name) ? "chosen" : ""}" style="animation-delay:${i * 0.09}s">
+      ${i === 0 ? `<span class="badge">👑 En Yüksek Puan</span>` : ""}
+      <div class="rank">${i + 1}</div>
+      <div>
+        <div class="rname">${esc(x.name)}</div>
+        <div class="rmeta">
+          <span class="stars"><b>${x.rating ? x.rating.toFixed(1) : "—"}</b>${x.rating ? starStr(x.rating) : ""}</span>
+          ${x.count ? `<span>(${x.count.toLocaleString("tr-TR")} yorum)</span>` : ""}
+          <span>📍 ${esc(x.area)}</span>
+          ${x.price ? `<span style="color:var(--gold2)">${"₺".repeat(x.price)}</span>` : ""}
+        </div>
+        <div class="feats">${(x.features || []).map(f => `<span class="feat">${esc(f)}</span>`).join("")}</div>
+      </div>
+      <div class="ractions">
+        <a class="rbtn" href="${mapsUrl(x)}" target="_blank" rel="noopener">Haritada Gör</a>
+        <button class="rbtn pick" data-name="${esc(x.name)}" data-area="${esc(x.area)}">${state.place && state.place.startsWith(x.name) ? "Seçildi ♥" : "Burayı Seç"}</button>
+      </div>
+    </div>`).join("");
+  box.querySelectorAll(".pick").forEach(b => b.onclick = e => {
+    state.place = `${b.dataset.name} (${b.dataset.area})`;
+    fillInvite(); renderResto(); heartBurst(e.clientX, e.clientY);
+    document.querySelector(".invite").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+  note.textContent = restoState.live
+    ? "Puanlar ve yorum sayıları Google Haritalar'dan canlı alınmıştır."
+    : "Puanlar Google Haritalar verilerine dayanır, yaklaşık değerlerdir; güncel puan için \"Haritada Gör\"e dokun.";
+}
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
+  t.classList.add("on"); restoState.side = t.dataset.side; renderResto();
+});
+
+let mapsLoading = null;
+function loadMaps() {
+  if (mapsLoading) return mapsLoading;
+  mapsLoading = new Promise((res, rej) => {
+    window.__mapsReady = res;
+    const sc = document.createElement("script");
+    sc.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(CONFIG.googleMapsApiKey)}&v=weekly&loading=async&language=tr&region=TR&callback=__mapsReady`;
+    sc.onerror = rej; document.head.appendChild(sc);
+  });
+  return mapsLoading;
+}
+async function fetchLive(key) {
+  await loadMaps();
+  const { Place } = await google.maps.importLibrary("places");
+  const q = LIVE_QUERY[key] || key;
+  const fields = ["displayName", "rating", "userRatingCount", "formattedAddress", "priceLevel", "googleMapsURI", "types"];
+  const priceMap = { INEXPENSIVE: 1, MODERATE: 2, EXPENSIVE: 3, VERY_EXPENSIVE: 4 };
+  const run = async side => {
+    const { places } = await Place.searchByText({
+      textQuery: `${q} İstanbul ${side === "avrupa" ? "Avrupa Yakası Beşiktaş Beyoğlu Sarıyer Şişli" : "Anadolu Yakası Kadıköy Üsküdar"}`,
+      fields, maxResultCount: 20, language: "tr", region: "tr"
+    });
+    return places
+      .filter(p => (p.userRatingCount || 0) >= 150)
+      .filter(p => { const a = p.formattedAddress || ""; const isAn = ANADOLU.some(d => a.includes(d)); return side === "anadolu" ? isAn : !isAn; })
+      .map(p => {
+        const addr = (p.formattedAddress || "").split(",").map(s => s.trim());
+        const area = (addr.find(x => /\//.test(x)) || addr[1] || "İstanbul").replace(/^\d+\s*/, "").replace("/İstanbul", "");
+        const feats = [];
+        if (p.userRatingCount > 3000) feats.push("Çok popüler");
+        if (p.rating >= 4.7) feats.push("Mükemmel yorumlar");
+        if ((p.types || []).includes("bar")) feats.push("Bar");
+        feats.push(key.split(" ")[0]);
+        return { name: p.displayName, area, rating: p.rating, count: p.userRatingCount, price: priceMap[p.priceLevel] || 0, url: p.googleMapsURI, features: feats };
+      })
+      .sort((a, b) => b.rating - a.rating || b.count - a.count).slice(0, 5);
+  };
+  const [avrupa, anadolu] = await Promise.all([run("avrupa"), run("anadolu")]);
+  if (!avrupa.length && !anadolu.length) throw new Error("empty");
+  return { avrupa, anadolu };
+}
+async function loadResto() {
+  const key = restoKey();
+  document.getElementById("restoSub").textContent = state.cuisine.startsWith("Evde")
+    ? "Bu gece dışarı çıkmıyoruz 😉"
+    : `"${state.cuisine}" seçimine göre İstanbul'un en yüksek puanlı restoranları`;
+  restoState.data = (window.RESTAURANTS || {})[key] || null;
+  restoState.live = false;
+  renderResto();
+  if (CONFIG.googleMapsApiKey && !state.cuisine.startsWith("Evde")) {
+    try { restoState.data = await fetchLive(key); restoState.live = true; renderResto(); }
+    catch (err) { console.warn("Canlı Google verisi alınamadı, hazır liste kullanılıyor:", err); }
+  }
+}
+
 document.getElementById("restartBtn").onclick = () => {
   Object.keys(state).forEach(k => state[k] = "");
   document.querySelectorAll(".selected").forEach(x => x.classList.remove("selected"));
