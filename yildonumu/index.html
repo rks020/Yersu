@@ -181,9 +181,18 @@
   /* Restoran önerileri */
   .resto { width: 100%; max-width: 980px; margin: 10px 0 40px; }
   .resto .sub { font-size: 1.15rem; font-style: italic; color: var(--muted); margin: 4px 0 22px; }
-  .tabs { display: inline-flex; padding: 5px; border-radius: 999px; border: 1px solid rgba(212,175,55,.4); background: rgba(20,15,8,.7); margin-bottom: 26px; }
+  .rcontrols { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: center; margin-bottom: 26px; }
+  .tabs { display: inline-flex; padding: 5px; border-radius: 999px; border: 1px solid rgba(212,175,55,.4); background: rgba(20,15,8,.7); }
   .tab { padding: 11px 26px; border-radius: 999px; border: none; background: none; color: var(--cream); font-family: "Cinzel", serif; letter-spacing: .18em; font-size: .78rem; cursor: pointer; transition: all .35s; }
   .tab.on { background: var(--gold-grad); color: #1a1306; font-weight: 600; box-shadow: 0 6px 24px rgba(212,175,55,.35); }
+  .cselect-wrap { position: relative; display: inline-flex; align-items: center; }
+  .cselect { appearance: none; -webkit-appearance: none; padding: 12px 42px 12px 22px; border-radius: 999px;
+    border: 1px solid rgba(212,175,55,.55); background: rgba(20,15,8,.85); color: var(--gold1);
+    font-family: "Cinzel", serif; letter-spacing: .14em; font-size: .76rem; text-transform: uppercase; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(0,0,0,.45); transition: border-color .3s, box-shadow .3s; outline: none; }
+  .cselect:hover, .cselect:focus { border-color: var(--gold2); box-shadow: 0 0 24px rgba(212,175,55,.28); }
+  .cselect option { background: #140f08; color: var(--gold1); font-family: "Cormorant Garamond", serif; font-size: 1.05rem; }
+  .cselect-wrap::after { content: "▾"; position: absolute; right: 18px; color: var(--gold2); pointer-events: none; font-size: .9rem; }
   .rlist { display: flex; flex-direction: column; gap: 14px; text-align: left; }
   .rcard { position: relative; display: grid; grid-template-columns: 54px 1fr auto auto; gap: 18px; align-items: center; padding: 18px 22px; border-radius: 16px;
     background: linear-gradient(160deg, rgba(40,31,16,.88), rgba(16,12,7,.94)); border: 1px solid rgba(212,175,55,.22);
@@ -452,9 +461,28 @@
       <div class="eyebrow" style="margin-bottom:6px">Google Haritalar'a göre</div>
       <h2 class="script gold-text">Sana layık mekânlar</h2>
       <p class="sub" id="restoSub">Seçimine göre İstanbul'un en yüksek puanlı restoranları</p>
-      <div class="tabs">
-        <button class="tab on" data-side="avrupa">Avrupa Yakası</button>
-        <button class="tab" data-side="anadolu">Anadolu Yakası</button>
+      <div class="rcontrols">
+        <div class="tabs">
+          <button class="tab on" data-side="avrupa">Avrupa Yakası</button>
+          <button class="tab" data-side="anadolu">Anadolu Yakası</button>
+        </div>
+        <div class="cselect-wrap" title="Baştan seçmeden mutfak/mekân türünü değiştir">
+          <select class="cselect" id="cuisineSelect">
+            <option value="İtalyan Restoranı">🍝 İtalyan Restoranı</option>
+            <option value="Japon & Suşi">🍣 Japon & Suşi</option>
+            <option value="Steakhouse">🥩 Steakhouse</option>
+            <option value="Boğaz'da Balık">🐟 Boğaz'da Balık</option>
+            <option value="Fransız Bistrosu">🥂 Fransız Bistrosu</option>
+            <option value="Fine Dining Tadım Menüsü">🍽️ Fine Dining Tadım</option>
+            <option value="Meyhane">🍷 Meyhane</option>
+            <option value="Ocakbaşı & Kebap">🔥 Ocakbaşı & Kebap</option>
+            <option value="Uzak Doğu – Thai & Çin">🥢 Uzak Doğu – Thai & Çin</option>
+            <option value="Meksika Mutfağı">🌮 Meksika Mutfağı</option>
+            <option value="Napoli Pizzası">🍕 Napoli Pizzası</option>
+            <option value="Rooftop Restoran">🌆 Rooftop Restoran</option>
+            <option value="Evde Romantik Yemek">🕯️ Evde Ben Pişiririm</option>
+          </select>
+        </div>
       </div>
       <div class="rlist" id="rlist"></div>
       <p class="rnote" id="rnote"></p>
@@ -631,14 +659,20 @@ function fillInvite() {
   document.getElementById("rCuisine").textContent = state.cuisine;
   document.getElementById("rDessert").textContent = state.dessert;
   document.getElementById("rAfter").textContent = state.after;
-  document.getElementById("rPlaceRow").style.display = state.place ? "" : "none";
-  document.getElementById("rPlace").textContent = state.place;
+  const placeRow = document.getElementById("rPlaceRow");
+  if (state.place) {
+    placeRow.style.display = "";
+    document.getElementById("rPlace").textContent = state.place;
+  } else {
+    placeRow.style.display = "none";
+  }
   const text =
 `💛 Yıl dönümü davetini kabul ediyorum! 💛
 
 📅 Tarih: ${fmtDate(state.date)}
 🕰 Saat: ${state.time}
-🍽 Sofra: ${state.cuisine}${state.place ? `\n📍 Mekân: ${state.place}` : ""}
+🍽 Sofra: ${state.cuisine}
+📍 Mekân: ${state.place || "Birlikte seçeceğiz"}
 🍰 Tatlı: ${state.dessert}
 🌙 Sonrası: ${state.after}
 
@@ -671,12 +705,18 @@ function renderResto() {
   const restoEl = document.getElementById("resto");
   if (state.cuisine.startsWith("Evde")) {
     restoEl.querySelector(".tabs").style.display = "none";
+    state.place = "Bizim Evimiz (Şef: Kocan 👨‍🍳)";
+    fillInvite();
     box.innerHTML = `<div class="rempty">Bu gece restoran yok… En özel mekân bizim evimiz, şef de kocan 👨‍🍳♥</div>`;
     note.textContent = ""; return;
   }
   restoEl.querySelector(".tabs").style.display = "";
-      const list = (restoState.data?.[restoState.side] || []).slice().sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.count || 0) - (a.count || 0)).slice(0, 5);
+  const list = (restoState.data?.[restoState.side] || []).slice().sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.count || 0) - (a.count || 0)).slice(0, 5);
   if (!list.length) { box.innerHTML = `<div class="rempty">Bu yaka için öneri bulunamadı.</div>`; return; }
+  if (!state.place && list[0]) {
+    state.place = `${list[0].name} (${list[0].area})`;
+    fillInvite();
+  }
   box.innerHTML = list.map((x, i) => `
     <div class="rcard ${i === 0 ? "top" : ""} ${state.place && state.place.startsWith(x.name) ? "chosen" : ""}" style="animation-delay:${i * 0.09}s">
       ${i === 0 ? `<span class="badge">👑 En Yüksek Puan</span>` : ""}
@@ -709,8 +749,18 @@ function renderResto() {
 }
 document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
   document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
-  t.classList.add("on"); restoState.side = t.dataset.side; renderResto();
+  t.classList.add("on"); restoState.side = t.dataset.side;
+  state.place = "";
+  renderResto();
 });
+const cuisineSelect = document.getElementById("cuisineSelect");
+cuisineSelect.onchange = () => {
+  state.cuisine = cuisineSelect.value;
+  state.place = "";
+  document.querySelectorAll('[data-group="cuisine"] .card').forEach(c => c.classList.toggle("selected", c.dataset.v === state.cuisine));
+  loadResto();
+  fillInvite();
+};
 
 let mapsLoading = null;
 function loadMaps() {
@@ -755,6 +805,7 @@ async function fetchLive(key) {
 }
 async function loadResto() {
   const key = restoKey();
+  if (cuisineSelect && [...cuisineSelect.options].some(o => o.value === key)) cuisineSelect.value = key;
   document.getElementById("restoSub").textContent = state.cuisine.startsWith("Evde")
     ? "Bu gece dışarı çıkmıyoruz 😉"
     : `"${state.cuisine}" seçimine göre İstanbul'un en yüksek puanlı restoranları`;
