@@ -185,10 +185,19 @@
   .tab { padding: 11px 26px; border-radius: 999px; border: none; background: none; color: var(--cream); font-family: "Cinzel", serif; letter-spacing: .18em; font-size: .78rem; cursor: pointer; transition: all .35s; }
   .tab.on { background: var(--gold-grad); color: #1a1306; font-weight: 600; box-shadow: 0 6px 24px rgba(212,175,55,.35); }
   .rlist { display: flex; flex-direction: column; gap: 14px; text-align: left; }
-  .rcard { position: relative; display: grid; grid-template-columns: 54px 1fr auto; gap: 18px; align-items: center; padding: 18px 22px; border-radius: 16px;
+  .rcard { position: relative; display: grid; grid-template-columns: 54px 1fr auto auto; gap: 18px; align-items: center; padding: 18px 22px; border-radius: 16px;
     background: linear-gradient(160deg, rgba(40,31,16,.88), rgba(16,12,7,.94)); border: 1px solid rgba(212,175,55,.22);
     opacity: 0; transform: translateY(14px); animation: rise .7s cubic-bezier(.2,.8,.2,1) forwards; transition: border-color .3s, box-shadow .3s; }
-  .rcard:hover { border-color: rgba(212,175,55,.55); }
+  .rcard:hover { border-color: rgba(212,175,55,.55); z-index: 20; }
+  .rphotos { display: flex; gap: 12px; align-items: center; }
+  .rphoto { position: relative; width: 108px; height: 76px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(212,175,55,.45);
+    box-shadow: 0 6px 18px rgba(0,0,0,.55); cursor: zoom-in; background: #140f08;
+    transition: transform .38s cubic-bezier(.2,.85,.25,1.15), box-shadow .38s ease, border-color .3s; }
+  .rphoto img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
+  .rphoto span { position: absolute; bottom: 4px; right: 6px; padding: 1px 6px; border-radius: 6px; background: rgba(11,9,6,.75);
+    border: 1px solid rgba(212,175,55,.35); font-family: "Cinzel", serif; font-size: .52rem; letter-spacing: .12em; color: var(--gold1); pointer-events: none; }
+  .rphoto:hover { transform: scale(2.45) translateY(-6px); z-index: 40; border-color: var(--gold1);
+    box-shadow: 0 22px 55px rgba(0,0,0,.88), 0 0 28px rgba(212,175,55,.45); }
   .rcard.top { border-color: var(--gold2); box-shadow: 0 0 0 1px rgba(212,175,55,.6), 0 0 50px rgba(212,175,55,.2); padding: 26px 22px; }
   .rcard.chosen { box-shadow: 0 0 0 2px var(--gold1), 0 0 50px rgba(249,230,166,.3); }
   .rank { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-family: "Cinzel", serif; font-size: 1.3rem; color: var(--gold1); border: 1px solid rgba(212,175,55,.5); }
@@ -207,9 +216,12 @@
   .rbtn.pick { background: var(--gold-grad); color: #1a1306; border: none; font-weight: 600; }
   .rnote { margin-top: 14px; font-size: .95rem; color: var(--muted); font-style: italic; opacity: .8; }
   .rempty { padding: 30px; border: 1px dashed rgba(212,175,55,.35); border-radius: 16px; font-size: 1.25rem; font-style: italic; color: var(--gold1); }
-  @media (max-width: 600px) {
+  @media (max-width: 780px) {
     .rcard { grid-template-columns: 40px 1fr; padding: 18px 16px; gap: 12px; }
     .rank { width: 40px; height: 40px; font-size: 1rem; }
+    .rphotos { grid-column: 1 / -1; justify-content: center; }
+    .rphoto { flex: 1; max-width: 160px; height: 92px; }
+    .rphoto:hover { transform: scale(1.65); }
     .ractions { grid-column: 1 / -1; flex-direction: row; }
     .ractions .rbtn { flex: 1; }
     .tab { padding: 10px 16px; font-size: .68rem; }
@@ -681,6 +693,10 @@ function renderResto() {
         </div>
         <div class="feats">${(x.features || []).map(f => `<span class="feat">${esc(f)}</span>`).join("")}</div>
       </div>
+      ${(x.photos && x.photos.length) ? `
+      <div class="rphotos">
+        ${x.photos.slice(0, 2).map((p, idx) => `<div class="rphoto"><img src="${esc(p)}" alt="${esc(x.name)}" loading="lazy" /><span>${idx === 0 ? "DIŞ / GÖRÜNÜM" : "İÇ / DETAY"}</span></div>`).join("")}
+      </div>` : `<div></div>`}
       <div class="ractions">
         <a class="rbtn" href="${mapsUrl(x)}" target="_blank" rel="noopener">Haritada Gör</a>
         <button class="rbtn pick" data-name="${esc(x.name)}" data-area="${esc(x.area)}">${state.place && state.place.startsWith(x.name) ? "Seçildi ♥" : "Burayı Seç"}</button>

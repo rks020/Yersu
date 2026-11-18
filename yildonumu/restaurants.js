@@ -1,4 +1,4 @@
-// İstanbul Avrupa & Anadolu Yakası restoran önerileri (Google Haritalar gerçek puan & yorum sayıları)
+// İstanbul Avrupa & Anadolu Yakası restoran önerileri (Google Haritalar gerçek puan, yorum & görseller)
 window.RESTAURANTS = {
   "İtalyan Restoranı": {
     "avrupa": [
@@ -12,7 +12,11 @@ window.RESTAURANTS = {
           "Boğaz manzarası",
           "Odun fırını"
         ],
-        "count": 109
+        "count": 109,
+        "photos": [
+          "mekan/monteverdi-ristorante-conrad-besiktas-1.jpg",
+          "mekan/monteverdi-ristorante-conrad-besiktas-2.jpg"
+        ]
       },
       {
         "name": "Paper Moon",
@@ -24,7 +28,11 @@ window.RESTAURANTS = {
           "Şık ambiyans",
           "Köklü mekan"
         ],
-        "count": 1820
+        "count": 1820,
+        "photos": [
+          "mekan/paper-moon-etiler-1.jpg",
+          "mekan/paper-moon-etiler-2.jpg"
+        ]
       },
       {
         "name": "Terrazza Italia",
@@ -36,7 +44,11 @@ window.RESTAURANTS = {
           "Çatı terası",
           "Şehir manzarası"
         ],
-        "count": 475
+        "count": 475,
+        "photos": [
+          "mekan/terrazza-italia-zorlu-center-1.jpg",
+          "mekan/terrazza-italia-zorlu-center-2.jpg"
+        ]
       },
       {
         "name": "Mezzaluna",
@@ -48,7 +60,11 @@ window.RESTAURANTS = {
           "Şarap listesi",
           "Samimi ortam"
         ],
-        "count": 2362
+        "count": 2362,
+        "photos": [
+          "mekan/mezzaluna-nisantasi-1.jpg",
+          "mekan/mezzaluna-nisantasi-2.jpg"
+        ]
       },
       {
         "name": "Da Mario",
@@ -60,7 +76,11 @@ window.RESTAURANTS = {
           "El yapımı makarna",
           "Odun fırını"
         ],
-        "count": 1618
+        "count": 1618,
+        "photos": [
+          "mekan/da-mario-etiler-1.jpg",
+          "mekan/da-mario-etiler-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -74,7 +94,11 @@ window.RESTAURANTS = {
           "Bahçe",
           "Zengin şarap kavı"
         ],
-        "count": 1155
+        "count": 1155,
+        "photos": [
+          "mekan/la-mia-luce-suadiye-1.jpg",
+          "mekan/la-mia-luce-suadiye-2.jpg"
+        ]
       },
       {
         "name": "Ristorante Umberto",
@@ -86,7 +110,11 @@ window.RESTAURANTS = {
           "Murano avizeler",
           "Sakin ortam"
         ],
-        "count": 849
+        "count": 849,
+        "photos": [
+          "mekan/ristorante-umberto-caddebostan-1.jpg",
+          "mekan/ristorante-umberto-caddebostan-2.jpg"
+        ]
       },
       {
         "name": "Aida - Vino e Cucina",
@@ -98,7 +126,11 @@ window.RESTAURANTS = {
           "Tarihi ev",
           "Romantik loş ambiyans"
         ],
-        "count": 1887
+        "count": 1887,
+        "photos": [
+          "mekan/aida-vino-e-cucina-moda-1.jpg",
+          "mekan/aida-vino-e-cucina-moda-2.jpg"
+        ]
       },
       {
         "name": "Cotto Gastro",
@@ -110,7 +142,11 @@ window.RESTAURANTS = {
           "Ev yapımı makarna",
           "Napoli pizzası"
         ],
-        "count": 1944
+        "count": 1944,
+        "photos": [
+          "mekan/cotto-gastro-suadiye-1.jpg",
+          "mekan/cotto-gastro-suadiye-2.jpg"
+        ]
       },
       {
         "name": "Il Sud Giardino",
@@ -122,7 +158,11 @@ window.RESTAURANTS = {
           "Güney İtalya mutfağı",
           "Baş başa masa"
         ],
-        "count": 1335
+        "count": 1335,
+        "photos": [
+          "mekan/il-sud-giardino-caddebostan-1.jpg",
+          "mekan/il-sud-giardino-caddebostan-2.jpg"
+        ]
       }
     ]
   },
@@ -138,7 +178,11 @@ window.RESTAURANTS = {
           "Nikkei mutfağı",
           "Boğaz manzarası"
         ],
-        "count": 4806
+        "count": 4806,
+        "photos": [
+          "mekan/nobu-istanbul-ritz-carlton-1.jpg",
+          "mekan/nobu-istanbul-ritz-carlton-2.jpg"
+        ]
       },
       {
         "name": "İnari Omakase Kuruçeşme",
@@ -150,7 +194,11 @@ window.RESTAURANTS = {
           "Boğaz kenarı",
           "Yaratıcı roller"
         ],
-        "count": 1223
+        "count": 1223,
+        "photos": [
+          "mekan/inari-omakase-kurucesme-kurucesme-1.jpg",
+          "mekan/inari-omakase-kurucesme-kurucesme-2.jpg"
+        ]
       },
       {
         "name": "Zuma",
@@ -162,7 +210,11 @@ window.RESTAURANTS = {
           "Izakaya",
           "Kokteyl bar"
         ],
-        "count": 4326
+        "count": 4326,
+        "photos": [
+          "mekan/zuma-istinyepark-1.jpg",
+          "mekan/zuma-istinyepark-2.jpg"
+        ]
       },
       {
         "name": "Roka",
@@ -174,7 +226,11 @@ window.RESTAURANTS = {
           "Boğaz manzaralı teras",
           "Robata ızgara"
         ],
-        "count": 1252
+        "count": 1252,
+        "photos": [
+          "mekan/roka-galataport-1.jpg",
+          "mekan/roka-galataport-2.jpg"
+        ]
       },
       {
         "name": "Sankai by Nagaya",
@@ -186,7 +242,11 @@ window.RESTAURANTS = {
           "Omakase",
           "Sadece rezervasyon"
         ],
-        "count": 90
+        "count": 90,
+        "photos": [
+          "mekan/sankai-by-nagaya-bebek-1.jpg",
+          "mekan/sankai-by-nagaya-bebek-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -200,7 +260,11 @@ window.RESTAURANTS = {
           "Kokteyller",
           "Şık ambiyans"
         ],
-        "count": 1678
+        "count": 1678,
+        "photos": [
+          "mekan/machi-suadiye-1.jpg",
+          "mekan/machi-suadiye-2.jpg"
+        ]
       },
       {
         "name": "Yamo Sushi",
@@ -212,7 +276,11 @@ window.RESTAURANTS = {
           "Samimi ortam",
           "Bağdat Caddesi"
         ],
-        "count": 2029
+        "count": 2029,
+        "photos": [
+          "mekan/yamo-sushi-caddebostan-1.jpg",
+          "mekan/yamo-sushi-caddebostan-2.jpg"
+        ]
       },
       {
         "name": "Ken Sushi & More",
@@ -224,7 +292,11 @@ window.RESTAURANTS = {
           "Şık dekor",
           "Bağdat Caddesi"
         ],
-        "count": 1973
+        "count": 1973,
+        "photos": [
+          "mekan/ken-sushi-more-suadiye-1.jpg",
+          "mekan/ken-sushi-more-suadiye-2.jpg"
+        ]
       },
       {
         "name": "Kaen Sushi",
@@ -236,7 +308,11 @@ window.RESTAURANTS = {
           "Samimi ortam",
           "Gurme suşi"
         ],
-        "count": 3512
+        "count": 3512,
+        "photos": [
+          "mekan/kaen-sushi-kosuyolu-1.jpg",
+          "mekan/kaen-sushi-kosuyolu-2.jpg"
+        ]
       },
       {
         "name": "Maromi by Divan",
@@ -248,7 +324,11 @@ window.RESTAURANTS = {
           "Divan kalitesi",
           "Sakin ortam"
         ],
-        "count": 404
+        "count": 404,
+        "photos": [
+          "mekan/maromi-by-divan-kalamis-1.jpg",
+          "mekan/maromi-by-divan-kalamis-2.jpg"
+        ]
       }
     ]
   },
@@ -264,7 +344,11 @@ window.RESTAURANTS = {
           "Samimi ambiyans",
           "Kafes & NY strip"
         ],
-        "count": 3514
+        "count": 3514,
+        "photos": [
+          "mekan/elbet-steakhouse-etiler-1.jpg",
+          "mekan/elbet-steakhouse-etiler-2.jpg"
+        ]
       },
       {
         "name": "Günaydın Steakhouse",
@@ -276,7 +360,11 @@ window.RESTAURANTS = {
           "Lokum & Dallas",
           "Kasap tezgahı"
         ],
-        "count": 2086
+        "count": 2086,
+        "photos": [
+          "mekan/gunaydin-steakhouse-etiler-1.jpg",
+          "mekan/gunaydin-steakhouse-etiler-2.jpg"
+        ]
       },
       {
         "name": "Dükkan Steakhouse",
@@ -288,7 +376,11 @@ window.RESTAURANTS = {
           "Kasap konsepti",
           "Şarap seçkisi"
         ],
-        "count": 369
+        "count": 369,
+        "photos": [
+          "mekan/dukkan-steakhouse-etiler-1.jpg",
+          "mekan/dukkan-steakhouse-etiler-2.jpg"
+        ]
       },
       {
         "name": "Nusr-Et Steakhouse",
@@ -300,7 +392,11 @@ window.RESTAURANTS = {
           "Tomahawk",
           "Lüks ambiyans"
         ],
-        "count": 21431
+        "count": 21431,
+        "photos": [
+          "mekan/nusr-et-steakhouse-etiler-1.jpg",
+          "mekan/nusr-et-steakhouse-etiler-2.jpg"
+        ]
       },
       {
         "name": "Sunset Grill & Bar",
@@ -312,7 +408,11 @@ window.RESTAURANTS = {
           "Dry-aged steak",
           "Teras"
         ],
-        "count": 4674
+        "count": 4674,
+        "photos": [
+          "mekan/sunset-grill-bar-ulus-1.jpg",
+          "mekan/sunset-grill-bar-ulus-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -326,7 +426,11 @@ window.RESTAURANTS = {
           "Şık atmosfer",
           "Geniş et menüsü"
         ],
-        "count": 3704
+        "count": 3704,
+        "photos": [
+          "mekan/grill-branch-watergarden-1.jpg",
+          "mekan/grill-branch-watergarden-2.jpg"
+        ]
       },
       {
         "name": "Elbet Steakhouse Acıbadem",
@@ -338,7 +442,11 @@ window.RESTAURANTS = {
           "Şık sunum",
           "Kaliteli servis"
         ],
-        "count": 1197
+        "count": 1197,
+        "photos": [
+          "mekan/elbet-steakhouse-acibadem-acibadem-1.jpg",
+          "mekan/elbet-steakhouse-acibadem-acibadem-2.jpg"
+        ]
       },
       {
         "name": "Vino Steak",
@@ -350,7 +458,11 @@ window.RESTAURANTS = {
           "Bahçe",
           "Zengin şarap kavı"
         ],
-        "count": 21431
+        "count": 21431,
+        "photos": [
+          "mekan/vino-steak-goztepe-1.jpg",
+          "mekan/vino-steak-goztepe-2.jpg"
+        ]
       },
       {
         "name": "Beeves Steakhouse",
@@ -362,7 +474,11 @@ window.RESTAURANTS = {
           "Kendi çiftliği",
           "T-Bone"
         ],
-        "count": 957
+        "count": 957,
+        "photos": [
+          "mekan/beeves-steakhouse-atasehir-1.jpg",
+          "mekan/beeves-steakhouse-atasehir-2.jpg"
+        ]
       },
       {
         "name": "Günaydın Bağdat Caddesi",
@@ -374,7 +490,11 @@ window.RESTAURANTS = {
           "Kasap & steakhouse",
           "Lokum"
         ],
-        "count": 879
+        "count": 879,
+        "photos": [
+          "mekan/gunaydin-bagdat-caddesi-suadiye-1.jpg",
+          "mekan/gunaydin-bagdat-caddesi-suadiye-2.jpg"
+        ]
       }
     ]
   },
@@ -390,7 +510,11 @@ window.RESTAURANTS = {
           "Accademia eğitimli usta",
           "Küçük butik"
         ],
-        "count": 863
+        "count": 863,
+        "photos": [
+          "mekan/azzurro-pizza-napoletana-nisantasi-1.jpg",
+          "mekan/azzurro-pizza-napoletana-nisantasi-2.jpg"
+        ]
       },
       {
         "name": "49 Çukurcuma",
@@ -402,6 +526,10 @@ window.RESTAURANTS = {
           "İnce çıtır pizza",
           "Şarap & peynir",
           "Tarihi bina"
+        ],
+        "photos": [
+          "mekan/49-cukurcuma-cukurcuma-1.jpg",
+          "mekan/49-cukurcuma-cukurcuma-2.jpg"
         ]
       },
       {
@@ -414,7 +542,11 @@ window.RESTAURANTS = {
           "72 saat mayalanma",
           "İtalyan unu"
         ],
-        "count": 384
+        "count": 384,
+        "photos": [
+          "mekan/cortiletto-pizzeria-bar-tesvikiye-1.jpg",
+          "mekan/cortiletto-pizzeria-bar-tesvikiye-2.jpg"
+        ]
       },
       {
         "name": "Miss Pizza",
@@ -426,7 +558,11 @@ window.RESTAURANTS = {
           "20+ yıllık mekan",
           "Bohem ambiyans"
         ],
-        "count": 2100
+        "count": 2100,
+        "photos": [
+          "mekan/miss-pizza-cihangir-1.jpg",
+          "mekan/miss-pizza-cihangir-2.jpg"
+        ]
       },
       {
         "name": "Paps Italian",
@@ -438,7 +574,11 @@ window.RESTAURANTS = {
           "Napolili şef",
           "Uzun fermantasyon"
         ],
-        "count": 1507
+        "count": 1507,
+        "photos": [
+          "mekan/paps-italian-karakoy-1.jpg",
+          "mekan/paps-italian-karakoy-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -452,7 +592,11 @@ window.RESTAURANTS = {
           "Napoli hamuru",
           "Modern konsept"
         ],
-        "count": 878
+        "count": 878,
+        "photos": [
+          "mekan/gg-pizza-moda-1.jpg",
+          "mekan/gg-pizza-moda-2.jpg"
+        ]
       },
       {
         "name": "Porto Napoli Pizza",
@@ -464,7 +608,11 @@ window.RESTAURANTS = {
           "Yaratıcı pizzalar",
           "Butik mekan"
         ],
-        "count": 964
+        "count": 964,
+        "photos": [
+          "mekan/porto-napoli-pizza-yeldegirmeni-1.jpg",
+          "mekan/porto-napoli-pizza-yeldegirmeni-2.jpg"
+        ]
       },
       {
         "name": "Tarantella Pizza Napoletana",
@@ -476,7 +624,11 @@ window.RESTAURANTS = {
           "Ev yapımı tiramisu",
           "Samimi ortam"
         ],
-        "count": 585
+        "count": 585,
+        "photos": [
+          "mekan/tarantella-pizza-napoletana-moda-1.jpg",
+          "mekan/tarantella-pizza-napoletana-moda-2.jpg"
+        ]
       },
       {
         "name": "Napoli Pizza Company",
@@ -488,7 +640,11 @@ window.RESTAURANTS = {
           "Ekşi mayalı hamur",
           "Yüksek puan"
         ],
-        "count": 498
+        "count": 498,
+        "photos": [
+          "mekan/napoli-pizza-company-kadikoy-1.jpg",
+          "mekan/napoli-pizza-company-kadikoy-2.jpg"
+        ]
       },
       {
         "name": "Pizzeria Il Pellicano",
@@ -500,7 +656,11 @@ window.RESTAURANTS = {
           "Odun fırını",
           "Otantik Napoli"
         ],
-        "count": 1481
+        "count": 1481,
+        "photos": [
+          "mekan/pizzeria-il-pellicano-moda-1.jpg",
+          "mekan/pizzeria-il-pellicano-moda-2.jpg"
+        ]
       }
     ]
   },
@@ -516,6 +676,10 @@ window.RESTAURANTS = {
           "Boğaz kıyısında saray",
           "Michelin önerisi",
           "Köprü manzarası"
+        ],
+        "photos": [
+          "mekan/feriye-ortakoy-1.jpg",
+          "mekan/feriye-ortakoy-2.jpg"
         ]
       },
       {
@@ -528,7 +692,11 @@ window.RESTAURANTS = {
           "Boğaz manzarası",
           "Zengin meze çeşidi"
         ],
-        "count": 2710
+        "count": 2710,
+        "photos": [
+          "mekan/sur-balik-arnavutkoy-1.jpg",
+          "mekan/sur-balik-arnavutkoy-2.jpg"
+        ]
       },
       {
         "name": "Kıyı Restaurant",
@@ -540,7 +708,11 @@ window.RESTAURANTS = {
           "1960'lardan beri efsane",
           "Klasik mezeler"
         ],
-        "count": 1269
+        "count": 1269,
+        "photos": [
+          "mekan/kiyi-restaurant-tarabya-1.jpg",
+          "mekan/kiyi-restaurant-tarabya-2.jpg"
+        ]
       },
       {
         "name": "Rumelihisarı İskele Restaurant",
@@ -552,7 +724,11 @@ window.RESTAURANTS = {
           "Köprü manzarası",
           "Denizin üstünde"
         ],
-        "count": 1282
+        "count": 1282,
+        "photos": [
+          "mekan/rumelihisari-iskele-restaurant-rumelihisari-1.jpg",
+          "mekan/rumelihisari-iskele-restaurant-rumelihisari-2.jpg"
+        ]
       },
       {
         "name": "Zıpkın Balık",
@@ -564,7 +740,11 @@ window.RESTAURANTS = {
           "Modern mezeler",
           "Boğaz hattında"
         ],
-        "count": 313
+        "count": 313,
+        "photos": [
+          "mekan/zipkin-balik-arnavutkoy-1.jpg",
+          "mekan/zipkin-balik-arnavutkoy-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -578,6 +758,10 @@ window.RESTAURANTS = {
           "Michelin önerisi",
           "Zengin deniz mahsulleri",
           "Şık sahil restoranı"
+        ],
+        "photos": [
+          "mekan/calipso-fish-kucukyali-sahil-1.jpg",
+          "mekan/calipso-fish-kucukyali-sahil-2.jpg"
         ]
       },
       {
@@ -590,7 +774,11 @@ window.RESTAURANTS = {
           "200 yıllık taş bina",
           "Tekne servisi"
         ],
-        "count": 2147
+        "count": 2147,
+        "photos": [
+          "mekan/del-mare-cengelkoy-1.jpg",
+          "mekan/del-mare-cengelkoy-2.jpg"
+        ]
       },
       {
         "name": "Lacivert Restaurant",
@@ -602,7 +790,11 @@ window.RESTAURANTS = {
           "Gün batımı manzarası",
           "Romantik atmosfer"
         ],
-        "count": 3250
+        "count": 3250,
+        "photos": [
+          "mekan/lacivert-restaurant-anadoluhisari-1.jpg",
+          "mekan/lacivert-restaurant-anadoluhisari-2.jpg"
+        ]
       },
       {
         "name": "Uskumru Restaurant",
@@ -614,6 +806,10 @@ window.RESTAURANTS = {
           "Denize sıfır yalı",
           "Özel tekne servisi",
           "Köprü manzarası"
+        ],
+        "photos": [
+          "mekan/uskumru-restaurant-anadoluhisari-1.jpg",
+          "mekan/uskumru-restaurant-anadoluhisari-2.jpg"
         ]
       },
       {
@@ -626,7 +822,11 @@ window.RESTAURANTS = {
           "İskele yanında denize nazır",
           "Nostaljik ortam"
         ],
-        "count": 2856
+        "count": 2856,
+        "photos": [
+          "mekan/ismet-baba-kuzguncuk-1.jpg",
+          "mekan/ismet-baba-kuzguncuk-2.jpg"
+        ]
       }
     ]
   },
@@ -642,7 +842,11 @@ window.RESTAURANTS = {
           "Şık ve canlı ortam",
           "Ünlülerin uğrak yeri"
         ],
-        "count": 1285
+        "count": 1285,
+        "photos": [
+          "mekan/la-petite-maison-lpm-macka-palas-1.jpg",
+          "mekan/la-petite-maison-lpm-macka-palas-2.jpg"
+        ]
       },
       {
         "name": "Vakko L'Atelier",
@@ -654,7 +858,11 @@ window.RESTAURANTS = {
           "Pastane",
           "Moda evi atmosferi"
         ],
-        "count": 165
+        "count": 165,
+        "photos": [
+          "mekan/vakko-l-atelier-nisantasi-1.jpg",
+          "mekan/vakko-l-atelier-nisantasi-2.jpg"
+        ]
       },
       {
         "name": "Le Fumoir (The Georges Hotel)",
@@ -666,7 +874,11 @@ window.RESTAURANTS = {
           "Boğaz ve Tarihi Yarımada manzarası",
           "Kokteyl bar"
         ],
-        "count": 267
+        "count": 267,
+        "photos": [
+          "mekan/le-fumoir-the-georges-hotel-galata-1.jpg",
+          "mekan/le-fumoir-the-georges-hotel-galata-2.jpg"
+        ]
       },
       {
         "name": "Bistrot Français",
@@ -678,7 +890,11 @@ window.RESTAURANTS = {
           "Fransız Kültür Merkezi içinde",
           "Klasik bistro menü"
         ],
-        "count": 118
+        "count": 118,
+        "photos": [
+          "mekan/bistrot-francais-istiklal-caddesi-1.jpg",
+          "mekan/bistrot-francais-istiklal-caddesi-2.jpg"
+        ]
       },
       {
         "name": "Kruvasan İstanbul",
@@ -690,6 +906,10 @@ window.RESTAURANTS = {
           "Fransız bistro & pastane",
           "Nişantaşı klasiği",
           "Samimi atmosfer"
+        ],
+        "photos": [
+          "mekan/kruvasan-istanbul-tesvikiye-1.jpg",
+          "mekan/kruvasan-istanbul-tesvikiye-2.jpg"
         ]
       }
     ],
@@ -704,7 +924,11 @@ window.RESTAURANTS = {
           "Romantik atmosfer",
           "Şarap & şampanya"
         ],
-        "count": 91
+        "count": 91,
+        "photos": [
+          "mekan/franck-bistro-kadikoy-1.jpg",
+          "mekan/franck-bistro-kadikoy-2.jpg"
+        ]
       },
       {
         "name": "Divan Brasserie Kalamış",
@@ -716,6 +940,10 @@ window.RESTAURANTS = {
           "Marina & gün batımı",
           "Fransız-Akdeniz menü",
           "Romantik teras"
+        ],
+        "photos": [
+          "mekan/divan-brasserie-kalamis-kalamis-marina-1.jpg",
+          "mekan/divan-brasserie-kalamis-kalamis-marina-2.jpg"
         ]
       },
       {
@@ -728,7 +956,11 @@ window.RESTAURANTS = {
           "Canlı atmosfer",
           "Cadde üzerinde"
         ],
-        "count": 2160
+        "count": 2160,
+        "photos": [
+          "mekan/ysabel-brasserie-bagdat-caddesi-1.jpg",
+          "mekan/ysabel-brasserie-bagdat-caddesi-2.jpg"
+        ]
       },
       {
         "name": "Neni Brasserie",
@@ -740,7 +972,11 @@ window.RESTAURANTS = {
           "Poulet rôti",
           "Kokteyller"
         ],
-        "count": 1737
+        "count": 1737,
+        "photos": [
+          "mekan/neni-brasserie-caddebostan-1.jpg",
+          "mekan/neni-brasserie-caddebostan-2.jpg"
+        ]
       },
       {
         "name": "Brasserie Noir",
@@ -752,7 +988,11 @@ window.RESTAURANTS = {
           "Açılır tavan",
           "Canlı müzik"
         ],
-        "count": 515
+        "count": 515,
+        "photos": [
+          "mekan/brasserie-noir-suadiye-1.jpg",
+          "mekan/brasserie-noir-suadiye-2.jpg"
+        ]
       }
     ]
   },
@@ -768,7 +1008,11 @@ window.RESTAURANTS = {
           "Anadolu mutfağı yorumu",
           "Tadım menüsü"
         ],
-        "count": 1206
+        "count": 1206,
+        "photos": [
+          "mekan/turk-fatih-tutak-bomonti-1.jpg",
+          "mekan/turk-fatih-tutak-bomonti-2.jpg"
+        ]
       },
       {
         "name": "Nicole",
@@ -780,7 +1024,11 @@ window.RESTAURANTS = {
           "Teras & şehir manzarası",
           "Tadım menüsü"
         ],
-        "count": 769
+        "count": 769,
+        "photos": [
+          "mekan/nicole-tomtom-1.jpg",
+          "mekan/nicole-tomtom-2.jpg"
+        ]
       },
       {
         "name": "Mikla",
@@ -792,7 +1040,11 @@ window.RESTAURANTS = {
           "Çatı katı panoramik manzara",
           "Yeni Anadolu mutfağı"
         ],
-        "count": 2735
+        "count": 2735,
+        "photos": [
+          "mekan/mikla-tepebasi-1.jpg",
+          "mekan/mikla-tepebasi-2.jpg"
+        ]
       },
       {
         "name": "Neolokal",
@@ -804,7 +1056,11 @@ window.RESTAURANTS = {
           "Haliç manzarası",
           "Yeşil yıldız"
         ],
-        "count": 1373
+        "count": 1373,
+        "photos": [
+          "mekan/neolokal-karakoy-1.jpg",
+          "mekan/neolokal-karakoy-2.jpg"
+        ]
       },
       {
         "name": "Arkestra",
@@ -816,7 +1072,11 @@ window.RESTAURANTS = {
           "Açık mutfak",
           "Tadım menüsü"
         ],
-        "count": 653
+        "count": 653,
+        "photos": [
+          "mekan/arkestra-etiler-1.jpg",
+          "mekan/arkestra-etiler-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -830,7 +1090,11 @@ window.RESTAURANTS = {
           "Günlük set menü",
           "Samimi küçük mekan"
         ],
-        "count": 265
+        "count": 265,
+        "photos": [
+          "mekan/parvus-kalamis-1.jpg",
+          "mekan/parvus-kalamis-2.jpg"
+        ]
       },
       {
         "name": "Araf İstanbul",
@@ -842,7 +1106,11 @@ window.RESTAURANTS = {
           "Açık ateş mutfağı",
           "12 kişilik şef tezgahı"
         ],
-        "count": 511
+        "count": 511,
+        "photos": [
+          "mekan/araf-istanbul-kozyatagi-1.jpg",
+          "mekan/araf-istanbul-kozyatagi-2.jpg"
+        ]
       },
       {
         "name": "Sapa İstanbul",
@@ -854,7 +1122,11 @@ window.RESTAURANTS = {
           "Ateşte pişirme",
           "Tadım menüsü seçeneği"
         ],
-        "count": 811
+        "count": 811,
+        "photos": [
+          "mekan/sapa-istanbul-atasehir-1.jpg",
+          "mekan/sapa-istanbul-atasehir-2.jpg"
+        ]
       },
       {
         "name": "Aida - Vino e Cucina",
@@ -866,7 +1138,11 @@ window.RESTAURANTS = {
           "Tarihi Moda evi",
           "Geniş şarap kavı"
         ],
-        "count": 1887
+        "count": 1887,
+        "photos": [
+          "mekan/aida-vino-e-cucina-moda-1.jpg",
+          "mekan/aida-vino-e-cucina-moda-2.jpg"
+        ]
       },
       {
         "name": "Basta Neo Bistro",
@@ -878,7 +1154,11 @@ window.RESTAURANTS = {
           "Fransız eğitimli şefler",
           "Açık mutfak barı"
         ],
-        "count": 499
+        "count": 499,
+        "photos": [
+          "mekan/basta-neo-bistro-caddebostan-1.jpg",
+          "mekan/basta-neo-bistro-caddebostan-2.jpg"
+        ]
       }
     ]
   },
@@ -894,7 +1174,11 @@ window.RESTAURANTS = {
           "Yaratıcı mezeler",
           "Samimi küçük mekan"
         ],
-        "count": 2131
+        "count": 2131,
+        "photos": [
+          "mekan/aheste-asmalimescit-1.jpg",
+          "mekan/aheste-asmalimescit-2.jpg"
+        ]
       },
       {
         "name": "Asmalı Cavit",
@@ -906,7 +1190,11 @@ window.RESTAURANTS = {
           "Yaprak ciğer",
           "Rezervasyon şart"
         ],
-        "count": 1172
+        "count": 1172,
+        "photos": [
+          "mekan/asmali-cavit-asmalimescit-1.jpg",
+          "mekan/asmali-cavit-asmalimescit-2.jpg"
+        ]
       },
       {
         "name": "Agora Meyhanesi 1890",
@@ -918,6 +1206,10 @@ window.RESTAURANTS = {
           "1890'dan beri tarihi meyhane",
           "Zengin Girit & Rum mezeleri",
           "Nostaljik atmosfer"
+        ],
+        "photos": [
+          "mekan/agora-meyhanesi-1890-balat-1.jpg",
+          "mekan/agora-meyhanesi-1890-balat-2.jpg"
         ]
       },
       {
@@ -930,7 +1222,11 @@ window.RESTAURANTS = {
           "Canlı fasıl",
           "Balık & meze"
         ],
-        "count": 574
+        "count": 574,
+        "photos": [
+          "mekan/kor-agop-kumkapi-1.jpg",
+          "mekan/kor-agop-kumkapi-2.jpg"
+        ]
       },
       {
         "name": "Giritli",
@@ -942,7 +1238,11 @@ window.RESTAURANTS = {
           "Girit mezeleri",
           "Bahçe"
         ],
-        "count": 1410
+        "count": 1410,
+        "photos": [
+          "mekan/giritli-sultanahmet-1.jpg",
+          "mekan/giritli-sultanahmet-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -956,7 +1256,11 @@ window.RESTAURANTS = {
           "Özgün mezeler",
           "Hafta sonu müzik"
         ],
-        "count": 3144
+        "count": 3144,
+        "photos": [
+          "mekan/hane-kadikoy-kadikoy-carsi-1.jpg",
+          "mekan/hane-kadikoy-kadikoy-carsi-2.jpg"
+        ]
       },
       {
         "name": "Müsaade",
@@ -968,7 +1272,11 @@ window.RESTAURANTS = {
           "Vegan meze seçenekleri",
           "Samimi ortam"
         ],
-        "count": 767
+        "count": 767,
+        "photos": [
+          "mekan/musaade-caferaga-1.jpg",
+          "mekan/musaade-caferaga-2.jpg"
+        ]
       },
       {
         "name": "Viktor Levi Şarap Evi",
@@ -980,6 +1288,10 @@ window.RESTAURANTS = {
           "Tarihi konak ve büyülü bahçe",
           "Ev yapımı şaraplar & mezeler",
           "Romantik ambiyans"
+        ],
+        "photos": [
+          "mekan/viktor-levi-sarap-evi-moda-1.jpg",
+          "mekan/viktor-levi-sarap-evi-moda-2.jpg"
         ]
       },
       {
@@ -992,7 +1304,11 @@ window.RESTAURANTS = {
           "Bohem dekor",
           "Klasik mezeler"
         ],
-        "count": 2196
+        "count": 2196,
+        "photos": [
+          "mekan/piraye-meyhane-kadikoy-1.jpg",
+          "mekan/piraye-meyhane-kadikoy-2.jpg"
+        ]
       },
       {
         "name": "Cibalikapı Balıkçısı Moda",
@@ -1004,6 +1320,10 @@ window.RESTAURANTS = {
           "Deniz manzaralı",
           "Geleneksel & Girit mezeleri",
           "Sakin ve şık"
+        ],
+        "photos": [
+          "mekan/cibalikapi-balikcisi-moda-moda-sahil-1.jpg",
+          "mekan/cibalikapi-balikcisi-moda-moda-sahil-2.jpg"
         ]
       }
     ]
@@ -1020,6 +1340,10 @@ window.RESTAURANTS = {
           "Boğaz & Tarihi Yarımada manzarası",
           "Modern ocakbaşı",
           "Michelin önerisi"
+        ],
+        "photos": [
+          "mekan/ali-ocakbasi-karakoy-1.jpg",
+          "mekan/ali-ocakbasi-karakoy-2.jpg"
         ]
       },
       {
@@ -1032,7 +1356,11 @@ window.RESTAURANTS = {
           "Klasik şık salonlar",
           "Özel gün mekânı"
         ],
-        "count": 5237
+        "count": 5237,
+        "photos": [
+          "mekan/beyti-florya-1.jpg",
+          "mekan/beyti-florya-2.jpg"
+        ]
       },
       {
         "name": "Zübeyir Ocakbaşı",
@@ -1044,7 +1372,11 @@ window.RESTAURANTS = {
           "Zengin meze seçkisi",
           "Rakı sofrası"
         ],
-        "count": 4636
+        "count": 4636,
+        "photos": [
+          "mekan/zubeyir-ocakbasi-beyoglu-1.jpg",
+          "mekan/zubeyir-ocakbasi-beyoglu-2.jpg"
+        ]
       },
       {
         "name": "Develi Samatya",
@@ -1056,7 +1388,11 @@ window.RESTAURANTS = {
           "Gaziantep mutfağı",
           "Teras katı"
         ],
-        "count": 2667
+        "count": 2667,
+        "photos": [
+          "mekan/develi-samatya-samatya-1.jpg",
+          "mekan/develi-samatya-samatya-2.jpg"
+        ]
       },
       {
         "name": "Adana Ocakbaşı",
@@ -1068,7 +1404,11 @@ window.RESTAURANTS = {
           "Efsanevi Adana kebap",
           "Samimi mahalle havası"
         ],
-        "count": 2486
+        "count": 2486,
+        "photos": [
+          "mekan/adana-ocakbasi-kurtulus-1.jpg",
+          "mekan/adana-ocakbasi-kurtulus-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -1082,7 +1422,11 @@ window.RESTAURANTS = {
           "Geniş bahçe",
           "Tepsi kebabı"
         ],
-        "count": 2069
+        "count": 2069,
+        "photos": [
+          "mekan/affan-ocakbasi-feneryolu-1.jpg",
+          "mekan/affan-ocakbasi-feneryolu-2.jpg"
+        ]
       },
       {
         "name": "Alef Ocakbaşı",
@@ -1094,7 +1438,11 @@ window.RESTAURANTS = {
           "Yağlı kara & Adana",
           "Özgün mezeler"
         ],
-        "count": 948
+        "count": 948,
+        "photos": [
+          "mekan/alef-ocakbasi-fenerbahce-1.jpg",
+          "mekan/alef-ocakbasi-fenerbahce-2.jpg"
+        ]
       },
       {
         "name": "Tatar Salim",
@@ -1106,6 +1454,10 @@ window.RESTAURANTS = {
           "Michelin Bib Gourmand",
           "Odun ateşinde et",
           "Modern ve özenli servis"
+        ],
+        "photos": [
+          "mekan/tatar-salim-kucukbakkalkoy-1.jpg",
+          "mekan/tatar-salim-kucukbakkalkoy-2.jpg"
         ]
       },
       {
@@ -1118,7 +1470,11 @@ window.RESTAURANTS = {
           "Fıstıklı kebap & küşleme",
           "Samimi atmosfer"
         ],
-        "count": 972
+        "count": 972,
+        "photos": [
+          "mekan/ustam-ocakbasi-erenkoy-1.jpg",
+          "mekan/ustam-ocakbasi-erenkoy-2.jpg"
+        ]
       },
       {
         "name": "Borsa Restaurant",
@@ -1130,6 +1486,10 @@ window.RESTAURANTS = {
           "Adile Sultan Sarayı'nda Boğaz manzarası",
           "Klasik Türk & kebap mutfağı",
           "Özel gün mekânı"
+        ],
+        "photos": [
+          "mekan/borsa-restaurant-kandilli-1.jpg",
+          "mekan/borsa-restaurant-kandilli-2.jpg"
         ]
       }
     ]
@@ -1146,7 +1506,11 @@ window.RESTAURANTS = {
           "Bohem semt",
           "Rahat atmosfer"
         ],
-        "count": 1910
+        "count": 1910,
+        "photos": [
+          "mekan/pad-thai-cihangir-cihangir-1.jpg",
+          "mekan/pad-thai-cihangir-cihangir-2.jpg"
+        ]
       },
       {
         "name": "Shang Palace",
@@ -1158,7 +1522,11 @@ window.RESTAURANTS = {
           "Pekin ördeği",
           "El yapımı dim sum"
         ],
-        "count": 604
+        "count": 604,
+        "photos": [
+          "mekan/shang-palace-besiktas-1.jpg",
+          "mekan/shang-palace-besiktas-2.jpg"
+        ]
       },
       {
         "name": "Az Çok Thai",
@@ -1170,7 +1538,11 @@ window.RESTAURANTS = {
           "Samimi küçük salon",
           "Sokak lezzetleri"
         ],
-        "count": 1528
+        "count": 1528,
+        "photos": [
+          "mekan/az-cok-thai-cukurcuma-1.jpg",
+          "mekan/az-cok-thai-cukurcuma-2.jpg"
+        ]
       },
       {
         "name": "Çok Çok Thai",
@@ -1182,7 +1554,11 @@ window.RESTAURANTS = {
           "Thai Select ödüllü",
           "Kokteyl bar"
         ],
-        "count": 1879
+        "count": 1879,
+        "photos": [
+          "mekan/cok-cok-thai-asmalimescit-1.jpg",
+          "mekan/cok-cok-thai-asmalimescit-2.jpg"
+        ]
       },
       {
         "name": "Little China",
@@ -1194,7 +1570,11 @@ window.RESTAURANTS = {
           "Bebek sahili",
           "Butik 30 kişilik salon"
         ],
-        "count": 127
+        "count": 127,
+        "photos": [
+          "mekan/little-china-bebek-1.jpg",
+          "mekan/little-china-bebek-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -1208,7 +1588,11 @@ window.RESTAURANTS = {
           "Thai körileri",
           "Bağdat Cd. yakını"
         ],
-        "count": 760
+        "count": 760,
+        "photos": [
+          "mekan/quickchina-caddebostan-1.jpg",
+          "mekan/quickchina-caddebostan-2.jpg"
+        ]
       },
       {
         "name": "Piya Thai",
@@ -1220,7 +1604,11 @@ window.RESTAURANTS = {
           "Yeşil köri & Pad Thai",
           "Mango sticky rice"
         ],
-        "count": 680
+        "count": 680,
+        "photos": [
+          "mekan/piya-thai-moda-1.jpg",
+          "mekan/piya-thai-moda-2.jpg"
+        ]
       },
       {
         "name": "Kawaii Chinese & Sushi",
@@ -1232,7 +1620,11 @@ window.RESTAURANTS = {
           "Modern ambiyans",
           "Geniş menü"
         ],
-        "count": 1372
+        "count": 1372,
+        "photos": [
+          "mekan/kawaii-chinese-sushi-atasehir-1.jpg",
+          "mekan/kawaii-chinese-sushi-atasehir-2.jpg"
+        ]
       },
       {
         "name": "Chinese & Sushi Express",
@@ -1244,7 +1636,11 @@ window.RESTAURANTS = {
           "Sushi seçkisi",
           "Moda Caddesi"
         ],
-        "count": 399
+        "count": 399,
+        "photos": [
+          "mekan/chinese-sushi-express-moda-1.jpg",
+          "mekan/chinese-sushi-express-moda-2.jpg"
+        ]
       },
       {
         "name": "Konoha Sushi & Chinese",
@@ -1256,7 +1652,11 @@ window.RESTAURANTS = {
           "Cadde üzerinde",
           "Wok & noodle"
         ],
-        "count": 1505
+        "count": 1505,
+        "photos": [
+          "mekan/konoha-sushi-chinese-bostanci-1.jpg",
+          "mekan/konoha-sushi-chinese-bostanci-2.jpg"
+        ]
       }
     ]
   },
@@ -1272,7 +1672,11 @@ window.RESTAURANTS = {
           "Bahçe oturma",
           "Füzyon taco"
         ],
-        "count": 687
+        "count": 687,
+        "photos": [
+          "mekan/taco-tortilla-abbasaga-1.jpg",
+          "mekan/taco-tortilla-abbasaga-2.jpg"
+        ]
       },
       {
         "name": "Ranchero Fişekhane",
@@ -1284,6 +1688,10 @@ window.RESTAURANTS = {
           "Otantik Meksika mutfağı",
           "Tarihi Fişekhane atmosferi",
           "Margarita & fajita"
+        ],
+        "photos": [
+          "mekan/ranchero-fisekhane-fisekhane-1.jpg",
+          "mekan/ranchero-fisekhane-fisekhane-2.jpg"
         ]
       },
       {
@@ -1296,6 +1704,10 @@ window.RESTAURANTS = {
           "El yapımı tortilla",
           "Zengin taco & burrito",
           "Samimi ortam"
+        ],
+        "photos": [
+          "mekan/tacoroll-besiktas-kadikoy-1.jpg",
+          "mekan/tacoroll-besiktas-kadikoy-2.jpg"
         ]
       },
       {
@@ -1308,7 +1720,11 @@ window.RESTAURANTS = {
           "Taze tortilla",
           "Fajita & margarita"
         ],
-        "count": 2763
+        "count": 2763,
+        "photos": [
+          "mekan/ranchero-nisantasi-1.jpg",
+          "mekan/ranchero-nisantasi-2.jpg"
+        ]
       },
       {
         "name": "Toro Latin GastroBar",
@@ -1320,7 +1736,11 @@ window.RESTAURANTS = {
           "Latin mutfağı & ceviche",
           "Şık özel gün mekânı"
         ],
-        "count": 102
+        "count": 102,
+        "photos": [
+          "mekan/toro-latin-gastrobar-sariyer-1.jpg",
+          "mekan/toro-latin-gastrobar-sariyer-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -1334,7 +1754,11 @@ window.RESTAURANTS = {
           "Otantik sokak lezzeti",
           "Quesadilla"
         ],
-        "count": 574
+        "count": 574,
+        "photos": [
+          "mekan/chef-taus-kadikoy-1.jpg",
+          "mekan/chef-taus-kadikoy-2.jpg"
+        ]
       },
       {
         "name": "Taco Mano",
@@ -1346,7 +1770,11 @@ window.RESTAURANTS = {
           "Moda Caddesi yakını",
           "Rahat ortam"
         ],
-        "count": 189
+        "count": 189,
+        "photos": [
+          "mekan/taco-mano-moda-1.jpg",
+          "mekan/taco-mano-moda-2.jpg"
+        ]
       },
       {
         "name": "Superr Taco",
@@ -1358,7 +1786,11 @@ window.RESTAURANTS = {
           "Doyurucu porsiyonlar",
           "Cadde üzerinde"
         ],
-        "count": 1363
+        "count": 1363,
+        "photos": [
+          "mekan/superr-taco-suadiye-1.jpg",
+          "mekan/superr-taco-suadiye-2.jpg"
+        ]
       },
       {
         "name": "Ranchero",
@@ -1370,7 +1802,11 @@ window.RESTAURANTS = {
           "Geniş oturma alanı",
           "Zengin menü"
         ],
-        "count": 7153
+        "count": 7153,
+        "photos": [
+          "mekan/ranchero-suadiye-1.jpg",
+          "mekan/ranchero-suadiye-2.jpg"
+        ]
       },
       {
         "name": "W.I.N Mexican",
@@ -1382,7 +1818,11 @@ window.RESTAURANTS = {
           "Taco & bowl",
           "Moda ara sokakları"
         ],
-        "count": 155
+        "count": 155,
+        "photos": [
+          "mekan/w-i-n-mexican-moda-1.jpg",
+          "mekan/w-i-n-mexican-moda-2.jpg"
+        ]
       }
     ]
   },
@@ -1398,7 +1838,11 @@ window.RESTAURANTS = {
           "Teras",
           "Deniz ürünleri"
         ],
-        "count": 21001
+        "count": 21001,
+        "photos": [
+          "mekan/seven-hills-restaurant-sultanahmet-1.jpg",
+          "mekan/seven-hills-restaurant-sultanahmet-2.jpg"
+        ]
       },
       {
         "name": "Nicole",
@@ -1410,7 +1854,11 @@ window.RESTAURANTS = {
           "Tadım menüsü",
           "Michelin yıldızlı"
         ],
-        "count": 769
+        "count": 769,
+        "photos": [
+          "mekan/nicole-tomtom-1.jpg",
+          "mekan/nicole-tomtom-2.jpg"
+        ]
       },
       {
         "name": "Mikla",
@@ -1422,7 +1870,11 @@ window.RESTAURANTS = {
           "Michelin yıldızlı",
           "Kokteyl bar"
         ],
-        "count": 2735
+        "count": 2735,
+        "photos": [
+          "mekan/mikla-beyoglu-1.jpg",
+          "mekan/mikla-beyoglu-2.jpg"
+        ]
       },
       {
         "name": "Neolokal",
@@ -1434,7 +1886,11 @@ window.RESTAURANTS = {
           "Michelin yıldızlı",
           "Modern Anadolu mutfağı"
         ],
-        "count": 1373
+        "count": 1373,
+        "photos": [
+          "mekan/neolokal-karakoy-1.jpg",
+          "mekan/neolokal-karakoy-2.jpg"
+        ]
       },
       {
         "name": "Leb-i Derya",
@@ -1446,7 +1902,11 @@ window.RESTAURANTS = {
           "Teras",
           "Kokteyl bar"
         ],
-        "count": 2038
+        "count": 2038,
+        "photos": [
+          "mekan/leb-i-derya-beyoglu-1.jpg",
+          "mekan/leb-i-derya-beyoglu-2.jpg"
+        ]
       }
     ],
     "anadolu": [
@@ -1460,6 +1920,10 @@ window.RESTAURANTS = {
           "Havuz & ışık şovu manzaralı teras",
           "Kokteyl bar",
           "Canlı atmosfer"
+        ],
+        "photos": [
+          "mekan/ranchero-watergarden-teras-atasehir-1.jpg",
+          "mekan/ranchero-watergarden-teras-atasehir-2.jpg"
         ]
       },
       {
@@ -1472,7 +1936,11 @@ window.RESTAURANTS = {
           "Fine dining balık",
           "Yıl dönümü için ideal"
         ],
-        "count": 2147
+        "count": 2147,
+        "photos": [
+          "mekan/del-mare-cengelkoy-1.jpg",
+          "mekan/del-mare-cengelkoy-2.jpg"
+        ]
       },
       {
         "name": "Adella Seafood",
@@ -1484,6 +1952,10 @@ window.RESTAURANTS = {
           "Marina manzaralı teras",
           "Şık akşam yemeği",
           "Zengin şarap kavı"
+        ],
+        "photos": [
+          "mekan/adella-seafood-kalamis-1.jpg",
+          "mekan/adella-seafood-kalamis-2.jpg"
         ]
       },
       {
@@ -1496,7 +1968,11 @@ window.RESTAURANTS = {
           "Denize sıfır teras",
           "Romantik atmosfer"
         ],
-        "count": 3841
+        "count": 3841,
+        "photos": [
+          "mekan/villa-bosphorus-beylerbeyi-1.jpg",
+          "mekan/villa-bosphorus-beylerbeyi-2.jpg"
+        ]
       },
       {
         "name": "Ouzo Roof Restaurant",
@@ -1508,7 +1984,11 @@ window.RESTAURANTS = {
           "Çatı terası",
           "Canlı müzik"
         ],
-        "count": 981
+        "count": 981,
+        "photos": [
+          "mekan/ouzo-roof-restaurant-kalamis-1.jpg",
+          "mekan/ouzo-roof-restaurant-kalamis-2.jpg"
+        ]
       }
     ]
   }
