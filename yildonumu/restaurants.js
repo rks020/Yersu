@@ -1,4 +1,4 @@
-// İstanbul Avrupa & Anadolu Yakası restoran önerileri (Google Haritalar gerçek puan, yorum & görseller)
+// İstanbul Avrupa & Anadolu Yakası restoran önerileri (Google Haritalar gerçek puan, yorum & görseller - aktif mekanlar)
 window.RESTAURANTS = {
   "İtalyan Restoranı": {
     "avrupa": [
@@ -85,22 +85,6 @@ window.RESTAURANTS = {
     ],
     "anadolu": [
       {
-        "name": "La Mia Luce",
-        "area": "Suadiye",
-        "rating": 4.5,
-        "price": 3,
-        "features": [
-          "Ospitalità Italiana ödülü",
-          "Bahçe",
-          "Zengin şarap kavı"
-        ],
-        "count": 1155,
-        "photos": [
-          "mekan/la-mia-luce-suadiye-1.jpg",
-          "mekan/la-mia-luce-suadiye-2.jpg"
-        ]
-      },
-      {
         "name": "Ristorante Umberto",
         "area": "Caddebostan",
         "rating": 4.5,
@@ -130,6 +114,22 @@ window.RESTAURANTS = {
         "photos": [
           "mekan/aida-vino-e-cucina-moda-1.jpg",
           "mekan/aida-vino-e-cucina-moda-2.jpg"
+        ]
+      },
+      {
+        "name": "Trattoria Da Rosario",
+        "area": "Koşuyolu (Kadıköy)",
+        "rating": 4.3,
+        "count": 1413,
+        "price": 3,
+        "features": [
+          "İtalyan şef Rosario",
+          "Odun fırını & ev yapımı makarna",
+          "Sıcak bahçe ortamı"
+        ],
+        "photos": [
+          "mekan/trattoria-da-rosario-kosuyolu-1.jpg",
+          "mekan/trattoria-da-rosario-kosuyolu-2.jpg"
         ]
       },
       {
@@ -169,19 +169,19 @@ window.RESTAURANTS = {
   "Japon & Suşi": {
     "avrupa": [
       {
-        "name": "Nobu Istanbul",
-        "area": "Ritz-Carlton, Şişli",
+        "name": "Itsumi",
+        "area": "Levent (İş Kuleleri)",
         "rating": 4.6,
+        "count": 1212,
         "price": 4,
         "features": [
           "Michelin önerisi",
-          "Nikkei mutfağı",
-          "Boğaz manzarası"
+          "Japon şeften otantik suşi",
+          "Sakin ve zarif"
         ],
-        "count": 4806,
         "photos": [
-          "mekan/nobu-istanbul-ritz-carlton-1.jpg",
-          "mekan/nobu-istanbul-ritz-carlton-2.jpg"
+          "mekan/itsumi-levent-1.jpg",
+          "mekan/itsumi-levent-2.jpg"
         ]
       },
       {
@@ -198,6 +198,22 @@ window.RESTAURANTS = {
         "photos": [
           "mekan/inari-omakase-kurucesme-kurucesme-1.jpg",
           "mekan/inari-omakase-kurucesme-kurucesme-2.jpg"
+        ]
+      },
+      {
+        "name": "Akira Back İstanbul",
+        "area": "Ataköy Marina (JW Marriott)",
+        "rating": 4.4,
+        "count": 512,
+        "price": 4,
+        "features": [
+          "Michelin önerisi",
+          "Modern Japon & Kore füzyon",
+          "Şık ambiyans"
+        ],
+        "photos": [
+          "mekan/akira-back-istanbul-atakoy-marina-1.jpg",
+          "mekan/akira-back-istanbul-atakoy-marina-2.jpg"
         ]
       },
       {
@@ -230,22 +246,6 @@ window.RESTAURANTS = {
         "photos": [
           "mekan/roka-galataport-1.jpg",
           "mekan/roka-galataport-2.jpg"
-        ]
-      },
-      {
-        "name": "Sankai by Nagaya",
-        "area": "Bebek",
-        "rating": 4.3,
-        "price": 4,
-        "features": [
-          "Michelin yıldızlı",
-          "Omakase",
-          "Sadece rezervasyon"
-        ],
-        "count": 90,
-        "photos": [
-          "mekan/sankai-by-nagaya-bebek-1.jpg",
-          "mekan/sankai-by-nagaya-bebek-2.jpg"
         ]
       }
     ],
@@ -417,22 +417,6 @@ window.RESTAURANTS = {
     ],
     "anadolu": [
       {
-        "name": "Grill Branché",
-        "area": "Watergarden, Ataşehir",
-        "rating": 4.6,
-        "price": 3,
-        "features": [
-          "Açık mutfak",
-          "Şık atmosfer",
-          "Geniş et menüsü"
-        ],
-        "count": 3704,
-        "photos": [
-          "mekan/grill-branch-watergarden-1.jpg",
-          "mekan/grill-branch-watergarden-2.jpg"
-        ]
-      },
-      {
         "name": "Elbet Steakhouse Acıbadem",
         "area": "Acıbadem (Akasya)",
         "rating": 4.4,
@@ -449,19 +433,19 @@ window.RESTAURANTS = {
         ]
       },
       {
-        "name": "Vino Steak",
-        "area": "Göztepe",
+        "name": "Virginia Angus",
+        "area": "Moda (Kadıköy)",
         "rating": 4.2,
+        "count": 3609,
         "price": 3,
         "features": [
-          "Tarihi konak",
-          "Bahçe",
-          "Zengin şarap kavı"
+          "Kendi çiftliğinden dry-aged et",
+          "Döküm tavada lokum & antrikot",
+          "Moda'da köklü lezzet"
         ],
-        "count": 21431,
         "photos": [
-          "mekan/vino-steak-goztepe-1.jpg",
-          "mekan/vino-steak-goztepe-2.jpg"
+          "mekan/virginia-angus-moda-1.jpg",
+          "mekan/virginia-angus-moda-2.jpg"
         ]
       },
       {
@@ -494,6 +478,22 @@ window.RESTAURANTS = {
         "photos": [
           "mekan/gunaydin-bagdat-caddesi-suadiye-1.jpg",
           "mekan/gunaydin-bagdat-caddesi-suadiye-2.jpg"
+        ]
+      },
+      {
+        "name": "Gürkan Şef Steakhouse",
+        "area": "Batı Ataşehir",
+        "rating": 4.1,
+        "count": 1221,
+        "price": 4,
+        "features": [
+          "Dry-aged özel kesimler",
+          "Özel şovlu servis",
+          "Geniş ve şık salon"
+        ],
+        "photos": [
+          "mekan/gurkan-sef-steakhouse-bati-atasehir-1.jpg",
+          "mekan/gurkan-sef-steakhouse-bati-atasehir-2.jpg"
         ]
       }
     ]
@@ -549,19 +549,19 @@ window.RESTAURANTS = {
         ]
       },
       {
-        "name": "Miss Pizza",
-        "area": "Cihangir",
+        "name": "Miss Pizza Şişhane",
+        "area": "Şişhane (Beyoğlu)",
         "rating": 4.2,
+        "count": 2100,
         "price": 2,
         "features": [
-          "Odun fırını",
-          "20+ yıllık mekan",
-          "Bohem ambiyans"
+          "Odun fırını ince hamur",
+          "20+ yıllık klasik",
+          "Şarap & samimi ortam"
         ],
-        "count": 2100,
         "photos": [
-          "mekan/miss-pizza-cihangir-1.jpg",
-          "mekan/miss-pizza-cihangir-2.jpg"
+          "mekan/miss-pizza-sishane-sishane-1.jpg",
+          "mekan/miss-pizza-sishane-sishane-2.jpg"
         ]
       },
       {
@@ -833,22 +833,6 @@ window.RESTAURANTS = {
   "Fransız Bistrosu": {
     "avrupa": [
       {
-        "name": "La Petite Maison (LPM)",
-        "area": "Maçka Palas (Nişantaşı)",
-        "rating": 4.6,
-        "price": 4,
-        "features": [
-          "Nice/Akdeniz Fransız mutfağı",
-          "Şık ve canlı ortam",
-          "Ünlülerin uğrak yeri"
-        ],
-        "count": 1285,
-        "photos": [
-          "mekan/la-petite-maison-lpm-macka-palas-1.jpg",
-          "mekan/la-petite-maison-lpm-macka-palas-2.jpg"
-        ]
-      },
-      {
         "name": "Vakko L'Atelier",
         "area": "Nişantaşı",
         "rating": 4.5,
@@ -862,6 +846,22 @@ window.RESTAURANTS = {
         "photos": [
           "mekan/vakko-l-atelier-nisantasi-1.jpg",
           "mekan/vakko-l-atelier-nisantasi-2.jpg"
+        ]
+      },
+      {
+        "name": "Mürver Restaurant",
+        "area": "Karaköy (Novotel Teras)",
+        "rating": 4.4,
+        "count": 2766,
+        "price": 4,
+        "features": [
+          "Tarihi Yarımada & Boğaz manzarası",
+          "Michelin önerisi açık ateş",
+          "Romantik teras"
+        ],
+        "photos": [
+          "mekan/murver-restaurant-karakoy-1.jpg",
+          "mekan/murver-restaurant-karakoy-2.jpg"
         ]
       },
       {
@@ -881,22 +881,6 @@ window.RESTAURANTS = {
         ]
       },
       {
-        "name": "Bistrot Français",
-        "area": "İstiklal Caddesi (Beyoğlu)",
-        "rating": 4.4,
-        "price": 2,
-        "features": [
-          "Gizli bahçe",
-          "Fransız Kültür Merkezi içinde",
-          "Klasik bistro menü"
-        ],
-        "count": 118,
-        "photos": [
-          "mekan/bistrot-francais-istiklal-caddesi-1.jpg",
-          "mekan/bistrot-francais-istiklal-caddesi-2.jpg"
-        ]
-      },
-      {
         "name": "Kruvasan İstanbul",
         "area": "Teşvikiye (Nişantaşı)",
         "rating": 4.3,
@@ -910,6 +894,22 @@ window.RESTAURANTS = {
         "photos": [
           "mekan/kruvasan-istanbul-tesvikiye-1.jpg",
           "mekan/kruvasan-istanbul-tesvikiye-2.jpg"
+        ]
+      },
+      {
+        "name": "Parlé",
+        "area": "Zorlu Center (Beşiktaş)",
+        "rating": 3.9,
+        "count": 698,
+        "price": 4,
+        "features": [
+          "Güney Fransa & Akdeniz mutfağı",
+          "Şık teras ve bahçe",
+          "Zengin şarap kavı"
+        ],
+        "photos": [
+          "mekan/parl-zorlu-center-1.jpg",
+          "mekan/parl-zorlu-center-2.jpg"
         ]
       }
     ],
@@ -947,22 +947,6 @@ window.RESTAURANTS = {
         ]
       },
       {
-        "name": "Ysabel Brasserie",
-        "area": "Bağdat Caddesi",
-        "rating": 4.4,
-        "price": 3,
-        "features": [
-          "Avrupa bistro klasikleri",
-          "Canlı atmosfer",
-          "Cadde üzerinde"
-        ],
-        "count": 2160,
-        "photos": [
-          "mekan/ysabel-brasserie-bagdat-caddesi-1.jpg",
-          "mekan/ysabel-brasserie-bagdat-caddesi-2.jpg"
-        ]
-      },
-      {
         "name": "Neni Brasserie",
         "area": "Caddebostan",
         "rating": 4.4,
@@ -979,19 +963,35 @@ window.RESTAURANTS = {
         ]
       },
       {
-        "name": "Brasserie Noir",
+        "name": "Basta! Street Food Bar",
+        "area": "Caferağa (Kadıköy)",
+        "rating": 4.2,
+        "count": 3717,
+        "price": 2,
+        "features": [
+          "Fransız eğitimli şefler",
+          "Kuzu dürüm & sütlaç",
+          "Kadıköy klasiği"
+        ],
+        "photos": [
+          "mekan/basta-street-food-bar-caferaga-1.jpg",
+          "mekan/basta-street-food-bar-caferaga-2.jpg"
+        ]
+      },
+      {
+        "name": "Strada",
         "area": "Suadiye (Bağdat Cd.)",
-        "rating": 4.3,
+        "rating": 4.1,
+        "count": 883,
         "price": 3,
         "features": [
-          "Beyaz örtülü şık masalar",
-          "Açılır tavan",
-          "Canlı müzik"
+          "Avrupa bistro & brasserie",
+          "Bağdat Caddesi'nde şık bahçe",
+          "Kokteyl & şarap"
         ],
-        "count": 515,
         "photos": [
-          "mekan/brasserie-noir-suadiye-1.jpg",
-          "mekan/brasserie-noir-suadiye-2.jpg"
+          "mekan/strada-suadiye-1.jpg",
+          "mekan/strada-suadiye-2.jpg"
         ]
       }
     ]
@@ -1561,19 +1561,19 @@ window.RESTAURANTS = {
         ]
       },
       {
-        "name": "Little China",
-        "area": "Bebek",
-        "rating": 4.3,
-        "price": 3,
+        "name": "Banyan",
+        "area": "Ortaköy Sahil (Beşiktaş)",
+        "rating": 4.2,
+        "count": 904,
+        "price": 4,
         "features": [
-          "1994'ten beri",
-          "Bebek sahili",
-          "Butik 30 kişilik salon"
+          "Boğaz ve Ortaköy Camii manzarası",
+          "Asya füzyon mutfağı",
+          "Çok romantik teras"
         ],
-        "count": 127,
         "photos": [
-          "mekan/little-china-bebek-1.jpg",
-          "mekan/little-china-bebek-2.jpg"
+          "mekan/banyan-ortakoy-sahil-1.jpg",
+          "mekan/banyan-ortakoy-sahil-2.jpg"
         ]
       }
     ],
@@ -1663,22 +1663,6 @@ window.RESTAURANTS = {
   "Meksika Mutfağı": {
     "avrupa": [
       {
-        "name": "Taco & Tortilla",
-        "area": "Abbasağa (Beşiktaş)",
-        "rating": 4.9,
-        "price": 2,
-        "features": [
-          "Samimi kantina",
-          "Bahçe oturma",
-          "Füzyon taco"
-        ],
-        "count": 687,
-        "photos": [
-          "mekan/taco-tortilla-abbasaga-1.jpg",
-          "mekan/taco-tortilla-abbasaga-2.jpg"
-        ]
-      },
-      {
         "name": "Ranchero Fişekhane",
         "area": "Fişekhane (Zeytinburnu)",
         "rating": 4.6,
@@ -1727,19 +1711,35 @@ window.RESTAURANTS = {
         ]
       },
       {
-        "name": "Toro Latin GastroBar",
-        "area": "Sarıyer",
-        "rating": 4.1,
-        "price": 4,
+        "name": "Taco Department",
+        "area": "Akaretler (Beşiktaş)",
+        "rating": 4.3,
+        "count": 412,
+        "price": 2,
         "features": [
-          "Boğaz manzarası",
-          "Latin mutfağı & ceviche",
-          "Şık özel gün mekânı"
+          "Taze el yapımı taco",
+          "Akaretler atmosferi",
+          "Samimi mekan"
         ],
-        "count": 102,
         "photos": [
-          "mekan/toro-latin-gastrobar-sariyer-1.jpg",
-          "mekan/toro-latin-gastrobar-sariyer-2.jpg"
+          "mekan/taco-department-akaretler-1.jpg",
+          "mekan/taco-department-akaretler-2.jpg"
+        ]
+      },
+      {
+        "name": "Picante",
+        "area": "İstinyePark (Sarıyer)",
+        "rating": 4.0,
+        "count": 195,
+        "price": 3,
+        "features": [
+          "Otantik Meksika lezzetleri",
+          "Fajita & taco",
+          "Keyifli ortam"
+        ],
+        "photos": [
+          "mekan/picante-istinyepark-1.jpg",
+          "mekan/picante-istinyepark-2.jpg"
         ]
       }
     ],
@@ -1761,6 +1761,22 @@ window.RESTAURANTS = {
         ]
       },
       {
+        "name": "Tacoroll",
+        "area": "Moda (Kadıköy)",
+        "rating": 4.8,
+        "count": 303,
+        "price": 2,
+        "features": [
+          "El yapımı taze taco",
+          "Ev yapımı soslar",
+          "Moda ruhu"
+        ],
+        "photos": [
+          "mekan/tacoroll-moda-1.jpg",
+          "mekan/tacoroll-moda-2.jpg"
+        ]
+      },
+      {
         "name": "Taco Mano",
         "area": "Moda (Kadıköy)",
         "rating": 4.7,
@@ -1777,19 +1793,19 @@ window.RESTAURANTS = {
         ]
       },
       {
-        "name": "Superr Taco",
-        "area": "Suadiye (Bağdat Cd.)",
+        "name": "Ranchero Watergarden",
+        "area": "Batı Ataşehir",
         "rating": 4.5,
-        "price": 2,
+        "count": 1758,
+        "price": 3,
         "features": [
-          "Tex-Mex",
-          "Doyurucu porsiyonlar",
-          "Cadde üzerinde"
+          "Otantik Meksika mutfağı",
+          "Havuz manzaralı teras",
+          "Margarita & fajita"
         ],
-        "count": 1363,
         "photos": [
-          "mekan/superr-taco-suadiye-1.jpg",
-          "mekan/superr-taco-suadiye-2.jpg"
+          "mekan/ranchero-watergarden-bati-atasehir-1.jpg",
+          "mekan/ranchero-watergarden-bati-atasehir-2.jpg"
         ]
       },
       {
@@ -1806,22 +1822,6 @@ window.RESTAURANTS = {
         "photos": [
           "mekan/ranchero-suadiye-1.jpg",
           "mekan/ranchero-suadiye-2.jpg"
-        ]
-      },
-      {
-        "name": "W.I.N Mexican",
-        "area": "Moda (Kadıköy)",
-        "rating": 4.1,
-        "price": 2,
-        "features": [
-          "Samimi atmosfer",
-          "Taco & bowl",
-          "Moda ara sokakları"
-        ],
-        "count": 155,
-        "photos": [
-          "mekan/w-i-n-mexican-moda-1.jpg",
-          "mekan/w-i-n-mexican-moda-2.jpg"
         ]
       }
     ]
@@ -1893,19 +1893,19 @@ window.RESTAURANTS = {
         ]
       },
       {
-        "name": "Leb-i Derya",
-        "area": "Beyoğlu (Kumbaracı)",
-        "rating": 4.2,
-        "price": 3,
+        "name": "16 Roof",
+        "area": "Beşiktaş (Swissôtel The Bosphorus)",
+        "rating": 4.3,
+        "count": 621,
+        "price": 4,
         "features": [
-          "Boğaz manzarası",
-          "Teras",
-          "Kokteyl bar"
+          "Panoramik Boğaz manzarası",
+          "Açık hava çatı terası",
+          "DJ & imza kokteyller"
         ],
-        "count": 2038,
         "photos": [
-          "mekan/leb-i-derya-beyoglu-1.jpg",
-          "mekan/leb-i-derya-beyoglu-2.jpg"
+          "mekan/16-roof-besiktas-1.jpg",
+          "mekan/16-roof-besiktas-2.jpg"
         ]
       }
     ],
